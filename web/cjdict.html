@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chinese Quiz</title>
+  </head>
+
+  <body>
+    <div id="vocab" lang="zh-CN" style="font-size: 40px"></div>
+    <form>
+      <input
+        type="text"
+        id="type-input"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+      />
+    </form>
+    <div id="type-compare"></div>
+
+    <script>
+      let currentVocab;
+
+      const elInput = document.getElementById("type-input");
+
+      elInput.parentElement.addEventListener("submit", onsubmit);
+
+      function onsubmit(ev) {
+        ev.preventDefault();
+
+        const elCompare = document.getElementById("type-compare");
+
+        if (elCompare.innerText) {
+          newVocab().then(() => {
+            elInput.value = "";
+            elCompare.innerText = "";
+          });
+        } else {
+          elCompare.innerText = currentVocab.pinyin;
+        }
+
+        return false;
+      }
+
+      async function newVocab() {
+        currentVocab = await pywebview.api.new_vocab();
+        document.getElementById("vocab").innerText = currentVocab.simp;
+      }
+    </script>
+  </body>
+</html>

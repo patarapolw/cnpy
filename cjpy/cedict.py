@@ -1,3 +1,5 @@
+from wordfreq import zipf_frequency
+
 import json
 
 from cjpy.db import db
@@ -16,6 +18,7 @@ def load_db():
 
         CREATE INDEX IF NOT EXISTS idx_cedict_simp_trad ON cedict (simp, trad);
         CREATE INDEX IF NOT EXISTS idx_cedict_pinyin ON cedict (pinyin);
+        CREATE INDEX IF NOT EXISTS idx_cedict_wordfreq ON cedict (json_extract([data], '$.wordfreq'));
         """
     )
     populate_db()
@@ -68,6 +71,48 @@ def populate_db():
 
         db.commit()
 
+    f_dict = {}
+
+    for r in db.execute(
+        "SELECT simp FROM cedict WHERE json_extract([data], '$.wordfreq') IS NULL"
+    ):
+        v = r["simp"]
+        if v not in f_dict:
+            f_dict[v] = zipf_frequency(v, "zh")
+
+    for v, f in f_dict.items():
+        db.execute(
+            """
+            UPDATE cedict SET
+                [data] = json_set(IFNULL([data], '{}'), '$.wordfreq', ?)
+            WHERE simp = ?
+            """,
+            (f, v),
+        )
+
+    db.commit()
+
 
 if __name__ == "__main__":
+    import webview
+
     load_db()
+
+    class Api:
+        def new_vocab(self):
+            r = dict(
+                db.execute(
+                    """
+                    SELECT simp, REPLACE(GROUP_CONCAT(DISTINCT pinyin), ',', '; ') pinyin
+                    FROM cedict
+                    WHERE json_extract([data], '$.wordfreq') > 5
+                    GROUP BY simp
+                    ORDER BY RANDOM() LIMIT 1
+                    """
+                ).fetchone()
+            )
+            print(r)
+            return r
+
+    win = webview.create_window("Pinyin Quiz", "../web/cjdict.html", js_api=Api())
+    webview.start(lambda: win.evaluate_js("newVocab()"))

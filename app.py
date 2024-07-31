@@ -1,26 +1,14 @@
-from PySide6.QtWidgets import QMainWindow, QApplication, QPushButton
-
-import sys
-
-from cjpy import load_db
+import webview
 
 
-class MainWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
-
-        self.setWindowTitle("Hello World")
-
-        button = QPushButton("My simple app.")
-        button.pressed.connect(self.close)
-
-        self.setCentralWidget(button)
-        self.show()
+class Api:
+    def log(self, value):
+        print(value)
 
 
-if __name__ == "__main__":
-    load_db()
-
-    app = QApplication(sys.argv)
-    w = MainWindow()
-    app.exec()
+webview.create_window(
+    "Test",
+    html="<button onclick='pywebview.api.log(\"Woah dude!\")'>Click me</button>",
+    js_api=Api(),
+)
+webview.start()
