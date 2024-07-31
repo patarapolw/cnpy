@@ -101,6 +101,10 @@
 
         <span class="count" data-count-type="total">20</span>
 
+        <span>&nbsp;(</span>
+        <span class="count" data-count-type="pool">20</span>
+        <span>)</span>
+
         <div style="flex-grow: 1"></div>
       </nav>
 
@@ -151,6 +155,8 @@
         i: 0,
         total: 20,
         max: 20,
+        skip: 0,
+        pool: 0,
         currentVocab() {
           return this.vocabList[this.i];
         },
@@ -167,6 +173,14 @@
         if (ev.key === "Escape") {
           if (typeof state.lastIsRight === "boolean") {
             mark("repeat");
+          } else {
+            state.skip++;
+
+            document.querySelector(
+              ".count[data-count-type='total']"
+            ).innerText = state.total - state.skip;
+
+            newVocab();
           }
         }
       });
@@ -234,7 +248,10 @@
 
         document.querySelector(
           `#progress [data-count-type="${type}"]`
-        ).style.width = `${((markCount / state.total) * 100).toFixed(1)}%`;
+        ).style.width = `${(
+          (markCount / (state.total - state.skip)) *
+          100
+        ).toFixed(1)}%`;
 
         if (type !== "right") {
           state.pendingList.push(state.currentVocab());
@@ -268,6 +285,7 @@
           state.vocabList = state.pendingList;
         } else {
           state.vocabList = await pywebview.api.new_vocab_list(state.max);
+          state.pool = await pywebview.api.total_vocab();
         }
 
         state.total = state.vocabList.length;
@@ -277,14 +295,16 @@
           el.innerText = 0;
         });
 
+        document.querySelector(".count[data-count-type='total']").innerText =
+          state.total;
+        document.querySelector(".count[data-count-type='pool']").innerText =
+          state.pool;
+
         document
           .querySelectorAll("#progress [data-count-type]")
           .forEach((el) => {
             el.style.width = "0";
           });
-
-        document.querySelector(".count[data-count-type='total']").innerText =
-          state.total;
 
         await newVocab();
       }
