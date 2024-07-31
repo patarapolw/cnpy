@@ -18,9 +18,27 @@
         margin-bottom: 10px;
       }
 
-      #top-nav {
+      .top-nav {
         display: flex;
         flex-direction: row;
+        width: 100vw;
+        box-sizing: border-box;
+      }
+
+      .top-nav#progress [data-count-type] {
+        height: 2px;
+      }
+
+      .top-nav#progress [data-count-type="right"] {
+        background-color: forestgreen;
+      }
+
+      .top-nav#progress [data-count-type="repeat"] {
+        background-color: orange;
+      }
+
+      .top-nav#progress [data-count-type="wrong"] {
+        background-color: red;
       }
 
       .count {
@@ -65,7 +83,12 @@
 
   <body>
     <div id="quiz">
-      <nav id="top-nav">
+      <nav class="top-nav" id="progress">
+        <div data-count-type="right"></div>
+        <div data-count-type="repeat"></div>
+        <div data-count-type="wrong"></div>
+      </nav>
+      <nav class="top-nav">
         <div style="flex-grow: 1"></div>
 
         <span class="count" data-count-type="right">0</span>
@@ -204,8 +227,14 @@
         }
         type = type || "repeat";
 
-        const el = document.querySelector(`[data-count-type="${type}"]`);
-        el.innerText = parseInt(el.innerText) + 1;
+        const el = document.querySelector(`.count[data-count-type="${type}"]`);
+        const markCount = parseInt(el.innerText) + 1;
+
+        el.innerText = markCount;
+
+        document.querySelector(
+          `#progress [data-count-type="${type}"]`
+        ).style.width = `${((markCount / state.total) * 100).toFixed(1)}%`;
 
         if (type !== "right") {
           state.pendingList.push(state.currentVocab());
@@ -219,6 +248,7 @@
 
         if (state.i >= state.vocabList.length) {
           await newVocabList();
+          return;
         }
 
         document.querySelectorAll("[data-checked]").forEach((el) => {
@@ -243,10 +273,17 @@
         state.total = state.vocabList.length;
         state.pendingList = [];
 
-        document.querySelectorAll("[data-count-type]").forEach((el) => {
+        document.querySelectorAll(".count[data-count-type]").forEach((el) => {
           el.innerText = 0;
         });
-        document.querySelector("[data-count-type='total']").innerText =
+
+        document
+          .querySelectorAll("#progress [data-count-type]")
+          .forEach((el) => {
+            el.style.width = "0";
+          });
+
+        document.querySelector(".count[data-count-type='total']").innerText =
           state.total;
 
         await newVocab();
