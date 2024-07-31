@@ -18,6 +18,11 @@
         margin-bottom: 10px;
       }
 
+      #top-nav {
+        display: flex;
+        flex-direction: row;
+      }
+
       #vocab {
         font-size: 80px;
       }
@@ -56,6 +61,22 @@
 
   <body>
     <div id="quiz">
+      <nav id="top-nav">
+        <div style="flex-grow: 1"></div>
+
+        <span class="count" data-count-type="right">0</span>
+        <span>:</span>
+        <span class="count" data-count-type="repeat">0</span>
+        <span>:</span>
+        <span class="count" data-count-type="wrong">0</span>
+
+        <span>/</span>
+
+        <span class="count max-count">20</span>
+
+        <div style="flex-grow: 1"></div>
+      </nav>
+
       <div id="vocab" lang="zh-CN"></div>
       <form>
         <input
@@ -71,9 +92,10 @@
       <div id="type-compare"></div>
       <div class="buttons" data-checked="">
         <button
-          class="if-wrong if-right"
+          class="if-wrong"
           data-checked=""
           style="background-color: lightcoral"
+          onclick="mark('wrong')"
         >
           Wrong
         </button>
@@ -81,6 +103,7 @@
           class="if-wrong if-right"
           data-checked=""
           style="background-color: gold"
+          onclick="mark('repeat')"
         >
           Not Sure
         </button>
@@ -88,6 +111,7 @@
           class="if-right"
           data-checked=""
           style="background-color: greenyellow"
+          onclick="mark('right')"
         >
           Right
         </button>
@@ -97,19 +121,29 @@
     <script>
       let currentVocab;
 
+      const count = { current: 0, lastIsRight: null, max: 20 };
+
       const elInput = document.getElementById("type-input");
 
       elInput.parentElement.addEventListener("submit", onsubmit);
       elInput.focus();
 
       function onsubmit(ev) {
-        ev.preventDefault();
+        if (ev) {
+          ev.preventDefault();
+        }
 
         const elCompare = document.getElementById("type-compare");
 
         if (elCompare.innerText) {
+          if (typeof count.lastIsRight === "boolean") {
+            mark();
+          }
+
           newVocab().then(() => {
             elInput.value = "";
+            elInput.focus();
+
             elCompare.innerText = "";
           });
         } else {
@@ -118,10 +152,14 @@
           if (
             currentVocab.pinyin.split("; ").some((p) => p === elInput.value)
           ) {
+            count.lastIsRight = true;
+
             document.querySelectorAll("[data-checked]").forEach((el) => {
               el.setAttribute("data-checked", "right");
             });
           } else {
+            count.lastIsRight = false;
+
             document.querySelectorAll("[data-checked]").forEach((el) => {
               el.setAttribute("data-checked", "wrong");
             });
@@ -129,6 +167,27 @@
         }
 
         return false;
+      }
+
+      function mark(type) {
+        if (type) {
+          setTimeout(onsubmit);
+        }
+
+        switch (type || count.lastIsRight) {
+          case true:
+            type = "right";
+            break;
+          case false:
+            type = "wrong";
+            break;
+        }
+        type = type || "repeat";
+
+        const el = document.querySelector(`[data-count-type="${type}"]`);
+        el.innerText = parseInt(el.innerText) + 1;
+
+        count.lastIsRight = null;
       }
 
       async function newVocab() {
