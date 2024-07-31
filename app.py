@@ -2,6 +2,8 @@ from PySide6.QtWidgets import QMainWindow, QApplication, QPushButton
 
 import sys
 
+from cjpy import load_db
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -16,6 +18,9 @@ class MainWindow(QMainWindow):
         self.show()
 
 
-app = QApplication(sys.argv)
-w = MainWindow()
-app.exec()
+if __name__ == "__main__":
+    load_db()
+
+    app = QApplication(sys.argv)
+    w = MainWindow()
+    app.exec()
