@@ -10,6 +10,9 @@ db = load_db()
 if __name__ == "__main__":
 
     class Api:
+        def log(self, obj):
+            print(obj)
+
         def new_vocab_list(self, count=20):
             rs = []
 

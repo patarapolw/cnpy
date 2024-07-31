@@ -76,7 +76,7 @@
 
         <span>/</span>
 
-        <span class="count max-count">20</span>
+        <span class="count" data-count-type="total">20</span>
 
         <div style="flex-grow: 1"></div>
       </nav>
@@ -123,9 +123,17 @@
     </div>
 
     <script>
-      let currentVocab;
-
-      const count = { current: 0, lastIsRight: null, max: 20 };
+      const state = {
+        vocabList: [],
+        i: 0,
+        total: 20,
+        max: 20,
+        currentVocab() {
+          return this.vocabList[this.i];
+        },
+        pendingList: [],
+        lastIsRight: null,
+      };
 
       const elInput = document.getElementById("type-input");
 
@@ -134,7 +142,7 @@
 
       document.addEventListener("keydown", (ev) => {
         if (ev.key === "Escape") {
-          if (typeof count.lastIsRight === "boolean") {
+          if (typeof state.lastIsRight === "boolean") {
             mark("repeat");
           }
         }
@@ -148,7 +156,7 @@
         const elCompare = document.getElementById("type-compare");
 
         if (elCompare.innerText) {
-          if (typeof count.lastIsRight === "boolean") {
+          if (typeof state.lastIsRight === "boolean") {
             mark();
           }
 
@@ -159,20 +167,18 @@
             elCompare.innerText = "";
           });
         } else {
-          elCompare.innerText = currentVocab.pinyin;
+          const { pinyin } = state.currentVocab();
 
-          if (
-            currentVocab.pinyin
-              .split("; ")
-              .some((p) => comp_pinyin(p, elInput.value))
-          ) {
-            count.lastIsRight = true;
+          elCompare.innerText = pinyin;
+
+          if (pinyin.split("; ").some((p) => comp_pinyin(p, elInput.value))) {
+            state.lastIsRight = true;
 
             document.querySelectorAll("[data-checked]").forEach((el) => {
               el.setAttribute("data-checked", "right");
             });
           } else {
-            count.lastIsRight = false;
+            state.lastIsRight = false;
 
             document.querySelectorAll("[data-checked]").forEach((el) => {
               el.setAttribute("data-checked", "wrong");
@@ -188,7 +194,7 @@
           setTimeout(onsubmit);
         }
 
-        switch (type || count.lastIsRight) {
+        switch (type || state.lastIsRight) {
           case true:
             type = "right";
             break;
@@ -201,16 +207,49 @@
         const el = document.querySelector(`[data-count-type="${type}"]`);
         el.innerText = parseInt(el.innerText) + 1;
 
-        count.lastIsRight = null;
+        if (type !== "right") {
+          state.pendingList.push(state.currentVocab());
+        }
+
+        state.lastIsRight = null;
       }
 
       async function newVocab() {
+        state.i++;
+
+        if (state.i >= state.vocabList.length) {
+          await newVocabList();
+        }
+
         document.querySelectorAll("[data-checked]").forEach((el) => {
           el.setAttribute("data-checked", "");
         });
 
-        currentVocab = await pywebview.api.new_vocab();
+        const currentVocab = state.currentVocab();
+        pywebview.api.log(currentVocab);
+
         document.getElementById("vocab").innerText = currentVocab.simp;
+      }
+
+      async function newVocabList() {
+        state.i = -1;
+
+        if (state.pendingList.length > 1) {
+          state.vocabList = state.pendingList;
+        } else {
+          state.vocabList = await pywebview.api.new_vocab_list(state.max);
+        }
+
+        state.total = state.vocabList.length;
+        state.pendingList = [];
+
+        document.querySelectorAll("[data-count-type]").forEach((el) => {
+          el.innerText = 0;
+        });
+        document.querySelector("[data-count-type='total']").innerText =
+          state.total;
+
+        await newVocab();
       }
 
       function normalize_pinyin(s) {
