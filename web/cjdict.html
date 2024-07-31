@@ -4,21 +4,43 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chinese Quiz</title>
+
+    <style>
+      body,
+      #quiz {
+        text-align: center;
+      }
+
+      #quiz > * {
+        margin-bottom: 10px;
+      }
+
+      #vocab {
+        font-size: 80px;
+      }
+
+      #type-input {
+        text-align: center;
+        font-size: 16px;
+      }
+    </style>
   </head>
 
   <body>
-    <div id="vocab" lang="zh-CN" style="font-size: 40px"></div>
-    <form>
-      <input
-        type="text"
-        id="type-input"
-        autocomplete="off"
-        autocorrect="off"
-        autocapitalize="off"
-        spellcheck="false"
-      />
-    </form>
-    <div id="type-compare"></div>
+    <div id="quiz">
+      <div id="vocab" lang="zh-CN"></div>
+      <form>
+        <input
+          type="text"
+          id="type-input"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+        />
+      </form>
+      <div id="type-compare"></div>
+    </div>
 
     <script>
       let currentVocab;
@@ -26,6 +48,7 @@
       const elInput = document.getElementById("type-input");
 
       elInput.parentElement.addEventListener("submit", onsubmit);
+      elInput.focus();
 
       function onsubmit(ev) {
         ev.preventDefault();

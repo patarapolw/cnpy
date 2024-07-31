@@ -103,7 +103,10 @@ if __name__ == "__main__":
             r = dict(
                 db.execute(
                     """
-                    SELECT simp, REPLACE(GROUP_CONCAT(DISTINCT pinyin), ',', '; ') pinyin
+                    SELECT
+                        simp,
+                        REPLACE(GROUP_CONCAT(DISTINCT pinyin), ',', '; ') pinyin,
+                        json_group_array(english) en
                     FROM cedict
                     WHERE json_extract([data], '$.wordfreq') > 5
                     GROUP BY simp
@@ -111,6 +114,7 @@ if __name__ == "__main__":
                     """
                 ).fetchone()
             )
+            r["en"] = json.loads(r["en"])
             print(r)
             return r
 
