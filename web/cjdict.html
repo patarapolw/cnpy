@@ -8,6 +8,9 @@
     <style>
       body,
       #quiz {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         text-align: center;
       }
 
@@ -23,6 +26,31 @@
         text-align: center;
         font-size: 16px;
       }
+
+      #type-input[data-checked="right"] {
+        background-color: greenyellow;
+      }
+
+      #type-input[data-checked="wrong"] {
+        background-color: lightcoral;
+      }
+
+      .if-right,
+      .if-wrong {
+        display: none;
+      }
+
+      .if-right[data-checked="right"] {
+        display: inline-block;
+      }
+
+      .if-wrong[data-checked="wrong"] {
+        display: inline-block;
+      }
+
+      .buttons > button:not(:first) {
+        margin-left: 1em;
+      }
     </style>
   </head>
 
@@ -37,9 +65,33 @@
           autocorrect="off"
           autocapitalize="off"
           spellcheck="false"
+          data-checked=""
         />
       </form>
       <div id="type-compare"></div>
+      <div class="buttons" data-checked="">
+        <button
+          class="if-wrong if-right"
+          data-checked=""
+          style="background-color: lightcoral"
+        >
+          Wrong
+        </button>
+        <button
+          class="if-wrong if-right"
+          data-checked=""
+          style="background-color: gold"
+        >
+          Not Sure
+        </button>
+        <button
+          class="if-right"
+          data-checked=""
+          style="background-color: greenyellow"
+        >
+          Right
+        </button>
+      </div>
     </div>
 
     <script>
@@ -62,12 +114,28 @@
           });
         } else {
           elCompare.innerText = currentVocab.pinyin;
+
+          if (
+            currentVocab.pinyin.split("; ").some((p) => p === elInput.value)
+          ) {
+            document.querySelectorAll("[data-checked]").forEach((el) => {
+              el.setAttribute("data-checked", "right");
+            });
+          } else {
+            document.querySelectorAll("[data-checked]").forEach((el) => {
+              el.setAttribute("data-checked", "wrong");
+            });
+          }
         }
 
         return false;
       }
 
       async function newVocab() {
+        document.querySelectorAll("[data-checked]").forEach((el) => {
+          el.setAttribute("data-checked", "");
+        });
+
         currentVocab = await pywebview.api.new_vocab();
         document.getElementById("vocab").innerText = currentVocab.simp;
       }
