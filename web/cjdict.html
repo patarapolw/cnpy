@@ -23,6 +23,10 @@
         flex-direction: row;
       }
 
+      .count {
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
       #vocab {
         font-size: 80px;
       }
@@ -128,6 +132,14 @@
       elInput.parentElement.addEventListener("submit", onsubmit);
       elInput.focus();
 
+      document.addEventListener("keydown", (ev) => {
+        if (ev.key === "Escape") {
+          if (typeof count.lastIsRight === "boolean") {
+            mark("repeat");
+          }
+        }
+      });
+
       function onsubmit(ev) {
         if (ev) {
           ev.preventDefault();
@@ -150,7 +162,9 @@
           elCompare.innerText = currentVocab.pinyin;
 
           if (
-            currentVocab.pinyin.split("; ").some((p) => p === elInput.value)
+            currentVocab.pinyin
+              .split("; ")
+              .some((p) => comp_pinyin(p, elInput.value))
           ) {
             count.lastIsRight = true;
 
@@ -197,6 +211,14 @@
 
         currentVocab = await pywebview.api.new_vocab();
         document.getElementById("vocab").innerText = currentVocab.simp;
+      }
+
+      function normalize_pinyin(s) {
+        return s.replace(/ /g, "").toLocaleLowerCase();
+      }
+
+      function comp_pinyin(a, b) {
+        return normalize_pinyin(a) === normalize_pinyin(b);
       }
     </script>
   </body>
