@@ -280,7 +280,7 @@
         });
 
         const quizItem = state.vocabList[state.i];
-        pywebview.api.log(quizItem);
+        pywebview.api.log(quizItem.data);
 
         state.vocabDetails = await pywebview.api.vocab_details(quizItem.v);
         document.getElementById("vocab").innerText = quizItem.v;

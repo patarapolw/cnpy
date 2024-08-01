@@ -64,7 +64,7 @@ class Api:
         rs = []
 
         now = datetime.datetime.now(datetime.UTC).isoformat().split(".", 1)[0]
-        self.log(now)
+        # self.log(now)
 
         all_items = list(
             db.execute(
@@ -166,7 +166,7 @@ class Api:
         )
 
         card_json = json.dumps(card.to_dict())
-        self.log(card.to_dict())
+        # self.log(card.to_dict())
 
         if not db.execute(
             "UPDATE quiz SET srs = ? WHERE v = ?",
