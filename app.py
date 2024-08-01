@@ -52,6 +52,6 @@ if __name__ == "__main__":
     win = webview.create_window(
         "Pinyin Quiz",
         "web/cjdict.html",
-        js_api=Api("json_extract([data], '$.wordfreq') > 6"),
+        js_api=Api("json_extract([data], '$.wordfreq') > 5.5"),
     )
     webview.start(lambda: win.evaluate_js("newVocab()"))
