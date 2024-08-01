@@ -1,3 +1,6 @@
 *
 !.gitignore
 !/*.md
+
+# Custom vocab directory
+!/vocab/

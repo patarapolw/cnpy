@@ -1,9 +1,11 @@
 from fsrs import *
+from regex import Regex
 
 import json
 import random
 import datetime
 from pprint import pprint
+from pathlib import Path
 
 from cjpy.db import db
 
@@ -75,6 +77,30 @@ class Api:
                 (now,),
             ).fetchall()
         )
+
+        more_items = []
+        re_han = Regex(r"^\p{Han}+$")
+
+        for f in Path("user/vocab").glob("**/*.txt"):
+            more_items.extend(
+                v for v in f.read_text().splitlines() if re_han.fullmatch(v)
+            )
+
+        if more_items:
+            stmt = (
+                "SELECT DISTINCT simp FROM cedict WHERE simp IN ('"
+                + "','".join(set(more_items))
+                + "')"
+            )
+
+            all_items.extend(
+                db.execute(
+                    f"""
+                    SELECT * FROM quiz
+                    WHERE v IN ({stmt}) AND srs IS NULL
+                    """
+                )
+            )
 
         for r in (
             random.sample(
