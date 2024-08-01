@@ -1,4 +1,5 @@
 from wordfreq import zipf_frequency
+from regex import Regex
 
 import json
 
@@ -19,8 +20,17 @@ def load_db():
         CREATE INDEX IF NOT EXISTS idx_cedict_simp_trad ON cedict (simp, trad);
         CREATE INDEX IF NOT EXISTS idx_cedict_pinyin ON cedict (pinyin);
         CREATE INDEX IF NOT EXISTS idx_cedict_wordfreq ON cedict (json_extract([data], '$.wordfreq'));
+
+        CREATE TABLE IF NOT EXISTS quiz (
+            v       TEXT NOT NULL PRIMARY KEY,
+            srs     JSON,
+            [data]  JSON
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_quiz_wordfreq ON quiz (json_extract([data], '$.wordfreq'));
         """
     )
+
     populate_db()
 
 
@@ -69,54 +79,43 @@ def populate_db():
                 (simp, trad, pinyin, json.dumps(english, ensure_ascii=False)),
             )
 
-        db.commit()
-
-    f_dict = {}
-
-    for r in db.execute(
-        "SELECT simp FROM cedict WHERE json_extract([data], '$.wordfreq') IS NULL"
-    ):
-        v = r["simp"]
-        if v not in f_dict:
-            f_dict[v] = zipf_frequency(v, "zh")
-
-    for v, f in f_dict.items():
         db.execute(
             """
-            UPDATE cedict SET
-                [data] = json_set(IFNULL([data], '{}'), '$.wordfreq', ?)
-            WHERE simp = ?
-            """,
-            (f, v),
+            UPDATE quiz SET
+                [data] = json_remove([data], '$.wordfreq')
+            WHERE [data] IS NOT NULL
+            """
         )
 
-    db.commit()
+        db.commit()
 
+    if not db.execute(
+        "SELECT 1 FROM quiz WHERE json_extract([data], '$.wordfreq') IS NOT NULL LIMIT 1"
+    ).fetchall():
+        f_dict = {}
+        re_han = Regex(r"^\p{Han}+$")
 
-if __name__ == "__main__":
-    import webview
+        for r in db.execute("SELECT DISTINCT simp FROM cedict"):
+            v = r["simp"]
+            if v not in f_dict and re_han.fullmatch(v):
+                f_dict[v] = zipf_frequency(v, "zh")
 
-    load_db()
+        for v, f in f_dict.items():
+            is_updated = db.execute(
+                """
+                UPDATE quiz SET
+                    [data] = json_set(IFNULL([data], '{}'), '$.wordfreq', ?)
+                WHERE v = ?
+                """,
+                (f, v),
+            ).rowcount
 
-    class Api:
-        def new_vocab(self):
-            r = dict(
+            if not is_updated:
                 db.execute(
                     """
-                    SELECT
-                        simp,
-                        REPLACE(GROUP_CONCAT(DISTINCT pinyin), ',', '; ') pinyin,
-                        json_group_array(english) en
-                    FROM cedict
-                    WHERE json_extract([data], '$.wordfreq') > 5
-                    GROUP BY simp
-                    ORDER BY RANDOM() LIMIT 1
-                    """
-                ).fetchone()
-            )
-            r["en"] = json.loads(r["en"])
-            print(r)
-            return r
+                    INSERT INTO quiz (v, [data]) VALUES (?, json_object('wordfreq', ?))
+                    """,
+                    (v, f),
+                )
 
-    win = webview.create_window("Pinyin Quiz", "../web/cjdict.html", js_api=Api())
-    webview.start(lambda: win.evaluate_js("newVocab()"))
+        db.commit()

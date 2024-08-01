@@ -102,7 +102,7 @@
         <span class="count" data-count-type="total">20</span>
 
         <span>&nbsp;(</span>
-        <span class="count" data-count-type="pool">20</span>
+        <span class="count" data-count-type="due">-</span>
         <span>)</span>
 
         <div style="flex-grow: 1"></div>
@@ -156,7 +156,7 @@
         total: 20,
         max: 20,
         skip: 0,
-        pool: 0,
+        due: 0,
         currentVocab() {
           return this.vocabList[this.i];
         },
@@ -285,7 +285,7 @@
           state.vocabList = state.pendingList;
         } else {
           state.vocabList = await pywebview.api.new_vocab_list(state.max);
-          state.pool = await pywebview.api.total_vocab();
+          state.due = "-";
         }
 
         state.total = state.vocabList.length;
@@ -297,8 +297,8 @@
 
         document.querySelector(".count[data-count-type='total']").innerText =
           state.total;
-        document.querySelector(".count[data-count-type='pool']").innerText =
-          state.pool;
+        document.querySelector(".count[data-count-type='due']").innerText =
+          state.due || "Done";
 
         document
           .querySelectorAll("#progress [data-count-type]")
