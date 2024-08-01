@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chinese Quiz</title>
+
+    <link rel="stylesheet" href="./cedict.css" />
+  </head>
+
+  <body>
+    <div id="quiz">
+      <nav class="top-nav" id="progress">
+        <div data-count-type="right"></div>
+        <div data-count-type="repeat"></div>
+        <div data-count-type="wrong"></div>
+      </nav>
+      <nav class="top-nav">
+        <div style="flex-grow: 1"></div>
+
+        <span class="count" data-count-type="right">0</span>
+        <span>:</span>
+        <span class="count" data-count-type="repeat">0</span>
+        <span>:</span>
+        <span class="count" data-count-type="wrong">0</span>
+
+        <span>/</span>
+
+        <span class="count" data-count-type="total">20</span>
+
+        <span>&nbsp;(</span>
+        <span class="count" data-count-type="due">-</span>
+        <span>)</span>
+
+        <div style="flex-grow: 1"></div>
+      </nav>
+
+      <div id="vocab" lang="zh-CN"></div>
+      <form>
+        <input
+          type="text"
+          id="type-input"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          data-checked=""
+        />
+      </form>
+      <div id="type-compare"></div>
+      <div class="buttons" data-checked="">
+        <button
+          class="if-wrong"
+          data-checked=""
+          style="background-color: lightcoral"
+          onclick="mark('wrong')"
+        >
+          Wrong
+        </button>
+        <button
+          class="if-wrong if-right"
+          data-checked=""
+          style="background-color: gold"
+          onclick="mark('repeat')"
+        >
+          Not Sure
+        </button>
+        <button
+          class="if-right"
+          data-checked=""
+          style="background-color: greenyellow"
+          onclick="mark('right')"
+        >
+          Right
+        </button>
+      </div>
+    </div>
+
+    <script src="./cedict.js"></script>
+  </body>
+</html>

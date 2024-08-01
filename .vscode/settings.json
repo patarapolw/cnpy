@@ -9,7 +9,19 @@
         "editor.suggest.insertMode": "replace",
         "editor.tabSize": 2,
         "editor.formatOnSave": true,
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+    },
+    "[css]": {
+        "editor.suggest.insertMode": "replace",
+        "editor.tabSize": 2,
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+    },
+    "[javascript]": {
+        "editor.maxTokenizationLineLength": 2500,
+        "editor.tabSize": 2,
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
     },
     "terminal.integrated.env.windows": {
         "PYTHONPATH": "${workspaceFolder}",
