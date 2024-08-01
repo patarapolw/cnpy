@@ -6,8 +6,10 @@ After every rounds of not-Right's, there will be unlimited repeats until you get
 
 Mulitple answers if applicable, separated by `;`.
 
-![Due quiz](README/due.png)
+![Due Quiz](README/due.png)
 
 ![New Quiz](README/new.png)
+
+![Repeat Quiz](README/repeat.png)
 
 User vocabularies at `vocab/**/*.txt` will be added to Due queue (if the entries exist in CEDICT).
