@@ -26,9 +26,7 @@ def load_db():
             [data]  JSON
         );
 
-        CREATE INDEX IF NOT EXISTS idx_cedict_simp_trad ON cedict (simp, trad);
-        CREATE INDEX IF NOT EXISTS idx_cedict_pinyin ON cedict (pinyin);
-        CREATE INDEX IF NOT EXISTS idx_cedict_wordfreq ON cedict (json_extract([data], '$.wordfreq'));
+        CREATE INDEX IF NOT EXISTS idx_cedict_simp ON cedict (simp);
 
         CREATE TABLE IF NOT EXISTS quiz (
             v       TEXT NOT NULL PRIMARY KEY,
