@@ -156,7 +156,7 @@
         total: 20,
         max: 20,
         skip: 0,
-        due: 0,
+        due: "-",
         vocabDetails: [],
         pendingList: [],
         lastIsRight: null,
@@ -249,11 +249,17 @@
           100
         ).toFixed(1)}%`;
 
+        const currentItem = state.vocabList[state.i];
+
         if (type !== "right") {
-          state.pendingList.push(state.vocabList[state.i]);
+          state.pendingList.push(currentItem);
         }
 
         state.lastIsRight = null;
+
+        if (state.vocabList.length === state.due || state.max) {
+          pywebview.api.mark(currentItem.v, type);
+        }
       }
 
       async function newVocab() {
@@ -286,9 +292,18 @@
 
         if (state.pendingList.length > 1) {
           state.vocabList = state.pendingList;
+        } else if (state.due) {
+          const r = await pywebview.api.due_vocab_list(state.max);
+          state.vocabList = r.result;
+          state.due = r.count;
+
+          if (!r.count) {
+            newVocabList();
+            return;
+          }
         } else {
-          state.vocabList = await pywebview.api.new_vocab_list(state.max);
-          state.due = "-";
+          const r = await pywebview.api.new_vocab_list(state.max);
+          state.vocabList = r.result;
         }
 
         state.total = state.vocabList.length;
@@ -301,7 +316,7 @@
         document.querySelector(".count[data-count-type='total']").innerText =
           state.total;
         document.querySelector(".count[data-count-type='due']").innerText =
-          state.due || "Done";
+          state.due || "-";
 
         document
           .querySelectorAll("#progress [data-count-type]")

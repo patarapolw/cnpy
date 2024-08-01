@@ -36,6 +36,7 @@ def load_db():
             [data]  JSON
         );
 
+        CREATE INDEX IF NOT EXISTS idx_quiz_srs_due ON quiz (json_extract(srs, '$.due'));
         CREATE INDEX IF NOT EXISTS idx_quiz_wordfreq ON quiz (json_extract([data], '$.wordfreq'));
         """
     )
