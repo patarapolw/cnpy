@@ -51,7 +51,11 @@ function onsubmit(ev) {
 
     elCompare.innerText = pinyin.join("; ");
 
-    if (pinyin.some((p) => comp_pinyin(p, elInput.value))) {
+    if (
+      elInput.value
+        .split(";")
+        .every((v) => pinyin.some((p) => comp_pinyin(p, v.trim())))
+    ) {
       state.lastIsRight = true;
 
       document.querySelectorAll("[data-checked]").forEach((el) => {

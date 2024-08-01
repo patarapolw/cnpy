@@ -36,7 +36,7 @@ class Api:
 
             f = r["data"]["wordfreq"]
 
-            stats.setdefault("upper", f)
+            # stats.setdefault("upper", f)
             stats["rarest"] = f
 
             if f >= 6:
@@ -83,7 +83,9 @@ class Api:
 
         for f in Path("user/vocab").glob("**/*.txt"):
             more_items.extend(
-                v for v in f.read_text().splitlines() if re_han.fullmatch(v)
+                v
+                for v in f.read_text(encoding="utf8").splitlines()
+                if re_han.fullmatch(v)
             )
 
         if more_items:
