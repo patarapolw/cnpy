@@ -7,6 +7,12 @@ from cjpy.db import db
 
 
 def load_db():
+    # db.executescript(
+    #     """
+    #     DROP TABLE IF EXISTS cedict;
+    #     """
+    # )
+
     db.executescript(
         """
         CREATE TABLE IF NOT EXISTS cedict (
@@ -30,6 +36,12 @@ def load_db():
         CREATE INDEX IF NOT EXISTS idx_quiz_wordfreq ON quiz (json_extract([data], '$.wordfreq'));
         """
     )
+
+    # db.executescript(
+    #     """
+    #     UPDATE cedict SET [data] = NULL WHERE [data] = '{}';
+    #     """
+    # )
 
     populate_db()
 
