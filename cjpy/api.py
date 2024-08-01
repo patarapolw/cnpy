@@ -14,6 +14,52 @@ class Api:
     def log(self, obj):
         pprint(obj, indent=1)
 
+    def stats(self):
+        studied = db.execute(
+            """
+            SELECT * FROM quiz
+            WHERE json_extract(srs, '$.due') IS NOT NULL
+            ORDER BY json_extract([data], '$.wordfreq') DESC
+            """,
+        ).fetchall()
+
+        stats = {"studied": len(studied)}
+
+        for r in studied:
+            r = dict(r)
+
+            for k in ("data", "srs"):
+                if type(r[k]) is str:
+                    r[k] = json.loads(r[k])
+
+            f = r["data"]["wordfreq"]
+
+            stats.setdefault("upper", f)
+            stats["rarest"] = f
+
+            if f >= 6:
+                pass
+            elif f >= 5:
+                k = "5.x"
+                stats[k] = stats.setdefault(k, 0) + 1
+            elif f >= 4:
+                k = "4.x"
+                stats[k] = stats.setdefault(k, 0) + 1
+            elif f >= 3:
+                k = "3.x"
+                stats[k] = stats.setdefault(k, 0) + 1
+            elif f >= 2:
+                k = "2.x"
+                stats[k] = stats.setdefault(k, 0) + 1
+            elif f >= 1:
+                k = "1.x"
+                stats[k] = stats.setdefault(k, 0) + 1
+            else:
+                k = "0.x"
+                stats[k] = stats.setdefault(k, 0) + 1
+
+        return stats
+
     def due_vocab_list(self, count=20):
         rs = []
 
@@ -23,10 +69,9 @@ class Api:
         all_items = list(
             db.execute(
                 """
-            SELECT * FROM quiz
-            WHERE json_extract(srs, '$.due') < ?
-            ORDER BY json_extract([data], '$.wordfreq') DESC
-            """,
+                SELECT * FROM quiz
+                WHERE json_extract(srs, '$.due') < ?
+                """,
                 (now,),
             ).fetchall()
         )
@@ -59,11 +104,11 @@ class Api:
         all_items = list(
             db.execute(
                 """
-            SELECT * FROM quiz
-            WHERE srs IS NULL
-            ORDER BY json_extract([data], '$.wordfreq') DESC
-            LIMIT 1000
-            """,
+                SELECT * FROM quiz
+                WHERE srs IS NULL
+                ORDER BY json_extract([data], '$.wordfreq') DESC
+                LIMIT 1000
+                """,
             ).fetchall()
         )
 
