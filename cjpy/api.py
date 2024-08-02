@@ -1,4 +1,4 @@
-from fsrs import *
+from fsrs import FSRS, Card, Rating
 from regex import Regex
 
 import json
@@ -79,39 +79,39 @@ class Api:
         now = datetime.datetime.now(datetime.UTC).isoformat().split(".", 1)[0]
         # self.log(now)
 
+        skip_voc = self._get_custom_list(Path("user/skip"))
+
         all_items = list(
             db.execute(
                 """
                 SELECT * FROM quiz
                 WHERE json_extract(srs, '$.due') < ?
-                """,
+                AND {}
+                """.format(
+                    "v NOT IN ('{}')".format("','".join(skip_voc))
+                    if skip_voc
+                    else "TRUE"
+                ),
                 (now,),
             ).fetchall()
         )
 
-        more_items = []
-        re_han = Regex(r"^\p{Han}+$")
+        more_voc = self._get_custom_list(Path("user/vocab"))
 
-        for f in Path("user/vocab").glob("**/*.txt"):
-            more_items.extend(
-                v
-                for v in f.read_text(encoding="utf8").splitlines()
-                if re_han.fullmatch(v)
-            )
+        for it in skip_voc:
+            more_voc.remove(it)
 
-        if more_items:
-            stmt = (
-                "SELECT DISTINCT simp FROM cedict WHERE simp IN ('"
-                + "','".join(set(more_items))
-                + "')"
-            )
-
+        if more_voc:
             all_items.extend(
                 db.execute(
-                    f"""
-                    SELECT * FROM quiz
-                    WHERE v IN ({stmt}) AND srs IS NULL
                     """
+                    SELECT * FROM quiz
+                    WHERE v IN (
+                        SELECT DISTINCT simp FROM cedict WHERE simp IN ('{}')
+                    ) AND srs IS NULL
+                    """.format(
+                        "','".join(more_voc)
+                    )
                 )
             )
 
@@ -140,14 +140,21 @@ class Api:
     def new_vocab_list(self, count=20):
         rs = []
 
+        skip_voc = self._get_custom_list(Path("user/skip"))
+
         all_items = list(
             db.execute(
                 """
                 SELECT * FROM quiz
                 WHERE srs IS NULL
+                AND {}
                 ORDER BY json_extract([data], '$.wordfreq') DESC
                 LIMIT 1000
-                """,
+                """.format(
+                    "v NOT IN ('{}')".format("','".join(skip_voc))
+                    if skip_voc
+                    else "TRUE"
+                ),
             ).fetchall()
         )
 
@@ -258,3 +265,16 @@ class Api:
             )
 
         db.commit()
+
+    def _get_custom_list(self, path: Path) -> set[str]:
+        items = []
+        re_han = Regex(r"^\p{Han}+$")
+
+        for f in path.glob("**/*.txt"):
+            items.extend(
+                v
+                for v in f.read_text(encoding="utf8").splitlines()
+                if re_han.fullmatch(v)
+            )
+
+        return set(items)

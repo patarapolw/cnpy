@@ -5,6 +5,7 @@
         "editor.wordBasedSuggestions": "off",
         "editor.formatOnSave": true,
     },
+    "python.analysis.typeCheckingMode": "standard",
     "[html]": {
         "editor.suggest.insertMode": "replace",
         "editor.tabSize": 2,
