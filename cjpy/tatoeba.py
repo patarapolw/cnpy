@@ -12,11 +12,11 @@ from cjpy.db import db
 
 
 def load_db():
-    # db.executescript(
-    #     """
-    #     DROP TABLE sentence;
-    #     """
-    # )
+    db.executescript(
+        """
+        DROP TABLE sentence;
+        """
+    )
 
     db.executescript(
         """
@@ -41,8 +41,15 @@ def populate_db():
 
         download_tatoeba_links(tmp_dir, asset_dir)
 
-        db.execute(
+        db.executescript(
             """
+            CREATE UNIQUE INDEX idx_u_cmn ON sentence (cmn);
+
+            CREATE TEMP TABLE eng (
+                id      INT NOT NULL PRIMARY KEY,
+                eng     TEXT NOT NULL
+            );
+
             CREATE TEMP TABLE links (
                 id1     INT,
                 id2     INT,
@@ -75,9 +82,7 @@ def populate_db():
 
         for ln in (asset_dir / "eng_sentences.tsv").open("r", encoding="utf8"):
             rs = ln.rstrip().split("\t")
-            db.execute(
-                "INSERT INTO sentence (id, cmn) VALUES (?,?)", (-int(rs[0]), rs[2])
-            )
+            db.execute("INSERT INTO eng (id, eng) VALUES (?,?)", (int(rs[0]), rs[2]))
 
         db.commit()
 
@@ -96,10 +101,11 @@ def populate_db():
             db.execute(
                 """
                 INSERT INTO sentence (id, cmn, eng, [data]) VALUES (?,?,(
-                    SELECT cmn FROM sentence WHERE id = -(
+                    SELECT eng FROM eng WHERE id = (
                         SELECT id2 FROM links WHERE id1 = ?
                     )
                 ),?)
+                ON CONFLICT DO NOTHING
                 """,
                 (
                     id1,
@@ -120,8 +126,13 @@ def populate_db():
 
         db.commit()
 
-        db.execute("DELETE FROM sentence WHERE id < 0")
-        db.execute("DROP TABLE links")
+        db.executescript(
+            """
+            DROP TABLE eng;
+            DROP TABLE links;
+            DROP INDEX idx_u_cmn;
+            """
+        )
 
         db.execute(
             """

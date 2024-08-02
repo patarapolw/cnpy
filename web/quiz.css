@@ -110,7 +110,7 @@ summary {
   font-size: 10px;
 }
 
-#sentences .english {
+#sentences .english:not(:hover) {
   color: lightgray;
 }
 
