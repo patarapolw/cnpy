@@ -43,13 +43,36 @@ function onsubmit(ev) {
 
     newVocab();
   } else {
-    pywebview.api.log(state.vocabDetails);
     const pinyin = state.vocabDetails
       .map((v) => v.pinyin)
       .filter((v, i, a) => a.indexOf(v) === i)
       .sort();
 
     elCompare.innerText = pinyin.join("; ");
+
+    const elDictEntries = document.getElementById("dictionary-entries");
+    const elDictTemplate = Array.from(elDictEntries.childNodes).find(
+      (el) => el instanceof HTMLTemplateElement
+    );
+
+    elDictEntries.append(
+      ...state.vocabDetails.map((v) => {
+        const el = elDictTemplate.content.cloneNode(true);
+
+        el.querySelector(".simp").innerText = v.simp;
+        el.querySelector(".trad").innerText = v.trad || "";
+        el.querySelector(".pinyin").innerText = v.pinyin;
+        el.querySelector(".english").append(
+          ...v.english.map((ens) => {
+            const li = document.createElement("li");
+            li.innerText = ens.join("; ");
+            return li;
+          })
+        );
+
+        return el;
+      })
+    );
 
     if (
       elInput.value
@@ -117,6 +140,8 @@ async function newVocab() {
   elInput.focus();
 
   elCompare.innerText = "";
+
+  document.querySelectorAll(".dictionary-entry").forEach((el) => el.remove());
 
   state.i++;
 
