@@ -17,23 +17,34 @@ class Api:
         pprint(obj, indent=1)
 
     def stats(self):
-        studied = db.execute(
-            """
-            SELECT * FROM quiz
-            WHERE json_extract(srs, '$.due') IS NOT NULL
-            ORDER BY json_extract([data], '$.wordfreq') DESC
-            """,
-        ).fetchall()
-
-        stats = {"studied": len(studied)}
-
-        for r in studied:
+        def de_json(r):
             r = dict(r)
 
             for k in ("data", "srs"):
                 if type(r[k]) is str:
                     r[k] = json.loads(r[k])
 
+            return r
+
+        studied = [
+            de_json(r)
+            for r in db.execute(
+                """
+            SELECT * FROM quiz
+            WHERE json_extract(srs, '$.due') IS NOT NULL
+            ORDER BY json_extract([data], '$.wordfreq') DESC
+            """
+            )
+        ]
+
+        studied.sort(key=lambda v: v.get("data", {}).get("wordfreq", 0), reverse=True)
+
+        stats = {
+            "studied": len(studied),
+            "p95": studied[int(len(studied) * 0.95)]["data"]["wordfreq"],
+        }
+
+        for r in studied:
             f = r["data"]["wordfreq"]
 
             # stats.setdefault("upper", f)

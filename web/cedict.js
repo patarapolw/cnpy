@@ -129,11 +129,11 @@ async function newVocab() {
     el.setAttribute("data-checked", "");
   });
 
-  const quizItem = state.vocabList[state.i];
-  pywebview.api.log(quizItem.data);
+  const { data, v } = state.vocabList[state.i];
+  pywebview.api.log({ ...data, v });
 
-  state.vocabDetails = await pywebview.api.vocab_details(quizItem.v);
-  document.getElementById("vocab").innerText = quizItem.v;
+  state.vocabDetails = await pywebview.api.vocab_details(v);
+  document.getElementById("vocab").innerText = v;
 }
 
 async function newVocabList() {
