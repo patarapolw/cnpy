@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
     win = webview.create_window(
         "Pinyin Quiz",
-        "web/cedict.html",
+        "web/quiz.html",
         js_api=api,
     )
     webview.start(lambda: win.evaluate_js("newVocab()"))
