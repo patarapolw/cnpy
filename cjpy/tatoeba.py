@@ -6,6 +6,7 @@ from pathlib import Path
 from tempfile import mkdtemp
 from urllib.request import urlretrieve
 import tarfile
+import bz2
 
 from cjpy.db import db
 
@@ -144,7 +145,20 @@ def populate_db():
 
 
 def download_tatoeba(lang: str, dldir: Path, unzipdir: Path):
-    pass
+    filename = f"{lang}_sentences.tsv"
+
+    if not (unzipdir / filename).exists():
+        zipFilename = f"{lang}_sentences.tsv.bz2"
+        zipPath = dldir / zipFilename
+
+        urlretrieve(
+            f"https://downloads.tatoeba.org/exports/per_language/{lang}/{zipFilename}",
+            zipPath,
+        )
+
+        with (unzipdir / filename).open("wb") as unzipFile:
+            with bz2.open(zipPath) as zipFile:
+                unzipFile.write(zipFile.read())
 
 
 def download_tatoeba_links(dldir: Path, unzipdir: Path):
