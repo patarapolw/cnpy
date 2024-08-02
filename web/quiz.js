@@ -77,6 +77,10 @@ function onsubmit(ev) {
     }
 
     const elSentences = document.getElementById("sentences");
+    elSentences.setAttribute(
+      "data-sentence-count",
+      state.vocabDetails.sentences.length
+    );
     {
       const elTemplate = Array.from(elSentences.childNodes).find(
         (el) => el instanceof HTMLTemplateElement

@@ -113,3 +113,7 @@ summary {
 #sentences .english {
   color: lightgray;
 }
+
+#sentences[data-sentence-count="0"] {
+  display: none;
+}

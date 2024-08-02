@@ -201,6 +201,7 @@ class Api:
                 WHERE v = ?
             )
             AND eng IS NOT NULL
+            AND LENGTH(cmn) < 30
             ORDER BY RANDOM()
             LIMIT 5
             """,
@@ -208,7 +209,7 @@ class Api:
             )
         ]
 
-        if not sentences:
+        if len(sentences) < 3:
             sentences.extend(
                 dict(r)
                 for r in db.execute(
@@ -227,7 +228,7 @@ class Api:
                 )
             )
 
-        return {"cedict": rs, "sentences": sentences}
+        return {"cedict": rs, "sentences": sentences[:5]}
 
     def mark(self, v: str, t: str):
         card = Card()
