@@ -3,6 +3,7 @@ from regex import Regex
 
 import json
 from pathlib import Path
+from tempfile import mkdtemp
 from urllib.request import urlretrieve
 from zipfile import ZipFile
 
@@ -12,7 +13,7 @@ from cjpy.db import db
 def load_db():
     # db.executescript(
     #     """
-    #     DROP TABLE IF EXISTS cedict;
+    #     DROP TABLE cedict;
     #     """
     # )
 
@@ -27,15 +28,6 @@ def load_db():
         );
 
         CREATE INDEX IF NOT EXISTS idx_cedict_simp ON cedict (simp);
-
-        CREATE TABLE IF NOT EXISTS quiz (
-            v       TEXT NOT NULL PRIMARY KEY,
-            srs     JSON,
-            [data]  JSON
-        );
-
-        CREATE INDEX IF NOT EXISTS idx_quiz_srs_due ON quiz (json_extract(srs, '$.due'));
-        CREATE INDEX IF NOT EXISTS idx_quiz_wordfreq ON quiz (json_extract([data], '$.wordfreq'));
         """
     )
 
@@ -53,7 +45,7 @@ def populate_db():
         cedict = Path("assets/dic/cedict_ts.u8")
 
         if not cedict.exists():
-            zipPath = Path("cedict.zip")
+            zipPath = Path(mkdtemp()) / "cedict.zip"
 
             urlretrieve(
                 "https://www.mdbg.net/chinese/export/cedict/cedict_1_0_ts_utf-8_mdbg.zip",

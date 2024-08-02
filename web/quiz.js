@@ -154,8 +154,11 @@ async function newVocab() {
     el.setAttribute("data-checked", "");
   });
 
-  const { data, v } = state.vocabList[state.i];
-  pywebview.api.log({ ...data, v });
+  const {
+    data: { wordfreq },
+    v,
+  } = state.vocabList[state.i];
+  pywebview.api.log({ v, wordfreq });
 
   state.vocabDetails = await pywebview.api.vocab_details(v);
   document.getElementById("vocab").innerText = v;
