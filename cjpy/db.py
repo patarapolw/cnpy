@@ -1,4 +1,9 @@
 import sqlite3
 
-db = sqlite3.connect("user/main.db", check_same_thread=False)
+from cjpy.dir import exe_root
+
+db_path = exe_root / "user/main.db"
+db_path.parent.mkdir(exist_ok=True)
+
+db = sqlite3.connect(db_path, check_same_thread=False)
 db.row_factory = sqlite3.Row

@@ -162,5 +162,3 @@ cython_debug/
 #.idea/
 
 #####
-# Temp files
-cedict.zip

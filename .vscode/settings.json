@@ -6,6 +6,7 @@
         "editor.formatOnSave": true,
     },
     "python.analysis.typeCheckingMode": "standard",
+    "python.analysis.ignore": ["*.spec"],
     "[html]": {
         "editor.suggest.insertMode": "replace",
         "editor.tabSize": 2,
@@ -28,6 +29,9 @@
         "editor.tabSize": 2,
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "esbenp.prettier-vscode",
+    },
+    "files.associations": {
+        "*.spec": "python",
     },
     "terminal.integrated.env.windows": {
         "PYTHONPATH": "${workspaceFolder}",

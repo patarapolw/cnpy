@@ -2,13 +2,18 @@ from regex import Regex
 import jieba
 
 import json
-from pathlib import Path
-from tempfile import mkdtemp
 from urllib.request import urlretrieve
 import tarfile
 import bz2
 
 from cjpy.db import db
+from cjpy.dir import exe_root, tempdir
+
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def load_db():
@@ -27,8 +32,10 @@ def load_db():
 
 def populate_db():
     if not db.execute("SELECT 1 FROM sentence LIMIT 1").fetchall():
-        tmp_dir = Path(mkdtemp())
-        asset_dir = Path("assets/dic")
+        tmp_dir = tempdir()
+        asset_dir = exe_root / "assets/dic"
+
+        exe_root.mkdir(parents=True, exist_ok=True)
 
         download_tatoeba("cmn", tmp_dir, asset_dir)
         download_tatoeba("eng", tmp_dir, asset_dir)
@@ -149,7 +156,7 @@ def populate_db():
         db.commit()
 
 
-def download_tatoeba(lang: str, dldir: Path, unzipdir: Path):
+def download_tatoeba(lang: str, dldir: "Path", unzipdir: "Path"):
     filename = f"{lang}_sentences.tsv"
 
     if not (unzipdir / filename).exists():
@@ -166,7 +173,7 @@ def download_tatoeba(lang: str, dldir: Path, unzipdir: Path):
                 unzipFile.write(zipFile.read())
 
 
-def download_tatoeba_links(dldir: Path, unzipdir: Path):
+def download_tatoeba_links(dldir: "Path", unzipdir: "Path"):
     filename = "links.csv"
 
     if not (unzipdir / filename).exists():

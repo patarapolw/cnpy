@@ -2,12 +2,11 @@ from wordfreq import zipf_frequency
 from regex import Regex
 
 import json
-from pathlib import Path
-from tempfile import mkdtemp
 from urllib.request import urlretrieve
 from zipfile import ZipFile
 
 from cjpy.db import db
+from cjpy.dir import exe_root, tempdir
 
 
 def load_db():
@@ -30,10 +29,12 @@ def load_db():
 
 def populate_db():
     if not db.execute("SELECT 1 FROM cedict LIMIT 1").fetchall():
-        cedict = Path("assets/dic/cedict_ts.u8")
+        cedict = exe_root / "assets/dic/cedict_ts.u8"
 
         if not cedict.exists():
-            zipPath = Path(mkdtemp()) / "cedict.zip"
+            cedict.parent.mkdir(parents=True, exist_ok=True)
+
+            zipPath = tempdir() / "cedict.zip"
 
             urlretrieve(
                 "https://www.mdbg.net/chinese/export/cedict/cedict_1_0_ts_utf-8_mdbg.zip",
@@ -41,7 +42,7 @@ def populate_db():
             )
 
             with ZipFile(zipPath) as z:
-                z.extract(cedict.name, path=cedict)
+                z.extract(cedict.name, path=cedict.parent)
 
         for ln in cedict.open("r", encoding="utf8"):
             if ln[0] == "#":

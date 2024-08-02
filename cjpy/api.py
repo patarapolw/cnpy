@@ -5,9 +5,15 @@ import json
 import random
 import datetime
 from pprint import pprint
-from pathlib import Path
 
 from cjpy.db import db
+from cjpy.dir import exe_root
+
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 f_srs = FSRS()
 
@@ -79,7 +85,7 @@ class Api:
         now = datetime.datetime.now(datetime.UTC).isoformat().split(".", 1)[0]
         # self.log(now)
 
-        skip_voc = self._get_custom_list(Path("user/skip"))
+        skip_voc = self._get_custom_list(exe_root / "user/skip")
 
         all_items = list(
             db.execute(
@@ -96,7 +102,7 @@ class Api:
             ).fetchall()
         )
 
-        more_voc = self._get_custom_list(Path("user/vocab"))
+        more_voc = self._get_custom_list(exe_root / "user/vocab")
 
         for it in skip_voc:
             more_voc.remove(it)
@@ -140,7 +146,7 @@ class Api:
     def new_vocab_list(self, count=20):
         rs = []
 
-        skip_voc = self._get_custom_list(Path("user/skip"))
+        skip_voc = self._get_custom_list(exe_root / "user/skip")
 
         all_items = list(
             db.execute(
@@ -266,7 +272,7 @@ class Api:
 
         db.commit()
 
-    def _get_custom_list(self, path: Path) -> set[str]:
+    def _get_custom_list(self, path: "Path") -> set[str]:
         items = []
         re_han = Regex(r"^\p{Han}+$")
 
