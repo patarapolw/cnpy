@@ -5,7 +5,7 @@ const state = {
   max: 20,
   skip: 0,
   due: "-",
-  vocabDetails: [],
+  vocabDetails: { cedict: [], sentences: [] },
   pendingList: [],
   lastIsRight: null,
 };
@@ -43,7 +43,7 @@ function onsubmit(ev) {
 
     newVocab();
   } else {
-    const pinyin = state.vocabDetails
+    const pinyin = state.vocabDetails.cedict
       .map((v) => v.pinyin)
       .filter((v, i, a) => a.indexOf(v) === i)
       .sort();
@@ -51,28 +51,71 @@ function onsubmit(ev) {
     elCompare.innerText = pinyin.join("; ");
 
     const elDictEntries = document.getElementById("dictionary-entries");
-    const elDictTemplate = Array.from(elDictEntries.childNodes).find(
-      (el) => el instanceof HTMLTemplateElement
-    );
+    {
+      const elTemplate = Array.from(elDictEntries.childNodes).find(
+        (el) => el instanceof HTMLTemplateElement
+      );
 
-    elDictEntries.append(
-      ...state.vocabDetails.map((v) => {
-        const el = elDictTemplate.content.cloneNode(true);
+      elDictEntries.append(
+        ...state.vocabDetails.cedict.map((v) => {
+          const el = elTemplate.content.cloneNode(true);
 
-        el.querySelector(".simp").innerText = v.simp;
-        el.querySelector(".trad").innerText = v.trad || "";
-        el.querySelector(".pinyin").innerText = v.pinyin;
-        el.querySelector(".english").append(
-          ...v.english.map((ens) => {
-            const li = document.createElement("li");
-            li.innerText = ens.join("; ");
-            return li;
-          })
-        );
+          el.querySelector(".simp").innerText = v.simp;
+          el.querySelector(".trad").innerText = v.trad || "";
+          el.querySelector(".pinyin").innerText = v.pinyin;
+          el.querySelector(".english").append(
+            ...v.english.map((ens) => {
+              const li = document.createElement("li");
+              li.innerText = ens.join("; ");
+              return li;
+            })
+          );
 
-        return el;
-      })
-    );
+          return el;
+        })
+      );
+    }
+
+    const elSentences = document.getElementById("sentences");
+    {
+      const elTemplate = Array.from(elSentences.childNodes).find(
+        (el) => el instanceof HTMLTemplateElement
+      );
+
+      const ul = document.createElement("ul");
+      ul.className = "if-checked-details";
+      elSentences.append(ul);
+
+      ul.append(
+        ...state.vocabDetails.sentences.map((v) => {
+          const el = elTemplate.content.cloneNode(true);
+
+          el.querySelector(".simp").innerText = v.cmn;
+
+          if (v.eng) {
+            el.querySelector(".english").innerText = v.eng;
+          } else {
+            el.querySelector("ul").remove();
+          }
+
+          return el;
+        })
+      );
+    }
+
+    if (
+      elDictEntries instanceof HTMLDetailsElement &&
+      elSentences instanceof HTMLDetailsElement
+    ) {
+      elDictEntries.open = false;
+      elSentences.open = false;
+
+      if (state.vocabDetails.sentences.length) {
+        elSentences.open = true;
+      } else {
+        elDictEntries.open = true;
+      }
+    }
 
     if (
       elInput.value
@@ -141,7 +184,7 @@ async function newVocab() {
 
   elCompare.innerText = "";
 
-  document.querySelectorAll(".dictionary-entry").forEach((el) => el.remove());
+  document.querySelectorAll(".if-checked-details").forEach((el) => el.remove());
 
   state.i++;
 

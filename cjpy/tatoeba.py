@@ -4,6 +4,8 @@ import jieba
 import json
 from pathlib import Path
 from tempfile import mkdtemp
+from urllib.request import urlretrieve
+import tarfile
 
 from cjpy.db import db
 
@@ -48,11 +50,25 @@ def populate_db():
             """
         )
 
+        cmn_ids = set()
+        eng_ids = set()
+
+        for ln in (asset_dir / "cmn_sentences.tsv").open("r", encoding="utf8"):
+            rs = ln.rstrip().split("\t", 1)
+            cmn_ids.add(int(rs[0]))
+
+        for ln in (asset_dir / "eng_sentences.tsv").open("r", encoding="utf8"):
+            rs = ln.rstrip().split("\t", 1)
+            eng_ids.add(int(rs[0]))
+
         for ln in (asset_dir / "links.csv").open("r", encoding="utf8"):
             rs = ln.split("\t", 2)
-            db.execute(
-                "INSERT INTO links (id1,id2) VALUES (?,?)", (int(rs[0]), int(rs[1]))
-            )
+
+            id1 = int(rs[0])
+            id2 = int(rs[1])
+
+            if id1 in cmn_ids and id2 in eng_ids:
+                db.execute("INSERT INTO links (id1,id2) VALUES (?,?)", (id1, id2))
 
         db.commit()
 
@@ -132,4 +148,16 @@ def download_tatoeba(lang: str, dldir: Path, unzipdir: Path):
 
 
 def download_tatoeba_links(dldir: Path, unzipdir: Path):
-    pass
+    filename = "links.csv"
+
+    if not (unzipdir / filename).exists():
+        zipFilename = "links.tar.bz2"
+        zipPath = dldir / zipFilename
+
+        urlretrieve(
+            f"https://downloads.tatoeba.org/exports/{zipFilename}",
+            zipPath,
+        )
+
+        with tarfile.open(zipPath) as z:
+            z.extract(filename, unzipdir)

@@ -189,7 +189,45 @@ class Api:
 
             rs.append(r)
 
-        return rs
+        sentences = [
+            dict(r)
+            for r in db.execute(
+                """
+            SELECT *
+            FROM sentence
+            WHERE id IN (
+                SELECT json_each.value
+                FROM quiz, json_each(json_extract([data], '$.sent'))
+                WHERE v = ?
+            )
+            AND eng IS NOT NULL
+            ORDER BY RANDOM()
+            LIMIT 5
+            """,
+                (v,),
+            )
+        ]
+
+        if not sentences:
+            sentences.extend(
+                dict(r)
+                for r in db.execute(
+                    """
+            SELECT *
+            FROM sentence
+            WHERE id IN (
+                SELECT json_each.value
+                FROM quiz, json_each(json_extract([data], '$.sent'))
+                WHERE v = ?
+            )
+            ORDER BY RANDOM()
+            LIMIT 5
+            """,
+                    (v,),
+                )
+            )
+
+        return {"cedict": rs, "sentences": sentences}
 
     def mark(self, v: str, t: str):
         card = Card()
