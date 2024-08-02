@@ -43,7 +43,7 @@ function onsubmit(ev) {
 
     newVocab();
   } else {
-    pywebview.api.lastIsRight(state.vocabDetails.cedict);
+    pywebview.api.log(state.vocabDetails.cedict);
 
     const pinyin = state.vocabDetails.cedict
       .map((v) => v.pinyin)
