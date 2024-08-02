@@ -11,12 +11,6 @@ from cjpy.db import db
 
 
 def load_db():
-    # db.executescript(
-    #     """
-    #     DROP TABLE cedict;
-    #     """
-    # )
-
     db.executescript(
         """
         CREATE TABLE IF NOT EXISTS cedict (
@@ -30,12 +24,6 @@ def load_db():
         CREATE INDEX IF NOT EXISTS idx_cedict_simp ON cedict (simp);
         """
     )
-
-    # db.executescript(
-    #     """
-    #     UPDATE cedict SET [data] = NULL WHERE [data] = '{}';
-    #     """
-    # )
 
     populate_db()
 
@@ -138,3 +126,23 @@ def populate_db():
                 )
 
         db.commit()
+
+
+def reset_db():
+    db.executescript(
+        """
+        DROP TABLE cedict;
+        """
+    )
+
+    load_db()
+
+    db.executescript(
+        """
+        UPDATE cedict SET [data] = NULL WHERE [data] = '{}';
+        """
+    )
+
+
+if __name__ == "__main__":
+    reset_db()

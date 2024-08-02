@@ -14,12 +14,6 @@ from cjpy.db import db
 def load_db():
     db.executescript(
         """
-        DROP TABLE sentence;
-        """
-    )
-
-    db.executescript(
-        """
         CREATE TABLE IF NOT EXISTS sentence (
             id      INT NOT NULL PRIMARY KEY,
             cmn     TEXT NOT NULL,
@@ -186,3 +180,17 @@ def download_tatoeba_links(dldir: Path, unzipdir: Path):
 
         with tarfile.open(zipPath) as z:
             z.extract(filename, unzipdir)
+
+
+def reset_db():
+    db.executescript(
+        """
+        DROP TABLE sentence;
+        """
+    )
+
+    load_db()
+
+
+if __name__ == "__main__":
+    reset_db()
