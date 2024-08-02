@@ -8,7 +8,7 @@ Mulitple answers if applicable, separated by `;`.
 
 ![Due Quiz](README/due.png)
 
-![New Quiz](README/new.png)
+![New Quiz](README/image-1.png)
 
 ![Repeat Quiz](README/repeat.png)
 

@@ -210,10 +210,10 @@ class Api:
         ]
 
         if len(sentences) < 3:
-            sentences.extend(
-                dict(r)
-                for r in db.execute(
-                    """
+            prev_ids = set(r["id"] for r in sentences)
+
+            for r in db.execute(
+                """
             SELECT *
             FROM sentence
             WHERE id IN (
@@ -224,9 +224,11 @@ class Api:
             ORDER BY RANDOM()
             LIMIT 5
             """,
-                    (v,),
-                )
-            )
+                (v,),
+            ):
+                r = dict(r)
+                if r["id"] not in prev_ids:
+                    sentences.append(r)
 
         return {"cedict": rs, "sentences": sentences[:5]}
 
