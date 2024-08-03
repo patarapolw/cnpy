@@ -5,6 +5,7 @@ import platform
 import PyInstaller.__main__
 
 APP_NAME = "cjpy"
+VERSION = ""
 
 pyi_args = ["app.py"]
 
@@ -36,9 +37,13 @@ if __name__ == "__main__":
         if d.is_dir():
             shutil.copytree(d, dist_path / d.name)
 
-    shutil.make_archive(
-        str(dist_path.parent / f"{APP_NAME}-{platform.system()}"), "zip", dist_path
-    )
+    zip_name = APP_NAME
+    if VERSION:
+        zip_name += "-" + VERSION
+
+    zip_name += "-" + platform.system()
+
+    shutil.make_archive(str(dist_path.parent / zip_name), "zip", dist_path)
 
     for f in keep_folders:
         if (dist_path.parent / f).exists():

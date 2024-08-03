@@ -29,17 +29,17 @@ def load_db():
 
 def populate_db():
     if not db.execute("SELECT 1 FROM cedict LIMIT 1").fetchall():
-        cedict = exe_root / "assets/dic/cedict_ts.u8"
+        filename = "cedict_ts.u8"
+        cedict = exe_root / "assets/dic" / filename
 
         if not cedict.exists():
             cedict.parent.mkdir(parents=True, exist_ok=True)
 
             zipPath = tempdir() / "cedict.zip"
 
-            urlretrieve(
-                "https://www.mdbg.net/chinese/export/cedict/cedict_1_0_ts_utf-8_mdbg.zip",
-                zipPath,
-            )
+            url = "https://www.mdbg.net/chinese/export/cedict/cedict_1_0_ts_utf-8_mdbg.zip"
+            print("Downloading {} from {}".format(filename, url))
+            urlretrieve(url, zipPath)
 
             with ZipFile(zipPath) as z:
                 z.extract(cedict.name, path=cedict.parent)

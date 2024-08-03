@@ -163,10 +163,9 @@ def download_tatoeba(lang: str, dldir: "Path", unzipdir: "Path"):
         zipFilename = f"{lang}_sentences.tsv.bz2"
         zipPath = dldir / zipFilename
 
-        urlretrieve(
-            f"https://downloads.tatoeba.org/exports/per_language/{lang}/{zipFilename}",
-            zipPath,
-        )
+        url = f"https://downloads.tatoeba.org/exports/per_language/{lang}/{zipFilename}"
+        print("Downloading {} from {}".format(filename, url))
+        urlretrieve(url, zipPath)
 
         with (unzipdir / filename).open("wb") as unzipFile:
             with bz2.open(zipPath) as zipFile:
@@ -180,10 +179,9 @@ def download_tatoeba_links(dldir: "Path", unzipdir: "Path"):
         zipFilename = "links.tar.bz2"
         zipPath = dldir / zipFilename
 
-        urlretrieve(
-            f"https://downloads.tatoeba.org/exports/{zipFilename}",
-            zipPath,
-        )
+        url = f"https://downloads.tatoeba.org/exports/{zipFilename}"
+        print("Downloading {} from {}".format(filename, url))
+        urlretrieve(url, zipPath)
 
         with tarfile.open(zipPath) as z:
             z.extract(filename, unzipdir)
