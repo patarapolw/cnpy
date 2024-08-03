@@ -9,6 +9,7 @@ APP_NAME = "cjpy"
 pyi_args = ["app.py"]
 
 pyi_args.append("--noconfirm")
+# pyi_args.append("--noconsole")
 
 pyi_args.extend(("--name", APP_NAME))
 
@@ -27,6 +28,13 @@ if __name__ == "__main__":
             shutil.move(dist_path / f, dist_path.parent / f)
 
     PyInstaller.__main__.run(pyi_args)
+
+    for f in Path().glob("*.md"):
+        shutil.copy(f, dist_path)
+
+        d = f.with_suffix("")
+        if d.is_dir():
+            shutil.copytree(d, dist_path / d.name)
 
     shutil.make_archive(
         str(dist_path.parent / f"{APP_NAME}-{platform.system()}"), "zip", dist_path
