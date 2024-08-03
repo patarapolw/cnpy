@@ -18,3 +18,4 @@ if __name__ == "__main__":
     webview.start(lambda: win.evaluate_js("newVocab()"))
 
     db.commit()
+    api.log(api.stats())

@@ -8,8 +8,12 @@ Mulitple answers if applicable, separated by `;`.
 
 ![Due Quiz](README/due.png)
 
-![New Quiz](README/image-1.png)
+![New Quiz](README/new.png)
 
 ![Repeat Quiz](README/repeat.png)
 
 User vocabularies at `vocab/**/*.txt` will be added to Due queue (if the entries exist in CEDICT).
+
+## Vocab list ideas
+
+- [Hanzi levels](https://github.com/zhquiz/level/blob/master/_data/generated/vocab.yaml)
