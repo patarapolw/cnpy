@@ -47,8 +47,7 @@ function onsubmit(ev) {
 
     const pinyin = state.vocabDetails.cedict
       .map((v) => v.pinyin)
-      .filter((v, i, a) => a.indexOf(v) === i)
-      .sort();
+      .filter((v, i, a) => a.indexOf(v) === i);
 
     elCompare.innerText = pinyin.join("; ");
 

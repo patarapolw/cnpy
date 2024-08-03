@@ -20,7 +20,7 @@ f_srs = FSRS()
 
 class Api:
     def log(self, obj):
-        pprint(obj, indent=1)
+        pprint(obj, indent=1, sort_dicts=False)
 
     def stats(self):
         def de_json(r):
@@ -43,18 +43,13 @@ class Api:
             )
         ]
 
-        studied.sort(key=lambda v: v.get("data", {}).get("wordfreq", 0), reverse=True)
+        # New and 1x correct Card difficulty is 5.1
+        good = [r for r in studied if r["srs"]["difficulty"] < 6]
 
-        stats = {
-            "studied": len(studied),
-            "p95": studied[int(len(studied) * 0.95)]["data"]["wordfreq"],
-        }
+        stats = {"studied": len(studied), "good": len(good)}
 
-        for r in studied:
+        for r in good:
             f = r["data"]["wordfreq"]
-
-            # stats.setdefault("upper", f)
-            stats["rarest"] = f
 
             if f >= 6:
                 pass
@@ -76,6 +71,12 @@ class Api:
             else:
                 k = "0.x"
                 stats[k] = stats.setdefault(k, 0) + 1
+
+        def p(arr: list, f: float):
+            return arr[int(len(arr) * f)]["data"]["wordfreq"]
+
+        stats["p75"] = p(good, 0.75)
+        stats["p99"] = p(good, 0.99)
 
         return stats
 
@@ -201,6 +202,21 @@ class Api:
                     del r[k]
 
             rs.append(r)
+
+        def sorter(r):
+            p0 = r["pinyin"][0]
+            if type(p0) is str and p0.isupper():
+                return 2
+
+            en = str(r["english"])
+            if "used in" in en:
+                return 1
+            if "variant of" in en:
+                return 1
+
+            return -len(r["english"])
+
+        rs.sort(key=sorter)
 
         sentences = [
             dict(r)
