@@ -126,8 +126,8 @@ summary {
   display: none;
   height: 150px;
   width: 100%;
-  flex-direction: column;
   margin-top: 5px;
+  grid-template-rows: 1fr auto;
 }
 
 #notes[data-has-notes=""] fieldset {
@@ -135,11 +135,11 @@ summary {
 }
 
 #notes[data-has-notes=""] fieldset#notes-edit {
-  display: flex;
+  display: grid;
 }
 
 #notes:not([data-has-notes=""]) fieldset#notes-show {
-  display: flex;
+  display: grid;
 }
 
 #notes fieldset .notes-display {
