@@ -12,6 +12,7 @@ const state = {
 
 const elInput = document.getElementById("type-input");
 const elCompare = document.getElementById("type-compare");
+const elNotes = document.getElementById("notes");
 
 elInput.parentElement.addEventListener("submit", onsubmit);
 elInput.focus();
@@ -28,6 +29,42 @@ document.addEventListener("keydown", (ev) => {
 
       newVocab();
     }
+  }
+});
+
+const converter = new showdown.Converter({
+  parseImgDimensions: true,
+  // openLinksInNewWindow: true,
+  emoji: true,
+});
+
+elNotes.querySelector("textarea").addEventListener("paste", (ev) => {
+  const html = ev.clipboardData.getData("text/html");
+  if (!html) return;
+
+  const selection = window.getSelection();
+  if (!selection.rangeCount) return;
+
+  ev.preventDefault();
+
+  ev.target.setRangeText(converter.makeMarkdown(html));
+});
+
+elNotes.querySelectorAll("button").forEach((b) => {
+  switch (b.innerText) {
+    case "Save":
+      b.onclick = (ev) => {
+        ev.preventDefault();
+        makeNotes();
+
+        elNotes.setAttribute("data-has-notes", "1");
+      };
+      break;
+    case "Edit":
+      b.onclick = (ev) => {
+        ev.preventDefault();
+        elNotes.setAttribute("data-has-notes", "");
+      };
   }
 });
 
@@ -203,13 +240,16 @@ async function newVocab() {
   });
 
   const {
-    data: { wordfreq },
+    data: { wordfreq, notes },
     v,
   } = state.vocabList[state.i];
   pywebview.api.log({ v, wordfreq });
 
   state.vocabDetails = await pywebview.api.vocab_details(v);
   document.getElementById("vocab").innerText = v;
+
+  elNotes.querySelector("textarea").value = notes || "";
+  elNotes.setAttribute("data-has-notes", notes ? "1" : "");
 }
 
 async function newVocabList() {
@@ -260,6 +300,25 @@ async function newVocabList() {
   });
 
   await newVocab();
+}
+
+function makeNotes() {
+  const notesText = elNotes.querySelector("#notes-edit .notes-display").value;
+  const elDisplay = elNotes.querySelector("#notes-show .notes-display");
+
+  if (!notesText.trim() && !elDisplay.innerHTML.trim()) return;
+
+  const newHTML = converter.makeHtml(notesText);
+  if (newHTML === elDisplay.innerHTML) return;
+
+  elDisplay.innerHTML = newHTML;
+
+  elDisplay.querySelectorAll("a").forEach((el) => {
+    el.target = "_blank";
+    el.rel = "noopener noreferrer";
+  });
+
+  pywebview.api.save_notes(v, notesText);
 }
 
 function normalize_pinyin(s) {

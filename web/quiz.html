@@ -106,8 +106,31 @@
           </li>
         </template>
       </details>
+
+      <details
+        id="notes"
+        class="if-checked"
+        data-checked=""
+        data-has-notes=""
+        open
+      >
+        <summary>Notes</summary>
+        <fieldset id="notes-edit">
+          <textarea class="notes-display"></textarea>
+          <footer>
+            <button type="submit">Save</button>
+          </footer>
+        </fieldset>
+        <fieldset id="notes-show">
+          <div class="notes-display"></div>
+          <footer>
+            <button type="button">Edit</button>
+          </footer>
+        </fieldset>
+      </details>
     </div>
 
+    <script src="https://unpkg.com/showdown/dist/showdown.min.js"></script>
     <script src="./quiz.js"></script>
   </body>
 </html>

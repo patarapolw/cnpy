@@ -4,6 +4,7 @@ from regex import Regex
 import json
 import random
 import datetime
+import webbrowser
 from pprint import pprint
 
 from cjpy.db import db
@@ -21,6 +22,9 @@ f_srs = FSRS()
 class Api:
     def log(self, obj):
         pprint(obj, indent=1, sort_dicts=False)
+
+    def open_in_browser(self, url):
+        webbrowser.open(url)
 
     def stats(self):
         def de_json(r):
@@ -284,6 +288,22 @@ class Api:
             db.execute(
                 "INSERT INTO quiz (v, srs) VALUES (?, ?)",
                 (v, card_json),
+            )
+
+        db.commit()
+
+    def save_notes(self, v: str, notes: str):
+        if not db.execute(
+            """
+            UPDATE quiz SET
+                [data] = json_set(IFNULL([data], '{}'), '$.notes', ?)
+            WHERE v = ?
+            """,
+            (notes, v),
+        ).rowcount:
+            db.execute(
+                "INSERT INTO quiz (v, [data]) VALUES (?, json_object('notes', ?))",
+                (v, notes),
             )
 
         db.commit()

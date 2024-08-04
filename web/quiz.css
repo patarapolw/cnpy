@@ -117,3 +117,30 @@ summary {
 #sentences[data-sentence-count="0"] {
   display: none;
 }
+
+#notes fieldset {
+  display: none;
+  height: 150px;
+  width: 100%;
+  flex-direction: column;
+  margin-top: 5px;
+}
+
+#notes[data-has-notes=""] fieldset#notes-edit {
+  display: flex;
+}
+
+#notes:not([data-has-notes=""]) fieldset#notes-show {
+  display: flex;
+}
+
+#notes fieldset .notes-display {
+  flex-grow: 1;
+  min-width: none;
+}
+
+#notes fieldset footer {
+  margin-top: 5px;
+  display: flex;
+  flex-direction: row-reverse;
+}

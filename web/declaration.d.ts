@@ -1,7 +1,9 @@
 declare const pywebview: {
   api: {
     log(obj: any): void;
-    mark(type: string): Promise<void>;
+    open_in_browser(url: string): void;
+    mark(v: string, type: string): Promise<void>;
+    save_notes(v: string, notes: string): Promise<void>;
     vocab_details(v: string): Promise<{
       cedict: ICedict[];
       sentences: ISentence[];
@@ -34,4 +36,13 @@ interface IQuizEntry {
   data: {
     wordfreq: number;
   };
+}
+
+declare const showdown: {
+  Converter: new () => Converter;
+};
+
+declare class Converter {
+  makeHtml(md: string): string;
+  makeMarkdown(html: string): string;
 }
