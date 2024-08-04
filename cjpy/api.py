@@ -1,23 +1,23 @@
-from fsrs import FSRS, Card, Rating
+import fsrs
 from regex import Regex
 
 import json
 import random
 import datetime
 import webbrowser
-from collections import Counter
 from pprint import pprint
 
 from cjpy.db import db
+from cjpy.stats import make_stats
 from cjpy.dir import exe_root
 
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-f_srs = FSRS()
+srs = fsrs.FSRS()
 
 
 class Api:
@@ -28,80 +28,10 @@ class Api:
         webbrowser.open(url)
 
     def stats(self):
-        def de_json(r):
-            r = dict(r)
-
-            for k in ("data", "srs"):
-                if type(r[k]) is str:
-                    r[k] = json.loads(r[k])
-
-            return r
-
-        studied = [
-            de_json(r)
-            for r in db.execute(
-                """
-            SELECT * FROM quiz
-            WHERE json_extract(srs, '$.due') IS NOT NULL
-            ORDER BY json_extract([data], '$.wordfreq') DESC
-            """
-            )
-        ]
-
-        # New and 1x correct Card difficulty is 5.1
-        good = [r for r in studied if r["srs"]["difficulty"] < 6]
-
-        stats: dict[str, Any] = {"studied": len(studied), "good": len(good)}
-
-        for r in good:
-            f = r["data"]["wordfreq"]
-
-            if f >= 6:
-                pass
-            elif f >= 5:
-                k = "5.x"
-                stats[k] = stats.setdefault(k, 0) + 1
-            elif f >= 4:
-                k = "4.x"
-                stats[k] = stats.setdefault(k, 0) + 1
-            elif f >= 3:
-                k = "3.x"
-                stats[k] = stats.setdefault(k, 0) + 1
-            elif f >= 2:
-                k = "2.x"
-                stats[k] = stats.setdefault(k, 0) + 1
-            elif f >= 1:
-                k = "1.x"
-                stats[k] = stats.setdefault(k, 0) + 1
-            else:
-                k = "0.x"
-                stats[k] = stats.setdefault(k, 0) + 1
-
-        def p(arr: list, f: float):
-            return arr[int(len(arr) * f)]["data"]["wordfreq"]
-
-        stats["p75"] = p(good, 0.75)
-        stats["p99"] = p(good, 0.99)
-
-        good.reverse()
-
-        stats["lone"] = "".join(r["v"] for r in good if len(r["v"]) == 1)
-        stats["lone.count"] = len(stats["lone"])
-
-        for i, (c, count) in enumerate(
-            Counter("".join("".join(set(r["v"])) for r in good)).most_common()
-        ):
-            if count < 3:
-                break
-
-            i += 1
-
-            stats["h3"] = stats.get("h3", "") + c
-            stats["h3.count"] = i
-
-            if count >= 5:
-                stats["h5"] = stats.get("h5", "") + c
-                stats["h5.count"] = i
+        stats = make_stats()
+        for k, v in stats.items():
+            if type(v) is str and len(v) > 50:
+                stats[k] = v[:50] + "..."
 
         return stats
 
@@ -287,16 +217,20 @@ class Api:
         return {"cedict": rs, "sentences": sentences[:5]}
 
     def mark(self, v: str, t: str):
-        card = Card()
+        card = fsrs.Card()
 
         for r in db.execute("SELECT srs FROM quiz WHERE v = ? LIMIT 1", (v,)):
             if type(r["srs"]) is str:
-                card = Card.from_dict(json.loads(r["srs"]))
+                card = fsrs.Card.from_dict(json.loads(r["srs"]))
                 break
 
-        card, review_log = f_srs.review_card(
+        card, review_log = srs.review_card(
             card,
-            {"right": Rating.Good, "repeat": Rating.Hard, "wrong": Rating.Again}[t],
+            {
+                "right": fsrs.Rating.Good,
+                "repeat": fsrs.Rating.Hard,
+                "wrong": fsrs.Rating.Again,
+            }[t],
         )
 
         card_json = json.dumps(card.to_dict())
