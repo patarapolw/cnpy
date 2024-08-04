@@ -249,7 +249,18 @@ async function newVocab() {
   document.getElementById("vocab").innerText = v;
 
   elNotes.querySelector("textarea").value = notes || "";
+  makeNotes(true);
+
   elNotes.setAttribute("data-has-notes", notes ? "1" : "");
+
+  document.querySelectorAll(".external-links a").forEach((a) => {
+    let href = a.getAttribute("data-href");
+    if (!href) {
+      a.setAttribute("data-href", a.href);
+      href = a.href;
+    }
+    a.href = href.replace("__voc__", v);
+  });
 }
 
 async function newVocabList() {
@@ -302,7 +313,7 @@ async function newVocabList() {
   await newVocab();
 }
 
-function makeNotes() {
+function makeNotes(skipSave) {
   const notesText = elNotes.querySelector("#notes-edit .notes-display").value;
   const elDisplay = elNotes.querySelector("#notes-show .notes-display");
 
@@ -318,7 +329,9 @@ function makeNotes() {
     el.rel = "noopener noreferrer";
   });
 
-  pywebview.api.save_notes(v, notesText);
+  if (!skipSave) {
+    pywebview.api.save_notes(state.vocabList[state.i].v, notesText);
+  }
 }
 
 function normalize_pinyin(s) {

@@ -102,6 +102,10 @@ summary {
   cursor: pointer;
 }
 
+.external-links {
+  text-align: center;
+}
+
 .dictionary-entry header :not(:first-child) {
   margin-left: 1em;
 }
@@ -124,6 +128,10 @@ summary {
   width: 100%;
   flex-direction: column;
   margin-top: 5px;
+}
+
+#notes[data-has-notes=""] fieldset {
+  border: none;
 }
 
 #notes[data-has-notes=""] fieldset#notes-edit {
