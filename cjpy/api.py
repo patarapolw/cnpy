@@ -206,13 +206,13 @@ class Api:
         def sorter(r):
             p0 = r["pinyin"][0]
             if type(p0) is str and p0.isupper():
-                return 2
+                return 10
 
             en = str(r["english"])
             if "used in" in en:
                 return 1
             if "variant of" in en:
-                return 1
+                return 2
 
             return -len(r["english"])
 
