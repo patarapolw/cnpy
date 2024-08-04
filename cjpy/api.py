@@ -4,13 +4,15 @@ from regex import Regex
 import json
 import random
 import datetime
+import webbrowser
+from collections import Counter
 from pprint import pprint
 
 from cjpy.db import db
 from cjpy.dir import exe_root
 
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -21,6 +23,9 @@ f_srs = FSRS()
 class Api:
     def log(self, obj):
         pprint(obj, indent=1, sort_dicts=False)
+
+    def open_in_browser(self, url):
+        webbrowser.open(url)
 
     def stats(self):
         def de_json(r):
@@ -46,7 +51,7 @@ class Api:
         # New and 1x correct Card difficulty is 5.1
         good = [r for r in studied if r["srs"]["difficulty"] < 6]
 
-        stats = {"studied": len(studied), "good": len(good)}
+        stats: dict[str, Any] = {"studied": len(studied), "good": len(good)}
 
         for r in good:
             f = r["data"]["wordfreq"]
@@ -77,6 +82,26 @@ class Api:
 
         stats["p75"] = p(good, 0.75)
         stats["p99"] = p(good, 0.99)
+
+        good.reverse()
+
+        stats["lone"] = "".join(r["v"] for r in good if len(r["v"]) == 1)
+        stats["lone.count"] = len(stats["lone"])
+
+        for i, (c, count) in enumerate(
+            Counter("".join(r["v"] for r in good)).most_common()
+        ):
+            if count < 3:
+                break
+
+            i += 1
+
+            stats["h3"] = stats.get("h3", "") + c
+            stats["h3.count"] = i
+
+            if count >= 5:
+                stats["h5"] = stats.get("h5", "") + c
+                stats["h5.count"] = i
 
         return stats
 
@@ -284,6 +309,22 @@ class Api:
             db.execute(
                 "INSERT INTO quiz (v, srs) VALUES (?, ?)",
                 (v, card_json),
+            )
+
+        db.commit()
+
+    def save_notes(self, v: str, notes: str):
+        if not db.execute(
+            """
+            UPDATE quiz SET
+                [data] = json_set(IFNULL([data], '{}'), '$.notes', ?)
+            WHERE v = ?
+            """,
+            (notes, v),
+        ).rowcount:
+            db.execute(
+                "INSERT INTO quiz (v, [data]) VALUES (?, json_object('notes', ?))",
+                (v, notes),
             )
 
         db.commit()
