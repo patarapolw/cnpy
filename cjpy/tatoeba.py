@@ -30,6 +30,10 @@ def load_db():
     populate_db()
 
 
+def load_db_entry(r):
+    return dict(r)
+
+
 def populate_db():
     if not db.execute("SELECT 1 FROM sentence LIMIT 1").fetchall():
         tmp_dir = tempdir()

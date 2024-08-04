@@ -27,6 +27,20 @@ def load_db():
     populate_db()
 
 
+def load_db_entry(r):
+    r = dict(r)
+
+    for k in ("data", "english"):
+        if type(r[k]) is str:
+            r[k] = json.loads(r[k])
+
+    for k in list(r.keys()):
+        if r[k] is None:
+            del r[k]
+
+    return r
+
+
 def populate_db():
     if not db.execute("SELECT 1 FROM cedict LIMIT 1").fetchall():
         filename = "cedict_ts.u8"

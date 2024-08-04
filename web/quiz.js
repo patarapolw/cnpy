@@ -269,7 +269,7 @@ async function newVocabList() {
 
   let isRepeat = false;
 
-  if (state.pendingList.length > 1) {
+  if (state.pendingList.length > 0) {
     state.vocabList = state.pendingList;
     isRepeat = true;
   } else if (state.due) {

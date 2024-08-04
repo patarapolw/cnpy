@@ -8,6 +8,9 @@ import webbrowser
 from pprint import pprint
 
 from cjpy.db import db
+from cjpy.quiz import load_db_entry as dejson_quiz
+from cjpy.cedict import load_db_entry as dejson_cedict
+from cjpy.tatoeba import load_db_entry as dejson_sentence
 from cjpy.stats import make_stats
 from cjpy.dir import exe_root
 
@@ -36,15 +39,14 @@ class Api:
         return stats
 
     def due_vocab_list(self, count=20):
-        rs = []
-
         now = datetime.datetime.now(datetime.UTC).isoformat().split(".", 1)[0]
         # self.log(now)
 
         skip_voc = self._get_custom_list(exe_root / "user/skip")
 
-        all_items = list(
-            db.execute(
+        all_items = [
+            dejson_quiz(r)
+            for r in db.execute(
                 """
                 SELECT * FROM quiz
                 WHERE json_extract(srs, '$.due') < ?
@@ -55,8 +57,8 @@ class Api:
                     else "TRUE"
                 ),
                 (now,),
-            ).fetchall()
-        )
+            )
+        ]
 
         more_voc = self._get_custom_list(exe_root / "user/vocab")
 
@@ -65,7 +67,8 @@ class Api:
 
         if more_voc:
             all_items.extend(
-                db.execute(
+                dejson_quiz(r)
+                for r in db.execute(
                     """
                     SELECT * FROM quiz
                     WHERE v IN (
@@ -77,35 +80,20 @@ class Api:
                 )
             )
 
-        for r in (
-            random.sample(
-                all_items,
-                k=count,
-            )
-            if len(all_items) > count
-            else random.shuffle(all_items) or all_items
-        ):
-            r = dict(r)
+        all_items.sort(
+            key=lambda r: r.get("srs", {}).get("difficulty", 0), reverse=True
+        )
+        all_items = all_items[:count]
+        # random.shuffle(all_items)
 
-            for k in ("data", "srs"):
-                if type(r[k]) is str:
-                    r[k] = json.loads(r[k])
-
-            for k in list(r.keys()):
-                if r[k] is None:
-                    del r[k]
-
-            rs.append(r)
-
-        return {"result": rs, "count": len(all_items)}
+        return {"result": all_items, "count": len(all_items)}
 
     def new_vocab_list(self, count=20):
-        rs = []
-
         skip_voc = self._get_custom_list(exe_root / "user/skip")
 
-        all_items = list(
-            db.execute(
+        all_items = [
+            dejson_quiz(r)
+            for r in db.execute(
                 """
                 SELECT * FROM quiz
                 WHERE srs IS NULL
@@ -117,46 +105,21 @@ class Api:
                     if skip_voc
                     else "TRUE"
                 ),
-            ).fetchall()
-        )
-
-        for r in (
-            random.sample(
-                all_items,
-                k=count,
             )
-            if len(all_items) > count
-            else random.shuffle(all_items) or all_items
-        ):
-            r = dict(r)
+        ]
 
-            for k in ("data", "srs"):
-                if type(r[k]) is str:
-                    r[k] = json.loads(r[k])
+        if len(all_items) > count:
+            all_items = random.sample(all_items, k=count)
+        else:
+            random.shuffle(all_items)
 
-            for k in list(r.keys()):
-                if r[k] is None:
-                    del r[k]
-
-            rs.append(r)
-
-        return {"result": rs}
+        return {"result": all_items}
 
     def vocab_details(self, v: str):
-        rs = []
-
-        for r in db.execute("SELECT * FROM cedict WHERE simp = ?", (v,)):
-            r = dict(r)
-
-            for k in ("data", "english"):
-                if type(r[k]) is str:
-                    r[k] = json.loads(r[k])
-
-            for k in list(r.keys()):
-                if r[k] is None:
-                    del r[k]
-
-            rs.append(r)
+        rs = [
+            dejson_cedict(r)
+            for r in db.execute("SELECT * FROM cedict WHERE simp = ?", (v,))
+        ]
 
         def sorter(r):
             p0 = r["pinyin"][0]
@@ -174,7 +137,7 @@ class Api:
         rs.sort(key=sorter)
 
         sentences = [
-            dict(r)
+            dejson_sentence(r)
             for r in db.execute(
                 """
             SELECT *
@@ -210,7 +173,7 @@ class Api:
             """,
                 (v,),
             ):
-                r = dict(r)
+                r = dejson_sentence(r)
                 if r["id"] not in prev_ids:
                     sentences.append(r)
 
