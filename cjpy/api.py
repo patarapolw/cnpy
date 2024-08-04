@@ -89,7 +89,7 @@ class Api:
         stats["lone.count"] = len(stats["lone"])
 
         for i, (c, count) in enumerate(
-            Counter("".join(r["v"] for r in good)).most_common()
+            Counter("".join("".join(set(r["v"])) for r in good)).most_common()
         ):
             if count < 3:
                 break
