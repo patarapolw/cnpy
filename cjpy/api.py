@@ -79,13 +79,14 @@ class Api:
                 )
             )
 
+        count = len(all_items)
+
         all_items.sort(
             key=lambda r: r.get("srs", {}).get("difficulty", 0), reverse=True
         )
         all_items = all_items[:count]
-        # random.shuffle(all_items)
 
-        return {"result": all_items, "count": len(all_items)}
+        return {"result": all_items, "count": count}
 
     def new_vocab_list(self, count=20):
         skip_voc = self._get_custom_list(exe_root / "user/skip")
@@ -196,7 +197,6 @@ class Api:
         )
 
         card_json = json.dumps(card.to_dict())
-        # self.log(card.to_dict())
 
         if not db.execute(
             "UPDATE quiz SET srs = ? WHERE v = ?",

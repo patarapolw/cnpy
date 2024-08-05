@@ -1,11 +1,12 @@
 from pathlib import Path
 import shutil
 import platform
+import sys
 
 import PyInstaller.__main__
 
 APP_NAME = "cjpy"
-VERSION = ""
+VERSION = sys.argv[1] if len(sys.argv) > 1 else ""
 
 pyi_args = ["app.py"]
 
