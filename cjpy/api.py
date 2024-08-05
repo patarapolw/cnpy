@@ -39,8 +39,7 @@ class Api:
         return stats
 
     def due_vocab_list(self, count=20):
-        now = datetime.datetime.now(datetime.UTC).isoformat().split(".", 1)[0]
-        # self.log(now)
+        now = datetime.datetime.now(datetime.UTC).isoformat()
 
         skip_voc = self._get_custom_list(exe_root / "user/skip")
 
