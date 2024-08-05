@@ -79,14 +79,14 @@ class Api:
                 )
             )
 
-        count = len(all_items)
+        n = len(all_items)
 
         all_items.sort(
             key=lambda r: r.get("srs", {}).get("difficulty", 0), reverse=True
         )
         all_items = all_items[:count]
 
-        return {"result": all_items, "count": count}
+        return {"result": all_items, "count": n}
 
     def new_vocab_list(self, count=20):
         skip_voc = self._get_custom_list(exe_root / "user/skip")
@@ -132,7 +132,7 @@ class Api:
             if "variant of" in en:
                 return 2
 
-            return -len(r["english"])
+            return -len([en for en in r["english"] if en[0] != "("])
 
         rs.sort(key=sorter)
 
