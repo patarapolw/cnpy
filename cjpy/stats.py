@@ -66,7 +66,7 @@ def make_stats():
 
     good.reverse()
 
-    stats["lone"] = "".join(r["v"] for r in good if len(r["v"]) == 1)
+    stats["lone"] = "".join(r["v"][0] for r in good if len(set(r["v"])) == 1)
     stats["lone.count"] = len(stats["lone"])
 
     for i, (c, count) in enumerate(
