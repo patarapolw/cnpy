@@ -32,6 +32,7 @@ document.addEventListener("keydown", (ev) => {
   }
 });
 
+/** @type {import('showdown').Converter} */
 const converter = new showdown.Converter({
   parseImgDimensions: true,
   // openLinksInNewWindow: true,

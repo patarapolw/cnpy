@@ -1,0 +1,19 @@
+{
+  "name": "cjpy",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "pnpm run py app.py",
+    "build": "pnpm run py build.py %npm_package_version%",
+    "build:fix": "pnpm run py build.py %npm_package_version%-fix",
+    "py": ".\\.venv\\Scripts\\python.exe",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/showdown": "^2.0.6"
+  }
+}
