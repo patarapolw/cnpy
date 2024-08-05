@@ -18,17 +18,21 @@ elInput.parentElement.addEventListener("submit", onsubmit);
 elInput.focus();
 
 document.addEventListener("keydown", (ev) => {
-  if (ev.key === "Escape") {
-    if (typeof state.lastIsRight === "boolean") {
-      mark("repeat");
-    } else {
-      state.skip++;
+  switch (ev.key) {
+    case "Escape":
+      if (typeof state.lastIsRight === "boolean") {
+        mark("repeat");
+      } else {
+        state.skip++;
 
-      document.querySelector(".count[data-count-type='total']").innerText =
-        state.total - state.skip;
+        document.querySelector(".count[data-count-type='total']").innerText =
+          state.total - state.skip;
 
-      newVocab();
-    }
+        newVocab();
+      }
+      break;
+    case "F1":
+      newVocabList();
   }
 });
 
