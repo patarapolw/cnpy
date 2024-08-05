@@ -17,6 +17,19 @@ const elNotes = document.getElementById("notes");
 elInput.parentElement.addEventListener("submit", onsubmit);
 elInput.focus();
 
+window.addEventListener("click", (ev) => {
+  if (ev.target instanceof HTMLElement) {
+    if (
+      ev.target instanceof HTMLInputElement ||
+      ev.target instanceof HTMLTextAreaElement
+    ) {
+      return;
+    }
+
+    ev.target.blur();
+  }
+});
+
 document.addEventListener("keydown", (ev) => {
   switch (ev.key) {
     case "Escape":
