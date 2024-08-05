@@ -2,7 +2,7 @@ Start with a batch of 20. Will make a new batch if the previous has been surpass
 
 After every rounds of not-Right's, there will be unlimited repeats until you get everything Right.
 
-`ESC` for Not Sure / Skip.
+`ESC` for Not Sure / Skip. `F1` to end session and start the drill or a new session.
 
 Mulitple answers if applicable, separated by `;`.
 

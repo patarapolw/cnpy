@@ -20,13 +20,10 @@ elInput.focus();
 window.addEventListener("click", (ev) => {
   if (ev.target instanceof HTMLElement) {
     if (
-      ev.target instanceof HTMLInputElement ||
-      ev.target instanceof HTMLTextAreaElement
+      ["BUTTON", "SUMMARY", "A"].includes(ev.target.tagName.toLocaleUpperCase())
     ) {
-      return;
+      ev.target.blur();
     }
-
-    ev.target.blur();
   }
 });
 
