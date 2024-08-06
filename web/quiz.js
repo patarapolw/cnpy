@@ -245,7 +245,7 @@ async function newVocab() {
 
   state.i++;
 
-  if (state.i >= state.vocabList.length) {
+  if (state.pendingList.length >= 10 || state.i >= state.vocabList.length) {
     await newVocabList();
     return;
   }

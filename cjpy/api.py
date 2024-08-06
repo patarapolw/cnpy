@@ -97,8 +97,11 @@ class Api:
         # zipf freq min is p75 or at least 5
         # max = 7.79, >6 = 101, 5-6 = 1299, 4-5 = 8757
         freq_min = 5
-        if "p75" in self.latest_stats and self.latest_stats["p75"] < freq_min:
-            freq_min = self.latest_stats["p75"]
+        stats_min = (
+            self.latest_stats["p75"] * 0.75 if "p75" in self.latest_stats else None
+        )
+        if stats_min and stats_min < freq_min:
+            freq_min = stats_min
 
         all_items = [
             dejson_quiz(r)
