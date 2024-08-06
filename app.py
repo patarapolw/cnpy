@@ -8,7 +8,7 @@ if __name__ == "__main__":
     db = load_db()
 
     api = Api()
-    api.log(api.stats())
+    api.log(api.latest_stats)
 
     win = webview.create_window(
         "Pinyin Quiz",
@@ -18,4 +18,4 @@ if __name__ == "__main__":
     webview.start(lambda: win.evaluate_js("newVocab()"))
 
     db.commit()
-    api.log(api.stats())
+    api.log(api.get_stats())

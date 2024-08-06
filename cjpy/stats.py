@@ -1,9 +1,33 @@
 import json
 from collections import Counter
-from typing import Any
+from typing import TypedDict
 
 
 from cjpy.db import db
+
+
+Stats = TypedDict(
+    "Stats",
+    {
+        "studied": int,
+        "good": int,
+        "5.x": int,
+        "4.x": int,
+        "3.x": int,
+        "2.x": int,
+        "1.x": int,
+        "0.x": int,
+        "p75": float,
+        "p99": float,
+        "lone": str,
+        "lone.count": int,
+        "h5": str,
+        "h5.count": int,
+        "h3": str,
+        "h3.count": int,
+    },
+    total=False,
+)
 
 
 def make_stats():
@@ -32,7 +56,7 @@ def make_stats():
 
     good = [r for r in studied if r["srs"]["difficulty"] < max_difficulty]
 
-    stats: dict[str, Any] = {"studied": len(studied), "good": len(good)}
+    stats = Stats(studied=len(studied), good=len(good))
 
     for r in good:
         f = r["data"]["wordfreq"]
@@ -41,22 +65,40 @@ def make_stats():
             pass
         elif f >= 5:
             k = "5.x"
-            stats[k] = stats.setdefault(k, 0) + 1
+            if k in stats:
+                stats[k] += 1
+            else:
+                stats[k] = 1
         elif f >= 4:
             k = "4.x"
-            stats[k] = stats.setdefault(k, 0) + 1
+            if k in stats:
+                stats[k] += 1
+            else:
+                stats[k] = 1
         elif f >= 3:
             k = "3.x"
-            stats[k] = stats.setdefault(k, 0) + 1
+            if k in stats:
+                stats[k] += 1
+            else:
+                stats[k] = 1
         elif f >= 2:
             k = "2.x"
-            stats[k] = stats.setdefault(k, 0) + 1
+            if k in stats:
+                stats[k] += 1
+            else:
+                stats[k] = 1
         elif f >= 1:
             k = "1.x"
-            stats[k] = stats.setdefault(k, 0) + 1
+            if k in stats:
+                stats[k] += 1
+            else:
+                stats[k] = 1
         else:
             k = "0.x"
-            stats[k] = stats.setdefault(k, 0) + 1
+            if k in stats:
+                stats[k] += 1
+            else:
+                stats[k] = 1
 
     def p(arr: list, f: float):
         return arr[int(len(arr) * f)]["data"]["wordfreq"]
@@ -64,10 +106,17 @@ def make_stats():
     stats["p75"] = p(good, 0.75)
     stats["p99"] = p(good, 0.99)
 
+    if stats["p99"] == stats["p75"]:
+        del stats["p99"]
+
     good.reverse()
 
     stats["lone"] = "".join(r["v"][0] for r in good if len(set(r["v"])) == 1)
-    stats["lone.count"] = len(stats["lone"])
+
+    if stats["lone"]:
+        stats["lone.count"] = len(stats["lone"])
+    else:
+        del stats["lone"]
 
     for i, (c, count) in enumerate(
         Counter("".join("".join(set(r["v"])) for r in good)).most_common()

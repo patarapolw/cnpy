@@ -2,7 +2,6 @@ import fsrs
 from regex import Regex
 
 import json
-import random
 import datetime
 import webbrowser
 from pprint import pprint
@@ -24,19 +23,22 @@ srs = fsrs.FSRS()
 
 
 class Api:
+    def __init__(self):
+        self.get_stats()
+
     def log(self, obj):
         pprint(obj, indent=1, sort_dicts=False)
 
     def open_in_browser(self, url):
         webbrowser.open(url)
 
-    def stats(self):
-        stats = make_stats()
-        for k, v in stats.items():
+    def get_stats(self):
+        self.latest_stats = make_stats()
+        for k, v in self.latest_stats.items():
             if type(v) is str and len(v) > 50:
-                stats[k] = v[:50] + "..."
+                self.latest_stats[k] = v[:50] + "..."
 
-        return stats
+        return self.latest_stats
 
     def due_vocab_list(self, count=20):
         now = datetime.datetime.now(datetime.UTC).isoformat()
@@ -62,7 +64,8 @@ class Api:
         more_voc = self._get_custom_list(exe_root / "user/vocab")
 
         for it in skip_voc:
-            more_voc.remove(it)
+            if it in more_voc:
+                more_voc.remove(it)
 
         if more_voc:
             all_items.extend(
@@ -91,6 +94,12 @@ class Api:
     def new_vocab_list(self, count=20):
         skip_voc = self._get_custom_list(exe_root / "user/skip")
 
+        # zipf freq min is p75 or at least 5
+        # max = 7.79, >6 = 101, 5-6 = 1299, 4-5 = 8757
+        freq_min = 5
+        if "p75" in self.latest_stats and self.latest_stats["p75"] < freq_min:
+            freq_min = self.latest_stats["p75"]
+
         all_items = [
             dejson_quiz(r)
             for r in db.execute(
@@ -98,20 +107,20 @@ class Api:
                 SELECT * FROM quiz
                 WHERE srs IS NULL
                 AND {}
-                ORDER BY json_extract([data], '$.wordfreq') DESC
-                LIMIT 1000
+                AND json_extract([data], '$.wordfreq') > ?
+                ORDER BY RANDOM()
+                LIMIT {}
                 """.format(
-                    "v NOT IN ('{}')".format("','".join(skip_voc))
-                    if skip_voc
-                    else "TRUE"
+                    (
+                        "v NOT IN ('{}')".format("','".join(skip_voc))
+                        if skip_voc
+                        else "TRUE"
+                    ),
+                    count,
                 ),
+                (freq_min,),
             )
         ]
-
-        if len(all_items) > count:
-            all_items = random.sample(all_items, k=count)
-        else:
-            random.shuffle(all_items)
 
         return {"result": all_items}
 
