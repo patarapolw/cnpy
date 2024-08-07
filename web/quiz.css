@@ -50,7 +50,7 @@ p,
   background-color: red;
 }
 
-.count.is-repeat[data-count-type="total"] {
+.count[data-count-type="total"][data-repeat="true"] {
   text-decoration: underline;
   color: red;
 }
@@ -87,6 +87,10 @@ p,
 
 .if-wrong[data-checked="wrong"] {
   display: inline-block;
+}
+
+.not-repeat[data-repeat="true"] {
+  display: none;
 }
 
 .buttons > button:not(:first) {

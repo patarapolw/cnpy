@@ -309,9 +309,6 @@ async function newVocabList() {
     switch (type) {
       case "total":
         el.innerText = state.total;
-        isRepeat
-          ? el.classList.add("is-repeat")
-          : el.classList.remove("is-repeat");
         break;
       case "due":
         el.innerText = state.due || "-";
@@ -319,6 +316,10 @@ async function newVocabList() {
       default:
         el.innerText = 0;
     }
+  });
+
+  document.querySelectorAll("[data-repeat]").forEach((el) => {
+    el.setAttribute("data-repeat", isRepeat ? "true" : "");
   });
 
   document.querySelectorAll("#progress [data-count-type]").forEach((el) => {
