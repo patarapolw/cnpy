@@ -14,6 +14,7 @@ const state = {
 const elInput = document.getElementById("type-input");
 const elCompare = document.getElementById("type-compare");
 const elNotes = document.getElementById("notes");
+const elNotesTextarea = elNotes.querySelector("textarea");
 
 elInput.parentElement.addEventListener("submit", onsubmit);
 elInput.focus();
@@ -63,7 +64,12 @@ elNotes.querySelector("textarea").addEventListener("paste", (ev) => {
 
   ev.preventDefault();
 
-  ev.target.setRangeText(converter.makeMarkdown(html));
+  ev.target.setRangeText(
+    converter
+      .makeMarkdown(html)
+      .replace(/<!--.*?-->/g, "")
+      .replace(/(\r?\n){2,}/g, "")
+  );
 });
 
 elNotes.querySelectorAll("button").forEach((b) => {
@@ -264,7 +270,7 @@ async function newVocab() {
   state.vocabDetails = await pywebview.api.vocab_details(v);
   document.getElementById("vocab").innerText = v;
 
-  elNotes.querySelector("textarea").value = notes || "";
+  elNotesTextarea.value = notes || "";
   makeNotes(true);
 
   elNotes.setAttribute("data-has-notes", notes ? "1" : "");
@@ -342,7 +348,7 @@ async function newVocabList() {
 }
 
 function makeNotes(skipSave) {
-  const notesText = elNotes.querySelector("#notes-edit .notes-display").value;
+  const notesText = elNotesTextarea.value;
   const elDisplay = elNotes.querySelector("#notes-show .notes-display");
 
   if (!notesText.trim() && !elDisplay.innerHTML.trim()) return;
@@ -358,7 +364,10 @@ function makeNotes(skipSave) {
   });
 
   if (!skipSave) {
-    pywebview.api.save_notes(state.vocabList[state.i].v, notesText);
+    const item = state.vocabList[state.i];
+    item.data = item.data || {};
+    item.data.notes = notesText;
+    pywebview.api.save_notes(item.v, notesText);
   }
 }
 
