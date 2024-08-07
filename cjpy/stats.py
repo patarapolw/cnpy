@@ -25,6 +25,7 @@ Stats = TypedDict(
         "h5.count": int,
         "h3": str,
         "h3.count": int,
+        "lone+h3.count": int,
     },
     total=False,
 )
@@ -132,5 +133,8 @@ def make_stats():
         if count >= 5:
             stats["h5"] = stats.get("h5", "") + c
             stats["h5.count"] = i
+
+    if "h3" in stats:
+        stats["lone+h3.count"] = len(set(stats["lone"] + stats["h3"]))
 
     return stats
