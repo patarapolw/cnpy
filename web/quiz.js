@@ -293,18 +293,17 @@ async function newVocabList() {
     state.vocabList = r.result;
     state.due = r.count;
 
-    if (!r.count) {
-      await newVocabList();
-      return;
-    }
-
     if (r.count < state.max && state.lastQuizTime) {
       const d = new Date();
       d.setMinutes(d.getMinutes() + 5);
       if (state.lastQuizTime < d) {
-        await newVocabList();
-        return;
+        state.due = 0;
       }
+    }
+
+    if (!state.due) {
+      await newVocabList();
+      return;
     }
 
     // milliseconds
