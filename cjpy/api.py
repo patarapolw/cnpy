@@ -5,6 +5,7 @@ import json
 import datetime
 import webbrowser
 from pprint import pprint
+import random
 
 from cjpy.db import db
 from cjpy.quiz import load_db_entry as dejson_quiz
@@ -84,8 +85,10 @@ class Api:
 
         n = len(all_items)
 
+        # random between near difficulty, like [5.0,5.5), [5.5,6.0)
+        random.shuffle(all_items)
         all_items.sort(
-            key=lambda r: r.get("srs", {}).get("difficulty", 0), reverse=True
+            key=lambda r: int(r.get("srs", {}).get("difficulty", 0) * 2), reverse=True
         )
         all_items = all_items[:count]
 
