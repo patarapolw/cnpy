@@ -8,6 +8,7 @@ const state = {
   vocabDetails: { cedict: [], sentences: [] },
   pendingList: [],
   lastIsRight: null,
+  lastQuizTime: null,
 };
 
 const elInput = document.getElementById("type-input");
@@ -293,9 +294,21 @@ async function newVocabList() {
     state.due = r.count;
 
     if (!r.count) {
-      newVocabList();
+      await newVocabList();
       return;
     }
+
+    if (r.count < state.max && state.lastQuizTime) {
+      const d = new Date();
+      d.setMinutes(d.getMinutes() + 5);
+      if (state.lastQuizTime < d) {
+        await newVocabList();
+        return;
+      }
+    }
+
+    // milliseconds
+    state.lastQuizTime = new Date();
   } else {
     const r = await pywebview.api.new_vocab_list(state.max);
     state.vocabList = r.result;
