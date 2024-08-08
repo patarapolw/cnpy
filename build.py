@@ -38,6 +38,10 @@ if __name__ == "__main__":
         if d.is_dir():
             shutil.copytree(d, dist_path / d.name)
 
+    (dist_path / "assets").mkdir(exist_ok=True)
+    for f in Path("assets").glob("*.*"):
+        shutil.copy(f, dist_path / "assets")
+
     zip_name = APP_NAME
     if VERSION:
         zip_name += "-" + VERSION

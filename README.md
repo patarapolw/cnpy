@@ -18,4 +18,4 @@ User vocabularies at `user/vocab/**/*.txt` will be added to Due queue (if the en
 
 ## Vocab list ideas
 
-- [Hanzi levels](https://github.com/zhquiz/level/blob/master/_data/generated/vocab.yaml)
+- [Hanzi levels](https://github.com/zhquiz/level/blob/master/_data/generated/vocab.yaml) ([zhquiz-vocab.yaml](/assets/zhquiz-vocab.yaml))
