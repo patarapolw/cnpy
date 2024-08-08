@@ -9,6 +9,7 @@ const state = {
   pendingList: [],
   lastIsRight: null,
   lastQuizTime: null,
+  isRepeat: false,
 };
 
 const elInput = document.getElementById("type-input");
@@ -44,7 +45,9 @@ document.addEventListener("keydown", (ev) => {
       }
       break;
     case "F1":
-      newVocabList();
+      if (!state.isRepeat) {
+        newVocabList();
+      }
   }
 });
 
@@ -56,7 +59,12 @@ const converter = new showdown.Converter({
 });
 
 elNotes.querySelector("textarea").addEventListener("paste", (ev) => {
-  const html = ev.clipboardData.getData("text/html");
+  const { target, clipboardData } = ev;
+
+  if (!clipboardData) return;
+  if (!(target instanceof HTMLTextAreaElement)) return;
+
+  const html = clipboardData.getData("text/html");
   if (!html) return;
 
   const selection = window.getSelection();
@@ -64,12 +72,15 @@ elNotes.querySelector("textarea").addEventListener("paste", (ev) => {
 
   ev.preventDefault();
 
-  ev.target.setRangeText(
-    converter
-      .makeMarkdown(html)
-      .replace(/<!--.*?-->/g, "")
-      .replace(/(\r?\n){2,}/g, "")
-  );
+  const md = converter
+    .makeMarkdown(html)
+    .replace(/<!--.*?-->/g, "")
+    .replace(/(\r?\n){2,}/g, "");
+
+  target.setRangeText(md);
+  target.selectionStart += md.length;
+  target.blur();
+  target.focus();
 });
 
 elNotes.querySelectorAll("button").forEach((b) => {
@@ -289,11 +300,11 @@ async function newVocabList() {
   state.i = -1;
   state.skip = 0;
 
-  let isRepeat = false;
+  state.isRepeat = false;
 
   if (state.pendingList.length > 0) {
     state.vocabList = state.pendingList;
-    isRepeat = true;
+    state.isRepeat = true;
   } else if (state.due) {
     const r = await pywebview.api.due_vocab_list(state.max);
     state.vocabList = r.result;
@@ -337,7 +348,7 @@ async function newVocabList() {
   });
 
   document.querySelectorAll("[data-repeat]").forEach((el) => {
-    el.setAttribute("data-repeat", isRepeat ? "true" : "");
+    el.setAttribute("data-repeat", state.isRepeat ? "true" : "");
   });
 
   document.querySelectorAll("#progress [data-count-type]").forEach((el) => {
