@@ -25,7 +25,8 @@ Stats = TypedDict(
         "h5.count": int,
         "h3": str,
         "h3.count": int,
-        "lone+h3.count": int,
+        "accuracy": str,
+        "hanzi.count": int,
     },
     total=False,
 )
@@ -57,7 +58,7 @@ def make_stats():
 
     good = [r for r in studied if r["srs"]["difficulty"] < max_difficulty]
 
-    stats = Stats(studied=len(studied), good=len(good))
+    stats = Stats()
 
     for r in good:
         f = r["data"]["wordfreq"]
@@ -134,7 +135,20 @@ def make_stats():
             stats["h5"] = stats.get("h5", "") + c
             stats["h5.count"] = i
 
+    stats["studied"] = len(studied)
+    stats["good"] = len(good)
+    stats["accuracy"] = "{:.1f}%".format(stats["good"] / stats["studied"] * 100)
+
+    # lone+h3.count remove duplicate
+    stats["hanzi.count"] = 0
+
     if "h3" in stats:
-        stats["lone+h3.count"] = len(set(stats["lone"] + stats["h3"]))
+        if "lone" in stats:
+            stats["hanzi.count"] = len(set(stats["lone"] + stats["h3"]))
+        else:
+            stats["hanzi.count"] = len(stats["h3"])
+    else:
+        if "lone" is stats:
+            stats["hanzi.count"] = len(stats["lone"])
 
     return stats
