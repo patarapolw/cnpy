@@ -148,7 +148,7 @@ def make_stats():
         else:
             stats["hanzi.count"] = len(stats["h3"])
     else:
-        if "lone" is stats:
+        if "lone" in stats:
             stats["hanzi.count"] = len(stats["lone"])
 
     return stats
