@@ -1,6 +1,6 @@
 pywebview==5.1
 fsrs==2.5.1
 regex==2024.7.24
-wordfreq[cjk]==3.1.1
+wordfreq==3.1.1
 jieba==0.42.1
 pyinstaller==6.9.0
