@@ -20,6 +20,22 @@ const elNotesTextarea = elNotes.querySelector("textarea");
 elInput.parentElement.addEventListener("submit", onsubmit);
 elInput.focus();
 
+elInput.addEventListener("keydown", (ev) => {
+  switch (ev.key) {
+    case "Enter":
+      break;
+    default:
+      if (typeof state.lastIsRight === "boolean") {
+        ev.preventDefault();
+
+        if (ev.key === "z") {
+          state.i--;
+          newVocab();
+        }
+      }
+  }
+});
+
 window.addEventListener("click", (ev) => {
   if (ev.target instanceof HTMLElement) {
     if (
@@ -44,6 +60,7 @@ document.addEventListener("keydown", (ev) => {
         newVocab();
       }
       break;
+    case "F5":
     case "F1":
       if (!state.isRepeat) {
         newVocabList();
@@ -262,6 +279,7 @@ async function newVocab() {
   document.querySelectorAll(".if-checked-details").forEach((el) => el.remove());
 
   state.i++;
+  state.lastIsRight = null;
 
   if (state.pendingList.length >= 10 || state.i >= state.vocabList.length) {
     await newVocabList();

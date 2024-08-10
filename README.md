@@ -2,9 +2,9 @@ Start with a batch of 20. Will make a new batch if the previous has been surpass
 
 After every rounds of not-Right's, there will be unlimited repeat drills until you get everything Right.
 
-No typo checking and no undo button. However, there is a middle-way button, "Not Sure".
+No typo checking. However, there is a middle-way button, "Not Sure".
 
-`ESC` for Not Sure / Skip. `F1` to end session and start the repeat drill or a new session.
+`ESC` for Not Sure / Skip. `F1` or `F5` to end session and start the repeat drill or a new session.
 
 Mulitple answers if applicable, separated by `;`.
 
