@@ -19,11 +19,11 @@ No typo checking. However, there is a middle-way button, "Not Sure".
 
 ## Vocab list ideas
 
-- Hanzi levels from [ZhQuiz](https://github.com/zhquiz/level/blob/master/_data/generated/vocab.yaml) ([zhquiz-vocab.yaml](/assets/zhquiz-vocab.yaml))
+- Hanzi [levels](/assets/zhquiz-vocab.yaml) from [ZhQuiz](https://github.com/zhquiz/level/blob/master/_data/generated/vocab.yaml)
 
 ## Stats
 
-Progression stats can be seen in the console. Packaged releases also have that console.
+Progression stats can be seen in the console. Packaged releases also have the console.
 
 ```python
  # zipf frequency according to https://pypi.org/project/wordfreq/, counting only "good"
@@ -33,21 +33,21 @@ Progression stats can be seen in the console. Packaged releases also have that c
  '2.x': 4,
  '1.x': 3,
  '0.x': 1,
- # 75th percentile and 99th percentile of the word frequency
- # Random new vocab is given at 0.75 * p75
+ # 75th percentile and 99th percentile of the zipf word frequency
+ # Random new vocab are given at 0.75 * p75
  'p75': 4.4,
  'p99': 1.77,
- # vocab with lone or single type of Hanzi
+ # Vocab with lone or single type of Hanzi
  'lone': '箭匹伞饱矮敲闹灯奶架剑鸟船画坐脸奖入几团求嘛面五信主段越笑金加队线场原手类级水全法指啦年学杀军制连外...',
  'lone.count': 97,
- # Hanzi that repeat in 3 or more vocabularies
+ # Hanzi that repeat in 3 or more vocab
  'h3': '不年子大学样好要人么上国为过而对发活行业有然们同中法是偿空台到月入说队女者作在日和什能会最来以怎经进...',
  'h3.count': 51,
  'h5': '不年子大学样好要人么上国为',
  'h5.count': 13,
- # Total vocab in the SRS (using https://pypi.org/project/fsrs/)
+ # Total vocab count in the SRS (using https://pypi.org/project/fsrs/)
  'studied': 695,
- # fsrs difficulty < 6, e.g. not SRS items that were only wrong
+ # fsrs difficulty < 6, e.g. not vocab that were only wrong
  'good': 358,
  # good/studied * 100%
  'accuracy': '51.5%',
