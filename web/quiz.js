@@ -29,9 +29,34 @@ elInput.addEventListener("keydown", (ev) => {
         ev.preventDefault();
 
         if (ev.key === "z") {
+          state.vocabList.push(state.vocabList.shift());
           state.i--;
           newVocab();
         }
+      }
+  }
+});
+
+document.addEventListener("keydown", (ev) => {
+  switch (ev.key) {
+    case "Escape":
+      if (!state.isRepeat) {
+        if (typeof state.lastIsRight === "boolean") {
+          mark("repeat");
+        } else {
+          state.skip++;
+
+          document.querySelector(".count[data-count-type='total']").innerText =
+            state.total - state.skip;
+
+          newVocab();
+        }
+      }
+      break;
+    case "F5":
+    case "F1":
+      if (!state.isRepeat) {
+        newVocabList();
       }
   }
 });
@@ -43,28 +68,6 @@ window.addEventListener("click", (ev) => {
     ) {
       ev.target.blur();
     }
-  }
-});
-
-document.addEventListener("keydown", (ev) => {
-  switch (ev.key) {
-    case "Escape":
-      if (typeof state.lastIsRight === "boolean") {
-        mark("repeat");
-      } else {
-        state.skip++;
-
-        document.querySelector(".count[data-count-type='total']").innerText =
-          state.total - state.skip;
-
-        newVocab();
-      }
-      break;
-    case "F5":
-    case "F1":
-      if (!state.isRepeat) {
-        newVocabList();
-      }
   }
 });
 

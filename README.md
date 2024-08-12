@@ -1,12 +1,13 @@
 Start with a batch of 20. Will make a new batch if the previous has been surpassed.
 
-After every rounds of not-Right's, there will be unlimited repeat drills until you get everything Right.
+After every rounds of not-Right's, there will be unlimited repeat drills until you get everything Right. Additionally, if too many wrongs (10), the repeat drill will start earlier.
 
 No typo checking. However, there is a middle-way button, "Not Sure".
 
-`ESC` for Not Sure / Skip. `F1` or `F5` to end session and start the repeat drill or a new session.
-
-Mulitple answers if applicable, separated by `;`.
+- `ESC` for Not Sure / Skip
+- `Ctrl+Z` for undo and redo later (at the end of the queue)
+- `F1` or `F5` to end session and start the repeat drill or a new session.
+- Mulitple answers if applicable, separated by `;`.
 
 ![Due Quiz](README/due.png)
 
