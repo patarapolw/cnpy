@@ -8,6 +8,8 @@ No typo checking. However, there is a middle-way button, "Not Sure".
 - `Ctrl+Z` for undo and redo later (at the end of the queue)
 - `F1` or `F5` to end session and start the repeat drill or a new session.
 - Mulitple answers if applicable, separated by `;`.
+- User vocabularies can be put at `/user/vocab/**/*.txt`, and will be added to Due queue (if the entries exist in [the dictionary](https://www.mdbg.net/chinese/dictionary?page=cc-cedict))
+- Skip lists can be put at `/user/skip/**/*.txt`, and will be skipped. For example, if the vocab are accidentally added to the SRS.
 
 ![Due Quiz](README/due.png)
 
@@ -15,8 +17,40 @@ No typo checking. However, there is a middle-way button, "Not Sure".
 
 ![Repeat Quiz](README/repeat.png)
 
-User vocabularies at `user/vocab/**/*.txt` will be added to Due queue (if the entries exist in CEDICT). Skip lists can be put at `user/skip/**/*.txt`.
-
 ## Vocab list ideas
 
-- [Hanzi levels](https://github.com/zhquiz/level/blob/master/_data/generated/vocab.yaml) ([zhquiz-vocab.yaml](/assets/zhquiz-vocab.yaml))
+- Hanzi levels from [ZhQuiz](https://github.com/zhquiz/level/blob/master/_data/generated/vocab.yaml) ([zhquiz-vocab.yaml](/assets/zhquiz-vocab.yaml))
+
+## Stats
+
+Progression stats can be seen in the console. Packaged releases also have that console.
+
+```python
+ # zipf frequency according to https://pypi.org/project/wordfreq/, counting only "good"
+{'5.x': 217,
+ '4.x': 55,
+ '3.x': 51,
+ '2.x': 4,
+ '1.x': 3,
+ '0.x': 1,
+ # 75th percentile and 99th percentile of the word frequency
+ # Random new vocab is given at 0.75 * p75
+ 'p75': 4.4,
+ 'p99': 1.77,
+ # vocab with lone or single type of Hanzi
+ 'lone': '箭匹伞饱矮敲闹灯奶架剑鸟船画坐脸奖入几团求嘛面五信主段越笑金加队线场原手类级水全法指啦年学杀军制连外...',
+ 'lone.count': 97,
+ # Hanzi that repeat in 3 or more vocabularies
+ 'h3': '不年子大学样好要人么上国为过而对发活行业有然们同中法是偿空台到月入说队女者作在日和什能会最来以怎经进...',
+ 'h3.count': 51,
+ 'h5': '不年子大学样好要人么上国为',
+ 'h5.count': 13,
+ # Total vocab in the SRS (using https://pypi.org/project/fsrs/)
+ 'studied': 695,
+ # fsrs difficulty < 6, e.g. not SRS items that is only wrong
+ 'good': 358,
+ # good/studied * 100%
+ 'accuracy': '51.5%',
+ # lone+h3 removed duplicates
+ 'hanzi.count': 126}
+```
