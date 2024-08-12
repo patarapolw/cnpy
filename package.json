@@ -1,7 +1,7 @@
 {
-  "name": "cjpy",
+  "name": "cnpy",
   "version": "0.2.0",
-  "description": "",
+  "description": "Pinyin SRS that repeats until everything right",
   "main": "index.js",
   "scripts": {
     "start": "pnpm run py app.py",
