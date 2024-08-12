@@ -97,6 +97,27 @@ class Api:
     def new_vocab_list(self, count=20):
         skip_voc = self._get_custom_list(exe_root / "user/skip")
 
+        all_items = [
+            dejson_quiz(r)
+            for r in db.execute(
+                """
+                SELECT * FROM quiz
+                WHERE srs IS NULL
+                AND {}
+                AND json_array_length([data], '$.sent') >= 3
+                ORDER BY RANDOM()
+                LIMIT 1000
+                """.format(
+                    (
+                        "v NOT IN ('{}')".format("','".join(skip_voc))
+                        if skip_voc
+                        else "TRUE"
+                    ),
+                    count,
+                ),
+            )
+        ]
+
         # zipf freq min is p75 or at least 5
         # max = 7.79, >6 = 101, 5-6 = 1299, 4-5 = 8757
         freq_min = 5
@@ -106,29 +127,24 @@ class Api:
         if stats_min and stats_min < freq_min:
             freq_min = stats_min
 
-        all_items = [
-            dejson_quiz(r)
-            for r in db.execute(
-                """
-                SELECT * FROM quiz
-                WHERE srs IS NULL
-                AND {}
-                AND json_extract([data], '$.wordfreq') > ?
-                ORDER BY RANDOM()
-                LIMIT {}
-                """.format(
-                    (
-                        "v NOT IN ('{}')".format("','".join(skip_voc))
-                        if skip_voc
-                        else "TRUE"
-                    ),
-                    count,
-                ),
-                (freq_min,),
-            )
-        ]
+        freq_items = []
+        for r in all_items:
+            if r["data"]["wordfreq"] > freq_min:
+                freq_items.append(r)
 
-        return {"result": all_items}
+                if len(freq_items) >= count:
+                    return {"result": freq_items}
+
+        freq_vs = set(r["v"] for r in freq_items)
+
+        for r in all_items:
+            if r["v"] not in freq_vs:
+                freq_items.append(r)
+
+                if len(freq_items) >= count:
+                    break
+
+        return {"result": freq_items}
 
     def vocab_details(self, v: str):
         rs = [

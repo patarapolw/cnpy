@@ -25,6 +25,9 @@ def load_db():
             eng     TEXT,
             [data]  JSON
         );
+
+        CREATE INDEX IF NOT EXISTS idx_sentence_cmn_length ON sentence (LENGTH(cmn));
+        CREATE INDEX IF NOT EXISTS idx_quiz_sent ON quiz (json_array_length([data], '$.sent'));
         """
     )
     populate_db()
