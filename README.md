@@ -47,7 +47,7 @@ Progression stats can be seen in the console. Packaged releases also have that c
  'h5.count': 13,
  # Total vocab in the SRS (using https://pypi.org/project/fsrs/)
  'studied': 695,
- # fsrs difficulty < 6, e.g. not SRS items that is only wrong
+ # fsrs difficulty < 6, e.g. not SRS items that were only wrong
  'good': 358,
  # good/studied * 100%
  'accuracy': '51.5%',
