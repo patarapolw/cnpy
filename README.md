@@ -40,7 +40,7 @@ Progression stats can be seen in the console. Packaged releases also have the co
  # Vocab with lone or single type of Hanzi
  'lone': '箭匹伞饱矮敲闹灯奶架剑鸟船画坐脸奖入几团求嘛面五信主段越笑金加队线场原手类级水全法指啦年学杀军制连外...',
  'lone.count': 97,
- # Hanzi that repeat in 3 or more vocab
+ # Hanzi that repeat in 3 or more vocab. h5 is 5 or more.
  'h3': '不年子大学样好要人么上国为过而对发活行业有然们同中法是偿空台到月入说队女者作在日和什能会最来以怎经进...',
  'h3.count': 51,
  'h5': '不年子大学样好要人么上国为',
