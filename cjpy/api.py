@@ -113,7 +113,6 @@ class Api:
                         if skip_voc
                         else "TRUE"
                     ),
-                    count,
                 ),
             )
         ]
@@ -142,8 +141,54 @@ class Api:
                 freq_items.append(r)
 
                 if len(freq_items) >= count:
-                    break
+                    return {"result": freq_items}
 
+        freq_items.extend(
+            dejson_quiz(r)
+            for r in db.execute(
+                """
+                SELECT * FROM quiz
+                WHERE srs IS NULL
+                AND {}
+                AND json_array_length([data], '$.sent') < 3
+                AND json_array_length([data], '$.sent') > 0
+                LIMIT {}
+                """.format(
+                    (
+                        (
+                            "v NOT IN ('{}')".format("','".join(skip_voc))
+                            if skip_voc
+                            else "TRUE"
+                        ),
+                        count,
+                    ),
+                ),
+            )
+        )
+
+        if len(freq_items) < count:
+            freq_items.extend(
+                dejson_quiz(r)
+                for r in db.execute(
+                    """
+                SELECT * FROM quiz
+                WHERE srs IS NULL
+                AND {}
+                AND json_array_length([data], '$.sent') = 0
+                LIMIT {}
+                """.format(
+                        (
+                            "v NOT IN ('{}')".format("','".join(skip_voc))
+                            if skip_voc
+                            else "TRUE"
+                        ),
+                        count,
+                    ),
+                )
+            )
+
+        freq_items = freq_items[:count]
+        random.shuffle(freq_items)
         return {"result": freq_items}
 
     def vocab_details(self, v: str):
@@ -188,24 +233,29 @@ class Api:
         ]
 
         if len(sentences) < 3:
-            prev_ids = set(r["id"] for r in sentences)
+            prev_cmn = set(r["cmn"] for r in sentences)
 
             for r in db.execute(
                 """
-            SELECT *
-            FROM sentence
-            WHERE id IN (
-                SELECT json_each.value
-                FROM quiz, json_each(json_extract([data], '$.sent'))
-                WHERE v = ?
-            )
-            ORDER BY RANDOM()
-            LIMIT 5
-            """,
+                SELECT *
+                FROM sentence
+                WHERE id IN (
+                    SELECT json_each.value
+                    FROM quiz, json_each(json_extract([data], '$.sent'))
+                    WHERE v = ?
+                )
+                AND {}
+                ORDER BY RANDOM()
+                LIMIT 5
+                """.format(
+                    "id NOT IN ({})".format(",".join(str(r["id"]) for r in sentences))
+                    if sentences
+                    else "TRUE"
+                ),
                 (v,),
             ):
                 r = dejson_sentence(r)
-                if r["id"] not in prev_ids:
+                if r["cmn"] not in prev_cmn:
                     sentences.append(r)
 
         return {"cedict": rs, "sentences": sentences[:5]}
