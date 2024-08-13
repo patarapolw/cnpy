@@ -29,7 +29,7 @@ elInput.addEventListener("keydown", (ev) => {
         ev.preventDefault();
 
         if (ev.key === "z") {
-          state.vocabList.push(state.vocabList.shift());
+          state.vocabList.push(...state.vocabList.splice(state.i, 1));
           state.i--;
           newVocab();
         }
@@ -95,7 +95,9 @@ elNotes.querySelector("textarea").addEventListener("paste", (ev) => {
   const md = converter
     .makeMarkdown(html)
     .replace(/<!--.*?-->/g, "")
-    .replace(/(\r?\n){2,}/g, "");
+    .replace(/^(\r?\n)+/, "")
+    .replace(/(\r?\n)+$/, "");
+  // .replace(/(\r?\n){2,}/g, "");
 
   target.setRangeText(md);
   target.selectionStart += md.length;
@@ -404,7 +406,7 @@ function makeNotes(skipSave) {
 }
 
 function normalize_pinyin(s) {
-  return s.replace(/ /g, "").toLocaleLowerCase();
+  return s.replace(/v/g, "u:").replace(/ /g, "").toLocaleLowerCase();
 }
 
 function comp_pinyin(a, b) {
