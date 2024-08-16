@@ -5,7 +5,7 @@ import sys
 
 import PyInstaller.__main__
 
-APP_NAME = "cjpy"
+APP_NAME = "cnpy"
 VERSION = sys.argv[1] if len(sys.argv) > 1 else ""
 
 pyi_args = ["app.py"]

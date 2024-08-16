@@ -60,95 +60,99 @@ def make_stats():
 
     stats = Stats()
 
-    for r in good:
-        f = r["data"]["wordfreq"]
+    if good:
+        for r in good:
+            f = r["data"]["wordfreq"]
 
-        if f >= 6:
-            pass
-        elif f >= 5:
-            k = "5.x"
-            if k in stats:
-                stats[k] += 1
+            if f >= 6:
+                pass
+            elif f >= 5:
+                k = "5.x"
+                if k in stats:
+                    stats[k] += 1
+                else:
+                    stats[k] = 1
+            elif f >= 4:
+                k = "4.x"
+                if k in stats:
+                    stats[k] += 1
+                else:
+                    stats[k] = 1
+            elif f >= 3:
+                k = "3.x"
+                if k in stats:
+                    stats[k] += 1
+                else:
+                    stats[k] = 1
+            elif f >= 2:
+                k = "2.x"
+                if k in stats:
+                    stats[k] += 1
+                else:
+                    stats[k] = 1
+            elif f >= 1:
+                k = "1.x"
+                if k in stats:
+                    stats[k] += 1
+                else:
+                    stats[k] = 1
             else:
-                stats[k] = 1
-        elif f >= 4:
-            k = "4.x"
-            if k in stats:
-                stats[k] += 1
-            else:
-                stats[k] = 1
-        elif f >= 3:
-            k = "3.x"
-            if k in stats:
-                stats[k] += 1
-            else:
-                stats[k] = 1
-        elif f >= 2:
-            k = "2.x"
-            if k in stats:
-                stats[k] += 1
-            else:
-                stats[k] = 1
-        elif f >= 1:
-            k = "1.x"
-            if k in stats:
-                stats[k] += 1
-            else:
-                stats[k] = 1
+                k = "0.x"
+                if k in stats:
+                    stats[k] += 1
+                else:
+                    stats[k] = 1
+
+        def p(arr: list, f: float):
+            return arr[int(len(arr) * f)]["data"]["wordfreq"]
+
+        stats["p75"] = p(good, 0.75)
+        stats["p99"] = p(good, 0.99)
+
+        if stats["p99"] == stats["p75"]:
+            del stats["p99"]
+
+        good.reverse()
+
+        stats["lone"] = "".join(r["v"][0] for r in good if len(set(r["v"])) == 1)
+
+        if stats["lone"]:
+            stats["lone.count"] = len(stats["lone"])
         else:
-            k = "0.x"
-            if k in stats:
-                stats[k] += 1
+            del stats["lone"]
+
+        for i, (c, count) in enumerate(
+            Counter("".join("".join(set(r["v"])) for r in good)).most_common()
+        ):
+            if count < 3:
+                break
+
+            i += 1
+
+            stats["h3"] = stats.get("h3", "") + c
+            stats["h3.count"] = i
+
+            if count >= 5:
+                stats["h5"] = stats.get("h5", "") + c
+                stats["h5.count"] = i
+
+        stats["studied"] = len(studied)
+        stats["good"] = len(good)
+        stats["accuracy"] = "{:.1f}%".format(stats["good"] / stats["studied"] * 100)
+
+        # lone+h3.count remove duplicate
+        stats["hanzi.count"] = 0
+
+        if "h3" in stats:
+            if "lone" in stats:
+                stats["hanzi.count"] = len(set(stats["lone"] + stats["h3"]))
             else:
-                stats[k] = 1
-
-    def p(arr: list, f: float):
-        return arr[int(len(arr) * f)]["data"]["wordfreq"]
-
-    stats["p75"] = p(good, 0.75)
-    stats["p99"] = p(good, 0.99)
-
-    if stats["p99"] == stats["p75"]:
-        del stats["p99"]
-
-    good.reverse()
-
-    stats["lone"] = "".join(r["v"][0] for r in good if len(set(r["v"])) == 1)
-
-    if stats["lone"]:
-        stats["lone.count"] = len(stats["lone"])
-    else:
-        del stats["lone"]
-
-    for i, (c, count) in enumerate(
-        Counter("".join("".join(set(r["v"])) for r in good)).most_common()
-    ):
-        if count < 3:
-            break
-
-        i += 1
-
-        stats["h3"] = stats.get("h3", "") + c
-        stats["h3.count"] = i
-
-        if count >= 5:
-            stats["h5"] = stats.get("h5", "") + c
-            stats["h5.count"] = i
-
-    stats["studied"] = len(studied)
-    stats["good"] = len(good)
-    stats["accuracy"] = "{:.1f}%".format(stats["good"] / stats["studied"] * 100)
-
-    # lone+h3.count remove duplicate
-    stats["hanzi.count"] = 0
-
-    if "h3" in stats:
-        if "lone" in stats:
-            stats["hanzi.count"] = len(set(stats["lone"] + stats["h3"]))
+                stats["hanzi.count"] = len(stats["h3"])
         else:
-            stats["hanzi.count"] = len(stats["h3"])
+            if "lone" in stats:
+                stats["hanzi.count"] = len(stats["lone"])
     else:
-        if "lone" in stats:
-            stats["hanzi.count"] = len(stats["lone"])
+        stats["studied"] = len(studied)
+        stats["good"] = len(good)
 
     return stats
