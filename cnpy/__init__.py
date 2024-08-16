@@ -1,4 +1,4 @@
-from cjpy import cedict, quiz, tatoeba, db
+from cnpy import cedict, quiz, tatoeba, db
 
 
 def load_db():

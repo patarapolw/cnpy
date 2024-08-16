@@ -5,8 +5,8 @@ import json
 from urllib.request import urlretrieve
 from zipfile import ZipFile
 
-from cjpy.db import db
-from cjpy.dir import tmp_root
+from cnpy.db import db
+from cnpy.dir import tmp_root
 
 
 def load_db():

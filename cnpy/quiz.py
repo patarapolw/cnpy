@@ -1,6 +1,6 @@
 import json
 
-from cjpy.db import db
+from cnpy.db import db
 
 
 def load_db():

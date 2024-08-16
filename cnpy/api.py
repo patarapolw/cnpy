@@ -7,12 +7,12 @@ import webbrowser
 from pprint import pprint
 import random
 
-from cjpy.db import db
-from cjpy.quiz import load_db_entry as dejson_quiz
-from cjpy.cedict import load_db_entry as dejson_cedict
-from cjpy.tatoeba import load_db_entry as dejson_sentence
-from cjpy.stats import make_stats
-from cjpy.dir import exe_root
+from cnpy.db import db
+from cnpy.quiz import load_db_entry as dejson_quiz
+from cnpy.cedict import load_db_entry as dejson_cedict
+from cnpy.tatoeba import load_db_entry as dejson_sentence
+from cnpy.stats import make_stats
+from cnpy.dir import exe_root
 
 
 from typing import TYPE_CHECKING
@@ -330,6 +330,8 @@ class Api:
         db.commit()
 
     def _get_custom_list(self, path: "Path") -> set[str]:
+        path.mkdir(exist_ok=True)
+
         items = []
         re_han = Regex(r"^\p{Han}+$")
 

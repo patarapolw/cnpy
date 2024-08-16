@@ -2,8 +2,8 @@ import sys
 
 import webview
 
-from cjpy import load_db
-from cjpy.api import Api
+from cnpy import load_db
+from cnpy.api import Api
 
 
 if __name__ == "__main__":

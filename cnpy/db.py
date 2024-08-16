@@ -1,6 +1,6 @@
 import sqlite3
 
-from cjpy.dir import exe_root
+from cnpy.dir import exe_root
 
 
 db_path = exe_root / "user/main.db"

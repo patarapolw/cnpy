@@ -3,7 +3,7 @@ from collections import Counter
 from typing import TypedDict
 
 
-from cjpy.db import db
+from cnpy.db import db
 
 
 Stats = TypedDict(
