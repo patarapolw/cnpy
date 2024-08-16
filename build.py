@@ -23,7 +23,7 @@ pyi_args.extend(("--collect-data", "jieba"))
 
 if __name__ == "__main__":
     dist_path = Path("dist") / APP_NAME
-    keep_folders = ("assets", "user")
+    keep_folders = ("user", "tmp")
 
     for f in keep_folders:
         if (dist_path / f).exists():
@@ -38,9 +38,9 @@ if __name__ == "__main__":
         if d.is_dir():
             shutil.copytree(d, dist_path / d.name)
 
-    (dist_path / "assets").mkdir(exist_ok=True)
-    for f in Path("assets").glob("*.*"):
-        shutil.copy(f, dist_path / "assets")
+    shutil.copy("LICENSE", dist_path)
+
+    shutil.copytree("assets", dist_path / "assets")
 
     zip_name = APP_NAME
     if VERSION:

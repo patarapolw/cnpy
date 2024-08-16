@@ -1,14 +1,8 @@
 import sys, os
 from pathlib import Path
-from tempfile import mkdtemp
-
-
-def tempdir():
-    return Path(mkdtemp())
 
 
 code_root = Path(__file__).absolute().parent.parent
-exe_root = code_root
 
 is_frozen = getattr(sys, "frozen", False)
 if is_frozen:
@@ -17,6 +11,10 @@ if is_frozen:
 else:
     # we are running in a normal Python environment
     bundle_dir = os.path.dirname(os.path.abspath(__file__))
+    exe_root = code_root
+
+tmp_root = exe_root / "tmp"
+tmp_root.mkdir(exist_ok=True)
 
 if __name__ == "__main__":
     print(f"frozen: {is_frozen}")

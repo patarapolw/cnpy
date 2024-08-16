@@ -7,13 +7,7 @@ import tarfile
 import bz2
 
 from cjpy.db import db
-from cjpy.dir import exe_root, tempdir
-
-
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from pathlib import Path
+from cjpy.dir import tmp_root
 
 
 def load_db():
@@ -39,15 +33,10 @@ def load_db_entry(r):
 
 def populate_db():
     if not db.execute("SELECT 1 FROM sentence LIMIT 1").fetchall():
-        tmp_dir = tempdir()
-        asset_dir = exe_root / "assets/dic"
+        download_tatoeba("cmn")
+        download_tatoeba("eng")
 
-        exe_root.mkdir(parents=True, exist_ok=True)
-
-        download_tatoeba("cmn", tmp_dir, asset_dir)
-        download_tatoeba("eng", tmp_dir, asset_dir)
-
-        download_tatoeba_links(tmp_dir, asset_dir)
+        download_tatoeba_links()
 
         db.executescript(
             """
@@ -69,15 +58,15 @@ def populate_db():
         cmn_ids = set()
         eng_ids = set()
 
-        for ln in (asset_dir / "cmn_sentences.tsv").open("r", encoding="utf8"):
+        for ln in (tmp_root / "cmn_sentences.tsv").open("r", encoding="utf8"):
             rs = ln.rstrip().split("\t", 1)
             cmn_ids.add(int(rs[0]))
 
-        for ln in (asset_dir / "eng_sentences.tsv").open("r", encoding="utf8"):
+        for ln in (tmp_root / "eng_sentences.tsv").open("r", encoding="utf8"):
             rs = ln.rstrip().split("\t", 1)
             eng_ids.add(int(rs[0]))
 
-        for ln in (asset_dir / "links.csv").open("r", encoding="utf8"):
+        for ln in (tmp_root / "links.csv").open("r", encoding="utf8"):
             rs = ln.split("\t", 2)
 
             id1 = int(rs[0])
@@ -88,7 +77,7 @@ def populate_db():
 
         db.commit()
 
-        for ln in (asset_dir / "eng_sentences.tsv").open("r", encoding="utf8"):
+        for ln in (tmp_root / "eng_sentences.tsv").open("r", encoding="utf8"):
             rs = ln.rstrip().split("\t")
             db.execute("INSERT INTO eng (id, eng) VALUES (?,?)", (int(rs[0]), rs[2]))
 
@@ -97,7 +86,7 @@ def populate_db():
         re_en = Regex(r"[A-Za-z]")
         re_han = Regex(r"^\p{Han}+$")
 
-        for ln in (asset_dir / "cmn_sentences.tsv").open("r", encoding="utf8"):
+        for ln in (tmp_root / "cmn_sentences.tsv").open("r", encoding="utf8"):
             rs = ln.rstrip().split("\t")
 
             id1 = rs[0]
@@ -163,35 +152,35 @@ def populate_db():
         db.commit()
 
 
-def download_tatoeba(lang: str, dldir: "Path", unzipdir: "Path"):
+def download_tatoeba(lang: str):
     filename = f"{lang}_sentences.tsv"
 
-    if not (unzipdir / filename).exists():
+    if not (tmp_root / filename).exists():
         zipFilename = f"{lang}_sentences.tsv.bz2"
-        zipPath = dldir / zipFilename
+        zipPath = tmp_root / zipFilename
 
         url = f"https://downloads.tatoeba.org/exports/per_language/{lang}/{zipFilename}"
         print("Downloading {} from {}".format(filename, url))
         urlretrieve(url, zipPath)
 
-        with (unzipdir / filename).open("wb") as unzipFile:
+        with (tmp_root / filename).open("wb") as unzipFile:
             with bz2.open(zipPath) as zipFile:
                 unzipFile.write(zipFile.read())
 
 
-def download_tatoeba_links(dldir: "Path", unzipdir: "Path"):
+def download_tatoeba_links():
     filename = "links.csv"
 
-    if not (unzipdir / filename).exists():
+    if not (tmp_root / filename).exists():
         zipFilename = "links.tar.bz2"
-        zipPath = dldir / zipFilename
+        zipPath = tmp_root / zipFilename
 
         url = f"https://downloads.tatoeba.org/exports/{zipFilename}"
         print("Downloading {} from {}".format(filename, url))
         urlretrieve(url, zipPath)
 
         with tarfile.open(zipPath) as z:
-            z.extract(filename, unzipdir)
+            z.extract(filename, tmp_root)
 
 
 def reset_db():

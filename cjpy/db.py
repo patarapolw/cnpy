@@ -2,6 +2,7 @@ import sqlite3
 
 from cjpy.dir import exe_root
 
+
 db_path = exe_root / "user/main.db"
 db_path.parent.mkdir(exist_ok=True)
 

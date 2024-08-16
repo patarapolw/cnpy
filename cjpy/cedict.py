@@ -6,7 +6,7 @@ from urllib.request import urlretrieve
 from zipfile import ZipFile
 
 from cjpy.db import db
-from cjpy.dir import exe_root, tempdir
+from cjpy.dir import tmp_root
 
 
 def load_db():
@@ -44,12 +44,10 @@ def load_db_entry(r):
 def populate_db():
     if not db.execute("SELECT 1 FROM cedict LIMIT 1").fetchall():
         filename = "cedict_ts.u8"
-        cedict = exe_root / "assets/dic" / filename
+        cedict = tmp_root / filename
 
         if not cedict.exists():
-            cedict.parent.mkdir(parents=True, exist_ok=True)
-
-            zipPath = tempdir() / "cedict.zip"
+            zipPath = tmp_root / "cedict.zip"
 
             url = "https://www.mdbg.net/chinese/export/cedict/cedict_1_0_ts_utf-8_mdbg.zip"
             print("Downloading {} from {}".format(filename, url))
