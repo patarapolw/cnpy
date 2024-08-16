@@ -19,7 +19,7 @@ No typo checking. However, there is a middle-way button, "Not Sure".
 
 ## Vocab list ideas
 
-- Hanzi [levels](/assets/zhquiz-vocab.yaml) from [ZhQuiz](https://github.com/zhquiz/level/blob/master/_data/generated/vocab.yaml)
+- Hanzi [levels](/assets/zhquiz-level/vocab.yaml) from [ZhQuiz](https://github.com/zhquiz/level/blob/master/_data/generated/vocab.yaml)
 
 ## Stats
 
