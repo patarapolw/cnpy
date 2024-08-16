@@ -89,7 +89,7 @@ p,
   display: inline-block;
 }
 
-.not-repeat[data-repeat="true"] {
+.if-wrong\:not-repeat[data-repeat="true"][data-checked="wrong"] {
   display: none;
 }
 

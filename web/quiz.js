@@ -40,7 +40,11 @@ elInput.addEventListener("keydown", (ev) => {
 document.addEventListener("keydown", (ev) => {
   switch (ev.key) {
     case "Escape":
-      if (!state.isRepeat) {
+      if (state.isRepeat) {
+        if (state.lastIsRight === true) {
+          mark("repeat");
+        }
+      } else {
         if (typeof state.lastIsRight === "boolean") {
           mark("repeat");
         } else {
