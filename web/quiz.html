@@ -147,14 +147,20 @@
       >
         <summary>Notes</summary>
         <fieldset id="notes-edit">
-          <textarea class="notes-display"></textarea>
+          <textarea
+            class="notes-display"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+          ></textarea>
           <footer>
             <button type="submit">Save</button>
           </footer>
         </fieldset>
         <fieldset id="notes-show">
           <div style="overflow: scroll">
-            <div class="notes-display"></div>
+            <div class="notes-display" lang="zh-CN"></div>
           </div>
           <footer>
             <button type="button">Edit</button>
