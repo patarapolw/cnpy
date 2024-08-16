@@ -14,6 +14,17 @@ def load_db():
 
         CREATE INDEX IF NOT EXISTS idx_quiz_srs_due ON quiz (json_extract(srs, '$.due'));
         CREATE INDEX IF NOT EXISTS idx_quiz_wordfreq ON quiz (json_extract([data], '$.wordfreq'));
+
+        CREATE TABLE IF NOT EXISTS revlog (
+            v           TEXT NOT NULL,
+            prev_srs    JSON,
+            mark        INT NOT NULL,
+            created     TEXT NOT NULL   -- TIMESTAMP
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_revlog_v ON revlog (v);
+        CREATE INDEX IF NOT EXISTS idx_revlog_mark ON revlog (mark);
+        CREATE INDEX IF NOT EXISTS idx_revlog_created ON revlog (created);
         """
     )
 
@@ -24,7 +35,7 @@ def load_db_entry(r):
     r = dict(r)
 
     for k in ("data", "srs"):
-        if type(r[k]) is str:
+        if type(r.get(k, None)) is str:
             r[k] = json.loads(r[k])
 
     for k in list(r.keys()):

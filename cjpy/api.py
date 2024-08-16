@@ -27,6 +27,18 @@ class Api:
     def __init__(self):
         self.get_stats()
 
+        db.execute(
+            """
+            DELETE FROM revlog
+            WHERE created < ?
+            """,
+            (
+                (
+                    datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
+                ).isoformat(),
+            ),
+        )
+
     def log(self, obj):
         pprint(obj, indent=1, sort_dicts=False)
 
@@ -263,22 +275,23 @@ class Api:
     def mark(self, v: str, t: str):
         card = fsrs.Card()
 
+        prev_srs = None
+
         for r in db.execute("SELECT srs FROM quiz WHERE v = ? LIMIT 1", (v,)):
             if type(r["srs"]) is str:
-                card = fsrs.Card.from_dict(json.loads(r["srs"]))
+                prev_srs = r["srs"]
+                card = fsrs.Card.from_dict(json.loads(prev_srs))
                 break
 
-        card, review_log = srs.review_card(
-            card,
-            {
-                "right": fsrs.Rating.Good,
-                "repeat": fsrs.Rating.Hard,
-                "wrong": fsrs.Rating.Again,
-            }[t],
-        )
+        mark = {
+            "right": fsrs.Rating.Good,
+            "repeat": fsrs.Rating.Hard,
+            "wrong": fsrs.Rating.Again,
+        }[t]
+
+        card, review_log = srs.review_card(card, mark)
 
         card_json = json.dumps(card.to_dict())
-
         if not db.execute(
             "UPDATE quiz SET srs = ? WHERE v = ?",
             (card_json, v),
@@ -287,6 +300,16 @@ class Api:
                 "INSERT INTO quiz (v, srs) VALUES (?, ?)",
                 (v, card_json),
             )
+
+        db.execute(
+            "INSERT INTO revlog (v, prev_srs, mark, created) VALUES (?,?,?,?)",
+            (
+                v,
+                prev_srs,
+                int(mark),
+                datetime.datetime.now(datetime.UTC).isoformat(),
+            ),
+        )
 
         db.commit()
 
