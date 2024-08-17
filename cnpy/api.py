@@ -24,7 +24,9 @@ srs = fsrs.FSRS()
 
 
 class Api:
-    def __init__(self):
+    def __init__(self, v=""):
+        self.v = v
+
         self.get_stats()
 
         db.execute(
@@ -102,9 +104,29 @@ class Api:
         all_items.sort(
             key=lambda r: int(r.get("srs", {}).get("difficulty", 0) * 2), reverse=True
         )
-        all_items = all_items[:count]
 
-        return {"result": all_items, "count": n}
+        if self.v:
+            r0 = None
+            rs = []
+            for r in all_items:
+                if r["v"] == self.v:
+                    r0 = r
+                else:
+                    rs.append(r)
+
+            all_items = rs
+
+            if not r0:
+                r0 = dejson_quiz(
+                    db.execute("SELECT * FROM quiz WHERE v = ?", (self.v,)).fetchone()
+                )
+                n += 1
+
+            all_items.insert(0, r0)
+
+            self.v = ""
+
+        return {"result": all_items[:count], "count": n}
 
     def new_vocab_list(self, count=20):
         skip_voc = self._get_custom_list(exe_root / "user/skip")

@@ -6,6 +6,7 @@
   "scripts": {
     "start": "pnpm run py app.py",
     "dev": "pnpm run py app.py --debug",
+    "vocab": "pnpm run py app.py --vocab",
     "build": "pnpm run py build.py %npm_package_version%",
     "build:fix": "pnpm run py build.py %npm_package_version%-fix",
     "py": ".\\.venv\\Scripts\\python.exe"
