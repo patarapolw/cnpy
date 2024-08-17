@@ -55,7 +55,7 @@ class Api:
 
         return self.latest_stats
 
-    def due_vocab_list(self, count=20):
+    def due_vocab_list(self, limit=20):
         now = datetime.datetime.now(datetime.UTC).isoformat()
 
         skip_voc = self._get_custom_list(exe_root / "user/skip")
@@ -126,9 +126,9 @@ class Api:
 
             self.v = ""
 
-        return {"result": all_items[:count], "count": n}
+        return {"result": all_items[:limit], "count": n}
 
-    def new_vocab_list(self, count=20):
+    def new_vocab_list(self, limit=20):
         skip_voc = self._get_custom_list(exe_root / "user/skip")
 
         all_items = [
@@ -161,12 +161,18 @@ class Api:
             freq_min = stats_min
 
         freq_items = []
+
+        def format_output(f):
+            f = f[:limit]
+            random.shuffle(f)
+            return {"result": f}
+
         for r in all_items:
             if r["data"]["wordfreq"] > freq_min:
                 freq_items.append(r)
 
-                if len(freq_items) >= count:
-                    return {"result": freq_items}
+                if len(freq_items) >= limit:
+                    return format_output(freq_items)
 
         freq_vs = set(r["v"] for r in freq_items)
 
@@ -174,8 +180,8 @@ class Api:
             if r["v"] not in freq_vs:
                 freq_items.append(r)
 
-                if len(freq_items) >= count:
-                    return {"result": freq_items}
+                if len(freq_items) >= limit:
+                    return format_output(freq_items)
 
         freq_items.extend(
             dejson_quiz(r)
@@ -194,13 +200,13 @@ class Api:
                             if skip_voc
                             else "TRUE"
                         ),
-                        count,
+                        limit,
                     ),
                 ),
             )
         )
 
-        if len(freq_items) < count:
+        if len(freq_items) < limit:
             freq_items.extend(
                 dejson_quiz(r)
                 for r in db.execute(
@@ -216,14 +222,12 @@ class Api:
                             if skip_voc
                             else "TRUE"
                         ),
-                        count,
+                        limit,
                     ),
                 )
             )
 
-        freq_items = freq_items[:count]
-        random.shuffle(freq_items)
-        return {"result": freq_items}
+        return format_output(freq_items)
 
     def vocab_details(self, v: str):
         rs = [
