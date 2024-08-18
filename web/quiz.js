@@ -8,6 +8,7 @@ const state = {
   vocabDetails: { cedict: [], sentences: [] },
   pendingList: [],
   lastIsRight: null,
+  lastIsFuzzy: false,
   lastQuizTime: null,
   isRepeat: false,
 };
@@ -218,23 +219,24 @@ function onsubmit(ev) {
       }
     }
 
-    if (
-      elInput.value
-        .split(";")
-        .every((v) => pinyin.some((p) => comp_pinyin(p, v.trim())))
-    ) {
-      state.lastIsRight = true;
+    state.lastIsFuzzy = false;
+    state.lastIsRight = elInput.value
+      .split(";")
+      .every((v) => pinyin.some((p) => comp_pinyin(p, v.trim())));
 
-      document.querySelectorAll("[data-checked]").forEach((el) => {
-        el.setAttribute("data-checked", "right");
-      });
-    } else {
-      state.lastIsRight = false;
-
-      document.querySelectorAll("[data-checked]").forEach((el) => {
-        el.setAttribute("data-checked", "wrong");
-      });
+    if (!state.lastIsRight) {
+      if (
+        elInput.value
+          .split(";")
+          .every((v) => pinyin.some((p) => comp_pinyin(p, v.trim(), true)))
+      ) {
+        state.lastIsFuzzy = true;
+      }
     }
+
+    document.querySelectorAll("[data-checked]").forEach((el) => {
+      el.setAttribute("data-checked", state.lastIsRight ? "right" : "wrong");
+    });
   }
 
   return false;
@@ -250,7 +252,7 @@ function mark(type) {
       type = "right";
       break;
     case false:
-      type = "wrong";
+      type = state.lastIsFuzzy ? "repeat" : "wrong";
       break;
   }
   type = type || "repeat";
@@ -274,7 +276,7 @@ function mark(type) {
 
   state.lastIsRight = null;
 
-  if (state.vocabList.length === state.due || state.max) {
+  if (!state.isRepeat) {
     pywebview.api.mark(currentItem.v, type);
   }
 }
@@ -409,10 +411,14 @@ function makeNotes(skipSave) {
   }
 }
 
-function normalize_pinyin(s) {
-  return s.replace(/v/g, "u:").replace(/ /g, "").toLocaleLowerCase();
+function normalize_pinyin(s, isFuzzy) {
+  s = s.replace(/v/g, "u:").replace(/ /g, "").toLocaleLowerCase();
+  if (isFuzzy) {
+    s = s.replace(/\d+/g, " ");
+  }
+  return s;
 }
 
-function comp_pinyin(a, b) {
-  return normalize_pinyin(a) === normalize_pinyin(b);
+function comp_pinyin(a, b, isFuzzy) {
+  return normalize_pinyin(a, isFuzzy) === normalize_pinyin(b, isFuzzy);
 }

@@ -300,6 +300,7 @@ class Api:
 
     def mark(self, v: str, t: str):
         card = fsrs.Card()
+        print(v, t)
 
         prev_srs = None
 
