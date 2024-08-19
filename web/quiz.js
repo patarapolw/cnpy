@@ -339,13 +339,13 @@ async function newVocabList() {
     state.vocabList = r.result;
     state.due = r.count;
 
-    if (r.count < state.max && state.lastQuizTime) {
-      const d = new Date();
-      d.setMinutes(d.getMinutes() + 5);
-      if (state.lastQuizTime < d) {
-        state.due = 0;
-      }
-    }
+    // if (r.count < state.max / 2 && state.lastQuizTime) {
+    //   const d = new Date();
+    //   d.setMinutes(d.getMinutes() + 5);
+    //   if (state.lastQuizTime < d) {
+    //     state.due = 0;
+    //   }
+    // }
 
     if (!state.due) {
       await newVocabList();
