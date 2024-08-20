@@ -21,6 +21,7 @@ def load_db():
         );
 
         CREATE INDEX IF NOT EXISTS idx_cedict_simp ON cedict (simp);
+        CREATE INDEX IF NOT EXISTS idx_cedict_trad ON cedict (trad);
         """
     )
 

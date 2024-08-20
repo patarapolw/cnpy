@@ -83,19 +83,20 @@ class Api:
                 more_voc.remove(it)
 
         if more_voc:
-            all_items.extend(
-                dejson_quiz(r)
-                for r in db.execute(
-                    """
-                    SELECT * FROM quiz
-                    WHERE v IN (
-                        SELECT DISTINCT simp FROM cedict WHERE simp IN ('{}')
-                    ) AND srs IS NULL
-                    """.format(
-                        "','".join(more_voc)
-                    )
+            skip_voc = set(skip_voc)
+            for r in db.execute(
+                """
+                SELECT * FROM quiz
+                WHERE v IN (
+                    SELECT DISTINCT simp FROM cedict WHERE simp IN ('{0}') OR trad IN ('{0}')
+                ) AND srs IS NULL
+                """.format(
+                    "','".join(more_voc)
                 )
-            )
+            ):
+                # r = dejson_quiz(r)
+                if r["v"] not in skip_voc:
+                    all_items.append(dejson_quiz(r))
 
         n = len(all_items)
 
