@@ -359,6 +359,13 @@ async function newVocabList() {
     state.vocabList = r.result;
   }
 
+  if (
+    state.vocabDetails[0] &&
+    state.vocabDetails.cedict[0]?.simp === state.vocabList[0].v
+  ) {
+    state.vocabList.push(state.vocabList.shift());
+  }
+
   state.total = state.vocabList.length;
   state.pendingList = [];
 
