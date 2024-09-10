@@ -32,14 +32,59 @@ class Api:
         db.execute(
             """
             DELETE FROM revlog
-            WHERE created < ?
-            """,
-            (
-                (
-                    datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
-                ).isoformat(),
-            ),
+            WHERE unixepoch('now') - unixepoch(created) > 60*60*24
+            """
         )
+
+        now = datetime.datetime.now()
+        re_han = Regex(r"^\p{Han}+$")
+
+        vs = set()
+
+        path = exe_root / "user/vocab"
+        path.mkdir(exist_ok=True)
+
+        for f in path.glob("**/*.txt"):
+            for i, v in enumerate(f.open(encoding="utf-8")):
+                v = v.strip()
+                if v and re_han.fullmatch(v):
+                    rs = list(db.execute("SELECT v FROM vlist WHERE v = ?", (v,)))
+
+                    if not rs:
+                        db.execute(
+                            "INSERT INTO vlist (v, created) VALUES (?,?)",
+                            (
+                                v,
+                                now.replace(tzinfo=now.astimezone().tzinfo).isoformat(),
+                            ),
+                        )
+                    elif v in vs:
+                        print(f"{f.relative_to(path)} [L{i+1}]: {v} duplicated")
+
+                    vs.add(v)
+
+        path = exe_root / "user/skip"
+        path.mkdir(exist_ok=True)
+
+        for f in path.glob("**/*.txt"):
+            for i, v in enumerate(f.open(encoding="utf-8")):
+                v = v.strip()
+                if v and re_han.fullmatch(v):
+                    if not db.execute(
+                        """
+                        UPDATE vlist SET
+                            skip = 1
+                        WHERE v = ?
+                        """,
+                        (v,),
+                    ).rowcount:
+                        db.execute(
+                            "INSERT INTO vlist (v, created, skip) VALUES (?, ?, 1)",
+                            (
+                                v,
+                                now.replace(tzinfo=now.astimezone().tzinfo).isoformat(),
+                            ),
+                        )
 
     def log(self, obj):
         pprint(obj, indent=1, sort_dicts=False)
@@ -56,47 +101,29 @@ class Api:
         return self.latest_stats
 
     def due_vocab_list(self, limit=20):
-        now = datetime.datetime.now(datetime.UTC).isoformat()
-
-        skip_voc = self._get_custom_list(exe_root / "user/skip")
-
         all_items = [
             dejson_quiz(r)
             for r in db.execute(
                 """
+                WITH vs AS (
+                    SELECT v FROM vlist WHERE skip IS NULL
+                )
                 SELECT * FROM quiz
-                WHERE json_extract(srs, '$.due') < ?
-                AND {}
-                """.format(
-                    "v NOT IN ('{}')".format("','".join(skip_voc))
-                    if skip_voc
-                    else "TRUE"
-                ),
-                (now,),
+                WHERE
+                (
+                    json_extract(srs, '$.due') < date()||'T'||time() OR
+                    (
+                        json_extract(srs, '$.due') IS NULL
+                        AND v IN (
+                            SELECT DISTINCT simp FROM cedict WHERE simp IN vs OR trad IN vs
+                        )
+                    )
+                ) AND v NOT IN (
+                    SELECT v FROM vlist WHERE skip IS NOT NULL
+                )
+                """
             )
         ]
-
-        more_voc = self._get_custom_list(exe_root / "user/vocab")
-
-        for it in skip_voc:
-            if it in more_voc:
-                more_voc.remove(it)
-
-        if more_voc:
-            skip_voc = set(skip_voc)
-            for r in db.execute(
-                """
-                SELECT * FROM quiz
-                WHERE v IN (
-                    SELECT DISTINCT simp FROM cedict WHERE simp IN ('{0}') OR trad IN ('{0}')
-                ) AND srs IS NULL
-                """.format(
-                    "','".join(more_voc)
-                )
-            ):
-                # r = dejson_quiz(r)
-                if r["v"] not in skip_voc:
-                    all_items.append(dejson_quiz(r))
 
         n = len(all_items)
 
@@ -130,7 +157,9 @@ class Api:
         return {"result": all_items[:limit], "count": n}
 
     def new_vocab_list(self, limit=20):
-        skip_voc = self._get_custom_list(exe_root / "user/skip")
+        skip_voc = [
+            r["v"] for r in db.execute("SELECT v FROM vlist WHERE skip IS NOT NULL")
+        ]
 
         all_items = [
             dejson_quiz(r)
@@ -329,13 +358,15 @@ class Api:
                 (v, card_json),
             )
 
+        now = datetime.datetime.now()
+
         db.execute(
             "INSERT INTO revlog (v, prev_srs, mark, created) VALUES (?,?,?,?)",
             (
                 v,
                 prev_srs,
                 int(mark),
-                datetime.datetime.now(datetime.UTC).isoformat(),
+                now.replace(tzinfo=now.astimezone().tzinfo).isoformat(),
             ),
         )
 
@@ -356,18 +387,3 @@ class Api:
             )
 
         db.commit()
-
-    def _get_custom_list(self, path: "Path") -> set[str]:
-        path.mkdir(exist_ok=True)
-
-        items = []
-        re_han = Regex(r"^\p{Han}+$")
-
-        for f in path.glob("**/*.txt"):
-            items.extend(
-                v
-                for v in f.read_text(encoding="utf8").splitlines()
-                if re_han.fullmatch(v)
-            )
-
-        return set(items)

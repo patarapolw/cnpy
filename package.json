@@ -1,6 +1,6 @@
 {
   "name": "cnpy",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Pinyin SRS that repeats until everything right",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,8 @@
     "dev": "pnpm run py app.py --debug",
     "vocab": "pnpm run py app.py --vocab",
     "build": "pnpm run py build.py %npm_package_version%",
-    "build:fix": "pnpm run py build.py %npm_package_version%-fix",
+    "build:nightly": "pnpm run py build.py %npm_package_version%-nightly",
+    "build:preview": "pnpm run py build.py %npm_package_version%-preview",
     "py": ".\\.venv\\Scripts\\python.exe"
   },
   "keywords": [],

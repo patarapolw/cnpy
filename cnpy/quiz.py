@@ -24,7 +24,19 @@ def load_db():
 
         CREATE INDEX IF NOT EXISTS idx_revlog_v ON revlog (v);
         CREATE INDEX IF NOT EXISTS idx_revlog_mark ON revlog (mark);
-        CREATE INDEX IF NOT EXISTS idx_revlog_created ON revlog (created);
+        CREATE INDEX IF NOT EXISTS idx_revlog_created_f ON revlog (unixepoch(created));
+
+        DROP INDEX IF EXISTS idx_revlog_created;
+
+        CREATE TABLE IF NOT EXISTS vlist (
+            v           TEXT NOT NULL PRIMARY KEY,
+            created     TEXT NOT NULL,  -- TIMESTAMP
+            skip        INT,            -- boolean
+            [data]      JSON
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_vlist_created_f ON vlist (unixepoch(created));
+        CREATE INDEX IF NOT EXISTS idx_vlist_skip ON vlist (skip);
         """
     )
 
