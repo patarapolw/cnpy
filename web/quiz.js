@@ -146,7 +146,7 @@ function onsubmit(ev) {
       .map((v) => v.pinyin)
       .filter((v, i, a) => a.indexOf(v) === i);
 
-    elCompare.innerText = pinyin.join("; ");
+    elCompare.innerText = pinyin.join("; ").replace(/u:/g, "ü");
 
     const elDictEntries = document.getElementById("dictionary-entries");
     {
@@ -160,7 +160,7 @@ function onsubmit(ev) {
 
           el.querySelector(".simp").innerText = v.simp;
           el.querySelector(".trad").innerText = v.trad || "";
-          el.querySelector(".pinyin").innerText = v.pinyin;
+          el.querySelector(".pinyin").innerText = v.pinyin.replace(/u:/g, "ü");
           el.querySelector(".english").append(
             ...v.english.map((ens) => {
               const li = document.createElement("li");
@@ -419,7 +419,7 @@ function makeNotes(skipSave) {
 }
 
 function normalize_pinyin(s, isFuzzy) {
-  s = s.replace(/v/g, "u:").replace(/ /g, "").toLocaleLowerCase();
+  s = s.replace(/[vü]/g, "u:").replace(/ /g, "").toLocaleLowerCase();
   if (isFuzzy) {
     s = s.replace(/\d+/g, " ");
   }
