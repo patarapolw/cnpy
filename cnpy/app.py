@@ -4,8 +4,6 @@ from regex import Regex
 import datetime
 import sys
 import os
-import socket
-from threading import Thread
 
 from cnpy import load_db
 from cnpy.db import db
@@ -82,10 +80,7 @@ def prepare():
     db.commit()
 
 
-if __name__ == "__main__":
-    if os.getenv("BOTTLE_CHILD") is None:
-        prepare()
-
+def run(dev_url=""):
     is_debug = False
     v = ""
 
@@ -98,30 +93,20 @@ if __name__ == "__main__":
         elif re_han.fullmatch(arg):
             v = arg
 
-    url = ""
-    port = 0
+    win = (
+        webview.create_window("Pinyin Quiz", dev_url)
+        if dev_url
+        else webview.create_window("Pinyin Quiz", server)  # type: ignore
+    )
+    webview.start(lambda: win.evaluate_js(f"newVocab('{v}')"), debug=is_debug)
 
-    if is_debug:
-        port = int(os.getenv("BOTTLE_PORT", "0"))
+    db.commit()
 
-        if port:
-            server.run(reloader=True, port=port)
-        else:
-            sock = socket.socket()
-            sock.bind(("", 0))
-            port = sock.getsockname()[1]
-            os.environ["BOTTLE_PORT"] = str(port)
 
-            Thread(
-                target=lambda s, p: s.run(reloader=True, port=p),
-                args=(server, port),
-                daemon=True,
-            ).start()
+def main():
+    prepare()
+    run()
 
-        url = f"http://localhost:{port}"
 
-    if os.getenv("BOTTLE_CHILD") is None:
-        win = webview.create_window("Pinyin Quiz", url) if url else webview.create_window("Pinyin Quiz", server)  # type: ignore
-        webview.start(lambda: win.evaluate_js(f"newVocab('{v}')"), debug=is_debug)
-
-        db.commit()
+if __name__ == "__main__":
+    main()

@@ -8,7 +8,7 @@ import PyInstaller.__main__
 APP_NAME = "cnpy"
 VERSION = sys.argv[1] if len(sys.argv) > 1 else ""
 
-pyi_args = ["app.py"]
+pyi_args = ["cnpy/app.py"]
 
 pyi_args.append("--noconfirm")
 # pyi_args.append("--noconsole")
