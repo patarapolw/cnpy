@@ -12,25 +12,25 @@ def main_dev():
     if not is_bottle_child:
         prepare()
 
-    PORT_ENV = "PORT"
-    port = int(os.getenv(PORT_ENV, "0"))
+    bottle_port = int(os.getenv("BOTTLE_PORT", "0"))
 
     if is_bottle_child:
-        server.run(reloader=True, port=port)
+        server.run(reloader=True, port=bottle_port)
     else:
-        if not port:
+        if not bottle_port:
             sock = socket.socket()
             sock.bind(("", 0))
-            port = sock.getsockname()[1]
-            os.environ[PORT_ENV] = str(port)
+            bottle_port = sock.getsockname()[1]
+            os.environ["BOTTLE_PORT"] = str(bottle_port)
 
         Thread(
             target=lambda s, p: s.run(reloader=True, port=p),
-            args=(server, port),
+            args=(server, bottle_port),
             daemon=True,
         ).start()
 
-    run(dev_url=f"http://localhost:{port}")
+        port = os.getenv("PORT", str(bottle_port))
+        run(dev_url=f"http://localhost:{port}")
 
 
 if __name__ == "__main__":

@@ -3,7 +3,6 @@ from regex import Regex
 
 import datetime
 import sys
-import os
 
 from cnpy import load_db
 from cnpy.db import db

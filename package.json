@@ -1,24 +1,27 @@
 {
   "name": "cnpy",
-  "version": "0.4.0",
+  "version": "1.0.0",
   "description": "Pinyin SRS that repeats until everything right",
   "main": "index.js",
   "scripts": {
     "start": "pnpm run py cnpy/app.py",
-    "dev": "pnpm run py cnpy/dev.py --debug",
+    "dev": "cross-env BOTTLE_PORT=55000 PORT=3000 concurrently --kill-others pnpm:dev:*",
+    "dev:py": "pnpm run py cnpy/dev.py --debug",
+    "dev:ts": "pnpm --filter ./www-next-js run dev",
     "vocab": "pnpm run py cnpy/app.py --vocab",
     "build": "pnpm run py build.py %npm_package_version%",
-    "build:nightly": "pnpm run py build.py %npm_package_version%-nightly",
-    "build:preview": "pnpm run py build.py %npm_package_version%-preview",
-    "py:requirements": "pipenv requirements > requirements.txt",
-    "py:install": "pipenv install",
-    "py": "pipenv run py"
+    "build-nightly": "pnpm run py build.py %npm_package_version%-nightly",
+    "build-preview": "pnpm run py build.py %npm_package_version%-preview",
+    "py-requirements": "pipenv requirements > requirements.txt",
+    "py-install": "pipenv install",
+    "py": "cross-env PYTHONUTF8=1 pipenv run py"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "devDependencies": {
     "@types/showdown": "^2.0.6",
+    "concurrently": "^9.0.0",
     "cross-env": "^7.0.3"
   },
   "packageManager": "pnpm@9.7.0"
