@@ -15,11 +15,6 @@ from cnpy.stats import make_stats
 from cnpy.dir import exe_root
 
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from pathlib import Path
-
 srs = fsrs.FSRS()
 
 
@@ -33,6 +28,12 @@ class Api:
             """
             DELETE FROM revlog
             WHERE unixepoch('now') - unixepoch(created) > 60*60*24
+            """
+        )
+
+        db.execute(
+            """
+            UPDATE vlist SET skip = NULL
             """
         )
 
@@ -111,7 +112,7 @@ class Api:
                 SELECT * FROM quiz
                 WHERE
                 (
-                    json_extract(srs, '$.due') < date()||'T'||time() OR
+                    json_extract(srs, '$.due') < date()||'T'||time()||'.99' OR
                     (
                         json_extract(srs, '$.due') IS NULL
                         AND v IN (
