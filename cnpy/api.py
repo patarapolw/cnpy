@@ -27,6 +27,10 @@ with server:
     def index():
         return bottle.static_file("quiz.html", root="web")
 
+    @bottle.get("/favicon.ico")
+    def favicon():
+        return None
+
     @bottle.get("/<filepath:path>")
     def serve_static(filepath):
         return bottle.static_file(filepath, root="web")
