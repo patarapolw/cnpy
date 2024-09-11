@@ -140,7 +140,14 @@ function onsubmit(ev) {
 
     newVocab();
   } else {
-    pywebview.api.log(state.vocabDetails.cedict);
+    fetch("/api/log", {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+      body: JSON.stringify(state.vocabDetails.cedict),
+    });
 
     const pinyin = state.vocabDetails.cedict
       .map((v) => v.pinyin)
@@ -277,11 +284,11 @@ function mark(type) {
   state.lastIsRight = null;
 
   if (!state.isRepeat) {
-    pywebview.api.mark(currentItem.v, type);
+    fetch(`/api/mark?v=${currentItem.v}&t=${type}`);
   }
 }
 
-async function newVocab() {
+async function newVocab(v0 = "") {
   elInput.value = "";
   elInput.focus();
 
@@ -293,7 +300,7 @@ async function newVocab() {
   state.lastIsRight = null;
 
   if (state.pendingList.length >= 10 || state.i >= state.vocabList.length) {
-    await newVocabList();
+    await newVocabList(v0);
     return;
   }
 
@@ -305,9 +312,19 @@ async function newVocab() {
     data: { wordfreq, notes },
     v,
   } = state.vocabList[state.i];
-  pywebview.api.log({ v, wordfreq });
 
-  state.vocabDetails = await pywebview.api.vocab_details(v);
+  fetch("/api/log", {
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    method: "POST",
+    body: JSON.stringify({ v, wordfreq }),
+  });
+
+  state.vocabDetails = await fetch(`/api/vocab_details?v=${v}`).then((r) =>
+    r.json()
+  );
   document.getElementById("vocab").innerText = v;
 
   elNotesTextarea.value = notes || "";
@@ -325,7 +342,7 @@ async function newVocab() {
   });
 }
 
-async function newVocabList() {
+async function newVocabList(v = "") {
   state.i = -1;
   state.skip = 0;
 
@@ -335,7 +352,9 @@ async function newVocabList() {
     state.vocabList = state.pendingList;
     state.isRepeat = true;
   } else if (state.due) {
-    const r = await pywebview.api.due_vocab_list(state.max);
+    const r = await fetch(`/api/due_vocab_list?limit=${state.max}&v=${v}`).then(
+      (r) => r.json()
+    );
     state.vocabList = r.result;
     state.due = r.count;
 
@@ -355,7 +374,9 @@ async function newVocabList() {
     // milliseconds
     state.lastQuizTime = new Date();
   } else {
-    const r = await pywebview.api.new_vocab_list(state.max);
+    const r = await fetch(`/api/new_vocab_list?limit=${state.max}`).then((r) =>
+      r.json()
+    );
     state.vocabList = r.result;
   }
 
@@ -414,7 +435,15 @@ function makeNotes(skipSave) {
     const item = state.vocabList[state.i];
     item.data = item.data || {};
     item.data.notes = notesText;
-    pywebview.api.save_notes(item.v, notesText);
+
+    fetch(`/api/save_notes?v=${item.v}`, {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+      body: JSON.stringify({ notes: notesText }),
+    });
   }
 }
 

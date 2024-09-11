@@ -1,9 +1,10 @@
+# pyright: reportAttributeAccessIssue=false
+
 import fsrs
-from regex import Regex
+import bottle
 
 import json
 import datetime
-import webbrowser
 from pprint import pprint
 import random
 
@@ -12,96 +13,42 @@ from cnpy.quiz import load_db_entry as dejson_quiz
 from cnpy.cedict import load_db_entry as dejson_cedict
 from cnpy.tatoeba import load_db_entry as dejson_sentence
 from cnpy.stats import make_stats
-from cnpy.dir import exe_root
 
 
-srs = fsrs.FSRS()
+server = bottle.Bottle()
 
 
-class Api:
-    def __init__(self, v=""):
-        self.v = v
+with server:
+    srs = fsrs.FSRS()
 
-        self.get_stats()
+    latest_stats = make_stats()
 
-        db.execute(
-            """
-            DELETE FROM revlog
-            WHERE unixepoch('now') - unixepoch(created) > 60*60*24
-            """
-        )
+    @bottle.get("/")
+    def index():
+        return bottle.static_file("quiz.html", root="web")
 
-        db.execute(
-            """
-            UPDATE vlist SET skip = NULL
-            """
-        )
+    @bottle.get("/<filepath:path>")
+    def serve_static(filepath):
+        return bottle.static_file(filepath, root="web")
 
-        now = datetime.datetime.now()
-        re_han = Regex(r"^\p{Han}+$")
+    @bottle.post("/api/log")
+    def log():
+        pprint(bottle.request.json, indent=1, sort_dicts=False)
 
-        vs = set()
-
-        path = exe_root / "user/vocab"
-        path.mkdir(exist_ok=True)
-
-        for f in path.glob("**/*.txt"):
-            for i, v in enumerate(f.open(encoding="utf-8")):
-                v = v.strip()
-                if v and re_han.fullmatch(v):
-                    rs = list(db.execute("SELECT v FROM vlist WHERE v = ?", (v,)))
-
-                    if not rs:
-                        db.execute(
-                            "INSERT INTO vlist (v, created) VALUES (?,?)",
-                            (
-                                v,
-                                now.replace(tzinfo=now.astimezone().tzinfo).isoformat(),
-                            ),
-                        )
-                    elif v in vs:
-                        print(f"{f.relative_to(path)} [L{i+1}]: {v} duplicated")
-
-                    vs.add(v)
-
-        path = exe_root / "user/skip"
-        path.mkdir(exist_ok=True)
-
-        for f in path.glob("**/*.txt"):
-            for i, v in enumerate(f.open(encoding="utf-8")):
-                v = v.strip()
-                if v and re_han.fullmatch(v):
-                    if not db.execute(
-                        """
-                        UPDATE vlist SET
-                            skip = 1
-                        WHERE v = ?
-                        """,
-                        (v,),
-                    ).rowcount:
-                        db.execute(
-                            "INSERT INTO vlist (v, created, skip) VALUES (?, ?, 1)",
-                            (
-                                v,
-                                now.replace(tzinfo=now.astimezone().tzinfo).isoformat(),
-                            ),
-                        )
-
-    def log(self, obj):
-        pprint(obj, indent=1, sort_dicts=False)
-
-    def open_in_browser(self, url):
-        webbrowser.open(url)
-
-    def get_stats(self):
-        self.latest_stats = make_stats()
-        for k, v in self.latest_stats.items():
+    @bottle.post("/api/get_stats")
+    def get_stats():
+        latest_stats = make_stats()
+        for k, v in latest_stats.items():
             if type(v) is str and len(v) > 50:
-                self.latest_stats[k] = v[:50] + "..."
+                latest_stats[k] = v[:50] + "..."
 
-        return self.latest_stats
+        return latest_stats
 
-    def due_vocab_list(self, limit=20):
+    @bottle.get("/api/due_vocab_list")
+    def due_vocab_list():
+        v = bottle.request.query.v
+        limit = int(bottle.request.query.limit)
+
         all_items = [
             dejson_quiz(r)
             for r in db.execute(
@@ -134,11 +81,11 @@ class Api:
             key=lambda r: int(r.get("srs", {}).get("difficulty", 0) * 2), reverse=True
         )
 
-        if self.v:
+        if v:
             r0 = None
             rs = []
             for r in all_items:
-                if r["v"] == self.v:
+                if r["v"] == v:
                     r0 = r
                 else:
                     rs.append(r)
@@ -147,17 +94,18 @@ class Api:
 
             if not r0:
                 r0 = dejson_quiz(
-                    db.execute("SELECT * FROM quiz WHERE v = ?", (self.v,)).fetchone()
+                    db.execute("SELECT * FROM quiz WHERE v = ?", (v,)).fetchone()
                 )
                 n += 1
 
             all_items.insert(0, r0)
 
-            self.v = ""
-
         return {"result": all_items[:limit], "count": n}
 
-    def new_vocab_list(self, limit=20):
+    @bottle.get("/api/new_vocab_list")
+    def new_vocab_list():
+        limit = int(bottle.request.query.limit)
+
         skip_voc = [
             r["v"] for r in db.execute("SELECT v FROM vlist WHERE skip IS NOT NULL")
         ]
@@ -182,12 +130,12 @@ class Api:
             )
         ]
 
+        global latest_stats
+
         # zipf freq min is p75 or at least 5
         # max = 7.79, >6 = 101, 5-6 = 1299, 4-5 = 8757
         freq_min = 5
-        stats_min = (
-            self.latest_stats["p75"] * 0.75 if "p75" in self.latest_stats else None
-        )
+        stats_min = latest_stats["p75"] * 0.75 if "p75" in latest_stats else None
         if stats_min and stats_min < freq_min:
             freq_min = stats_min
 
@@ -260,7 +208,10 @@ class Api:
 
         return format_output(freq_items)
 
-    def vocab_details(self, v: str):
+    @bottle.get("/api/vocab_details")
+    def vocab_details():
+        v = bottle.request.query.v
+
         rs = [
             dejson_cedict(r)
             for r in db.execute("SELECT * FROM cedict WHERE simp = ?", (v,))
@@ -329,7 +280,11 @@ class Api:
 
         return {"cedict": rs, "sentences": sentences[:5]}
 
-    def mark(self, v: str, t: str):
+    @bottle.post("/api/mark")
+    def mark():
+        v = bottle.request.query.v
+        t = bottle.request.query.t
+
         card = fsrs.Card()
         print(v, t)
 
@@ -373,14 +328,18 @@ class Api:
 
         db.commit()
 
-    def save_notes(self, v: str, notes: str):
+    @bottle.post("/api/save_notes")
+    def save_notes():
+        v = bottle.request.query.v
+        notes = bottle.request.json.notes
+
         if not db.execute(
             """
             UPDATE quiz SET
                 [data] = json_set(IFNULL([data], '{}'), '$.notes', ?)
             WHERE v = ?
             """,
-            (notes, v),
+            (notes, v),  # type: ignore
         ).rowcount:
             db.execute(
                 "INSERT INTO quiz (v, [data]) VALUES (?, json_object('notes', ?))",
