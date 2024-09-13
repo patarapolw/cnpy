@@ -284,7 +284,7 @@ function mark(type) {
   state.lastIsRight = null;
 
   if (!state.isRepeat) {
-    fetch(`/api/mark?v=${currentItem.v}&t=${type}`);
+    fetch(`/api/mark?v=${currentItem.v}&t=${type}`, { method: "POST" });
   }
 }
 
