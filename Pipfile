@@ -1,0 +1,22 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pywebview = "*"
+fsrs = "*"
+regex = "*"
+wordfreq = "*"
+jieba = "*"
+pyinstaller = "*"
+bottle = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.12"
+
+[scripts]
+start = "python app.py"
+py = "python"

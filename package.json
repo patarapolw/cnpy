@@ -10,7 +10,7 @@
     "build": "pnpm run py build.py %npm_package_version%",
     "build:nightly": "pnpm run py build.py %npm_package_version%-nightly",
     "build:preview": "pnpm run py build.py %npm_package_version%-preview",
-    "py": ".\\.venv\\Scripts\\python.exe"
+    "py": "pipenv run py"
   },
   "keywords": [],
   "author": "",

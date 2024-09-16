@@ -168,3 +168,5 @@ node_modules/
 
 # SQLite temp files
 *.db-*
+
+/_web/
