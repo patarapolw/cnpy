@@ -11,11 +11,15 @@ VERSION = sys.argv[1] if len(sys.argv) > 1 else ""
 pyi_args = ["app.py"]
 
 pyi_args.append("--noconfirm")
-# pyi_args.append("--noconsole")
+pyi_args.append("--noconsole")
 
 pyi_args.extend(("--name", APP_NAME))
 
-pyi_args.extend(("--add-data", "web/*:web"))
+pyi_args.extend(("--add-data", "web/*.*:web"))
+for r in Path("web").iterdir():
+    if r.is_dir():
+        p = r.as_posix()
+        pyi_args.extend(("--add-data", f"{p}/*.*:{p}"))
 
 pyi_args.extend(("--collect-data", "wordfreq"))
 pyi_args.extend(("--collect-data", "jieba"))
