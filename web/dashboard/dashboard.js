@@ -20,27 +20,30 @@ window.addEventListener("pywebviewready", () => {
   });
 
   pywebview.api.get_stats().then((r) => {
-    const lone = [...r.lone];
-    const h5 = [...r.h5].filter((c) => !lone.includes(c));
-    const h3 = [...r.h3.substring(r.h5.length)].filter((c) => !h5.includes(c));
+    console.log(r);
 
+    const hanziSet = new Set();
+
+    [r.h5, r.lone, r.h3].forEach((s, i) => {
+      const className = `hanzi tier-${i}`;
+
+      for (const c of s) {
+        if (!hanziSet.has(c)) {
+          hanziSet.add(c);
+
+          const el = document.createElement("span");
+          el.innerText = c;
+          el.className = className;
+
+          elHanziList.append(el);
+        }
+      }
+    });
+
+    elLearnedCount.lang = "zh-CN";
     elLearnedCount.innerText = [
-      `汉字: ${lone.length + h5.length + h3.length}`,
-      `生词: ${r.good}`,
+      `汉字: ${hanziSet.size}`,
+      `生词: ${r.good} (${(r.accuracy * 100).toFixed(0)}%)`,
     ].join(", ");
-
-    const makeEl = (txt, cls) => {
-      const el = document.createElement("span");
-      el.innerText = txt;
-      el.className = `hanzi ${cls}`;
-
-      return el;
-    };
-
-    elHanziList.append(
-      ...lone.map((c) => makeEl(c, "lone")),
-      ...h5.map((c) => makeEl(c, "h5")),
-      ...h3.map((c) => makeEl(c, "h3"))
-    );
   });
 });

@@ -30,15 +30,15 @@ body {
   padding: 0 3px;
 }
 
-.lone {
+.tier-0 {
   color: black;
 }
 
-.h5 {
+.tier-1 {
   color: peru;
 }
 
-.h3 {
+.tier-2 {
   color: skyblue;
 }
 

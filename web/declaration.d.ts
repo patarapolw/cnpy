@@ -20,6 +20,7 @@ declare const pywebview: {
       h3: string;
       h5: string;
       good: number;
+      accuracy: number;
     }>;
   };
 };
