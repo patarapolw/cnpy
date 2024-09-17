@@ -95,10 +95,6 @@ class Api:
 
     def get_stats(self):
         self.latest_stats = make_stats()
-        for k, v in self.latest_stats.items():
-            if type(v) is str and len(v) > 50:
-                self.latest_stats[k] = v[:50] + "..."
-
         return self.latest_stats
 
     def due_vocab_list(self, limit=20):

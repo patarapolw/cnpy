@@ -140,6 +140,14 @@ elNotes.querySelectorAll("button").forEach((b) => {
   }
 });
 
+window.addEventListener("pywebviewready", () => {
+  newVocab();
+});
+
+////////////////
+/// Functions
+////////////////
+
 function submit(ev) {
   if (ev) {
     ev.preventDefault();
@@ -378,13 +386,15 @@ async function newVocabList() {
     state.vocabList = r.result;
     state.due = r.count;
 
-    // if (r.count < state.max / 2 && state.lastQuizTime) {
-    //   const d = new Date();
-    //   d.setMinutes(d.getMinutes() + 5);
-    //   if (state.lastQuizTime < d) {
-    //     state.due = 0;
-    //   }
-    // }
+    if (r.count < 5 && state.lastQuizTime) {
+      const d = new Date();
+      d.setMinutes(d.getMinutes() + 5);
+      if (state.lastQuizTime < d) {
+        state.due = 0;
+      }
+    }
+
+    console.log(state);
 
     if (!state.due) {
       await newVocabList();
@@ -412,7 +422,7 @@ async function newVocabList() {
   state.pendingList = [];
 
   document.querySelectorAll(".count[data-count-type]").forEach((el) => {
-    if (!(el instanceof HTMLDivElement)) return;
+    if (!(el instanceof HTMLSpanElement)) return;
     const type = el.getAttribute("data-count-type");
     switch (type) {
       case "total":

@@ -15,6 +15,12 @@ declare const pywebview: {
     new_vocab_list(limit?: number): Promise<{
       result: IQuizEntry[];
     }>;
+    get_stats(): Promise<{
+      lone: string;
+      h3: string;
+      h5: string;
+      good: number;
+    }>;
   };
 };
 
