@@ -25,6 +25,7 @@ window.addEventListener("pywebviewready", () => {
     const hanziSet = new Set();
 
     [r.h5, r.lone, r.h3].forEach((s, i) => {
+      if (!s) return;
       const className = `hanzi tier-${i}`;
 
       for (const c of s) {
@@ -43,7 +44,8 @@ window.addEventListener("pywebviewready", () => {
     elLearnedCount.lang = "zh-CN";
     elLearnedCount.innerText = [
       `汉字: ${hanziSet.size}`,
-      `生词: ${r.good} (${(r.accuracy * 100).toFixed(0)}%)`,
+      `生词: ${r.good}` +
+        (r.accuracy ? ` (${(r.accuracy * 100).toFixed(0)}%)` : ""),
     ].join(", ");
   });
 });

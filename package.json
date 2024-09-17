@@ -10,13 +10,14 @@
     "build": "pnpm run py build.py %npm_package_version%",
     "build:nightly": "pnpm run py build.py %npm_package_version%-nightly",
     "build:preview": "pnpm run py build.py %npm_package_version%-preview",
-    "py": "pipenv run py"
+    "py": "cross-env PYTHONUTF8=1 pipenv run py"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@types/showdown": "^2.0.6"
+    "@types/showdown": "^2.0.6",
+    "cross-env": "^7.0.3"
   },
   "packageManager": "pnpm@9.7.0"
 }

@@ -24,7 +24,12 @@ if __name__ == "__main__":
 
     api = Api(v=v)
 
-    win = webview.create_window("Pinyin Quiz", "web/dashboard.html", js_api=api)
+    win = webview.create_window(
+        "Pinyin Quiz",
+        "web/dashboard.html",
+        js_api=api,
+        text_select=True,
+    )
     webview.start(debug=is_debug)
 
     db.commit()
