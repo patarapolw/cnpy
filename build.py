@@ -11,7 +11,9 @@ VERSION = sys.argv[1] if len(sys.argv) > 1 else ""
 pyi_args = ["app.py"]
 
 pyi_args.append("--noconfirm")
-# pyi_args.append("--noconsole")
+
+if "--console" not in sys.argv:
+    pyi_args.append("--noconsole")
 
 pyi_args.extend(("--name", APP_NAME))
 
@@ -52,6 +54,8 @@ if __name__ == "__main__":
         zip_name += "-" + VERSION
 
     zip_name += "-" + platform.system()
+
+    (dist_path / "VERSION.txt").write_text(zip_name)
 
     shutil.make_archive(str(dist_path.parent / zip_name), "zip", dist_path)
 

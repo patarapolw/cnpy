@@ -9,7 +9,7 @@
     "vocab": "pnpm run py app.py --vocab",
     "build": "pnpm run py build.py %npm_package_version%",
     "build:nightly": "pnpm run py build.py %npm_package_version%-nightly",
-    "build:preview": "pnpm run py build.py %npm_package_version%-preview",
+    "build:preview": "pnpm run py build.py %npm_package_version%-preview --console",
     "py": "cross-env PYTHONUTF8=1 pipenv run py"
   },
   "keywords": [],
