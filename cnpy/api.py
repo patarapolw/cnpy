@@ -6,11 +6,10 @@ import datetime
 import webbrowser
 from pprint import pprint
 import random
+from typing import Callable
 
+from cnpy import quiz, cedict, tatoeba
 from cnpy.db import db
-from cnpy.quiz import load_db_entry as dejson_quiz
-from cnpy.cedict import load_db_entry as dejson_cedict
-from cnpy.tatoeba import load_db_entry as dejson_sentence
 from cnpy.stats import make_stats
 from cnpy.dir import exe_root
 
@@ -19,10 +18,23 @@ srs = fsrs.FSRS()
 
 
 class Api:
+    web_log: Callable[[str], None]
+    web_location: Callable[[str], None]
+    web_ready: Callable
+
     def __init__(self, v=""):
         self.v = v
 
-        self.get_stats()
+    def log(self, obj):
+        pprint(obj, indent=1, sort_dicts=False)
+
+    def open_in_browser(self, url):
+        webbrowser.open(url)
+
+    def start(self):
+        quiz.load_db()
+        cedict.load_db(self.web_log)
+        tatoeba.load_db(self.web_log)
 
         db.execute(
             """
@@ -60,7 +72,7 @@ class Api:
                             ),
                         )
                     elif v in vs:
-                        print(f"{f.relative_to(path)} [L{i+1}]: {v} duplicated")
+                        self.web_log(f"{f.relative_to(path)} [L{i+1}]: {v} duplicated")
 
                     vs.add(v)
 
@@ -87,11 +99,7 @@ class Api:
                             ),
                         )
 
-    def log(self, obj):
-        pprint(obj, indent=1, sort_dicts=False)
-
-    def open_in_browser(self, url):
-        webbrowser.open(url)
+        self.web_ready()
 
     def get_stats(self):
         self.latest_stats = make_stats()
@@ -99,7 +107,7 @@ class Api:
 
     def due_vocab_list(self, limit=20):
         all_items = [
-            dejson_quiz(r)
+            quiz.load_db_entry(r)
             for r in db.execute(
                 """
                 WITH vs AS (
@@ -142,7 +150,7 @@ class Api:
             all_items = rs
 
             if not r0:
-                r0 = dejson_quiz(
+                r0 = quiz.load_db_entry(
                     db.execute("SELECT * FROM quiz WHERE v = ?", (self.v,)).fetchone()
                 )
                 n += 1
@@ -159,7 +167,7 @@ class Api:
         ]
 
         all_items = [
-            dejson_quiz(r)
+            quiz.load_db_entry(r)
             for r in db.execute(
                 """
                 SELECT * FROM quiz
@@ -211,7 +219,7 @@ class Api:
                     return format_output(freq_items)
 
         freq_items.extend(
-            dejson_quiz(r)
+            quiz.load_db_entry(r)
             for r in db.execute(
                 """
                 SELECT * FROM quiz
@@ -235,7 +243,7 @@ class Api:
 
         if len(freq_items) < limit:
             freq_items.extend(
-                dejson_quiz(r)
+                quiz.load_db_entry(r)
                 for r in db.execute(
                     """
                 SELECT * FROM quiz
@@ -258,7 +266,7 @@ class Api:
 
     def vocab_details(self, v: str):
         rs = [
-            dejson_cedict(r)
+            cedict.load_db_entry(r)
             for r in db.execute("SELECT * FROM cedict WHERE simp = ?", (v,))
         ]
 
@@ -278,7 +286,7 @@ class Api:
         rs.sort(key=sorter)
 
         sentences = [
-            dejson_sentence(r)
+            tatoeba.load_db_entry(r)
             for r in db.execute(
                 """
             SELECT *
@@ -319,7 +327,7 @@ class Api:
                 ),
                 (v,),
             ):
-                r = dejson_sentence(r)
+                r = tatoeba.load_db_entry(r)
                 if r["cmn"] not in prev_cmn:
                     sentences.append(r)
 
@@ -327,7 +335,7 @@ class Api:
 
     def mark(self, v: str, t: str):
         card = fsrs.Card()
-        print(v, t)
+        self.log({v, t})
 
         prev_srs = None
 

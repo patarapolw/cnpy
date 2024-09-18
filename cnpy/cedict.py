@@ -4,12 +4,13 @@ from regex import Regex
 import json
 from urllib.request import urlretrieve
 from zipfile import ZipFile
+from typing import Callable
 
 from cnpy.db import db
 from cnpy.dir import tmp_root
 
 
-def load_db():
+def load_db(web_log: Callable[[str], None] = print):
     db.executescript(
         """
         CREATE TABLE IF NOT EXISTS cedict (
@@ -25,7 +26,7 @@ def load_db():
         """
     )
 
-    populate_db()
+    populate_db(web_log)
 
 
 def load_db_entry(r):
@@ -42,7 +43,7 @@ def load_db_entry(r):
     return r
 
 
-def populate_db():
+def populate_db(web_log: Callable[[str], None] = print):
     if not db.execute("SELECT 1 FROM cedict LIMIT 1").fetchall():
         filename = "cedict_ts.u8"
         cedict = tmp_root / filename
@@ -51,11 +52,13 @@ def populate_db():
             zipPath = tmp_root / "cedict.zip"
 
             url = "https://www.mdbg.net/chinese/export/cedict/cedict_1_0_ts_utf-8_mdbg.zip"
-            print("Downloading {} from {}".format(filename, url))
+            web_log("Downloading {} from {}".format(filename, url))
             urlretrieve(url, zipPath)
 
             with ZipFile(zipPath) as z:
                 z.extract(cedict.name, path=cedict.parent)
+
+        web_log("Building vocab dictionary.")
 
         for ln in cedict.open("r", encoding="utf8"):
             if ln[0] == "#":
