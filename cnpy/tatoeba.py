@@ -39,7 +39,7 @@ def populate_db(web_log: Callable[[str], None] = print):
 
         download_tatoeba_links(web_log)
 
-        web_log("Building sentence dictionary.")
+        web_log("Building sentence dictionary...")
 
         db.executescript(
             """
@@ -153,6 +153,8 @@ def populate_db(web_log: Callable[[str], None] = print):
 
         db.execute("UPDATE sentence SET [data] = NULL")
         db.commit()
+
+        web_log("Done")
 
 
 def download_tatoeba(lang: str, web_log: Callable[[str], None] = print):

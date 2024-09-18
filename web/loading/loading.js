@@ -16,7 +16,7 @@ function ready() {
   elStartButton.onclick = start;
   elStartButton.innerText = "Start";
 
-  if (!elLogging.innerText) start();
+  if (!elLogging.innerText || elLogging.innerText.endsWith("\nDone\n")) start();
 }
 
 function start() {

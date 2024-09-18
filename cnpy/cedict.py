@@ -58,7 +58,7 @@ def populate_db(web_log: Callable[[str], None] = print):
             with ZipFile(zipPath) as z:
                 z.extract(cedict.name, path=cedict.parent)
 
-        web_log("Building vocab dictionary.")
+        web_log("Building vocab dictionary...")
 
         for ln in cedict.open("r", encoding="utf8"):
             if ln[0] == "#":
@@ -143,6 +143,8 @@ def populate_db(web_log: Callable[[str], None] = print):
                 )
 
         db.commit()
+
+        web_log("Done")
 
 
 def reset_db():
