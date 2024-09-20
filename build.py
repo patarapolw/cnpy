@@ -12,8 +12,8 @@ pyi_args = ["app.py"]
 
 pyi_args.append("--noconfirm")
 
-if "--console" not in sys.argv:
-    pyi_args.append("--noconsole")
+# if "--console" not in sys.argv:
+#     pyi_args.append("--noconsole")
 
 pyi_args.extend(("--name", APP_NAME))
 
@@ -42,6 +42,7 @@ if __name__ == "__main__":
         shutil.copy(f, dist_path)
 
         d = f.with_suffix("")
+        d = d.with_name("_" + d.name)
         if d.is_dir():
             shutil.copytree(d, dist_path / d.name)
 
