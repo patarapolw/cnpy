@@ -31,7 +31,7 @@ Note taking is powered by [markdown](https://showdownjs.com/). The content may b
 
 Technically, only [fsrs](https://pypi.org/project/fsrs/) difficulty < 6 is counted as learned. Accuracy is learned/started.
 
-Hanzi known is calculated from
+Hanzi learned is calculated from
 
 1. Used in at least 5 vocabularies
 2. Learned as a vocabulary with lone or repeated Hanzi
