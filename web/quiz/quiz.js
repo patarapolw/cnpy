@@ -1,3 +1,6 @@
+//@ts-check
+
+/** @type {State} */
 const state = {
   vocabList: [],
   i: 0,
@@ -13,12 +16,20 @@ const state = {
   isRepeat: false,
 };
 
-const elInput = document.getElementById("type-input");
-const elCompare = document.getElementById("type-compare");
-const elNotes = document.getElementById("notes");
-const elNotesTextarea = elNotes.querySelector("textarea");
+const elInput = /** @type {HTMLInputElement} */ (
+  document.getElementById("type-input")
+);
+const elCompare = /** @type {HTMLDivElement} */ (
+  document.getElementById("type-compare")
+);
+const elNotes = /** @type {HTMLDivElement} */ (
+  document.getElementById("notes")
+);
+const elNotesTextarea = /** @type {HTMLTextAreaElement} */ (
+  elNotes.querySelector("textarea")
+);
 
-elInput.parentElement.addEventListener("submit", onsubmit);
+elInput.parentElement?.addEventListener("submit", submit);
 elInput.focus();
 
 elInput.addEventListener("keydown", (ev) => {
@@ -51,8 +62,11 @@ document.addEventListener("keydown", (ev) => {
         } else {
           state.skip++;
 
-          document.querySelector(".count[data-count-type='total']").innerText =
-            state.total - state.skip;
+          const elTotal = /** @type {HTMLDivElement} */ (
+            document.querySelector(".count[data-count-type='total']")
+          );
+
+          elTotal.innerText = (state.total - state.skip).toString();
 
           newVocab();
         }
@@ -76,14 +90,13 @@ window.addEventListener("click", (ev) => {
   }
 });
 
-/** @type {import('showdown').Converter} */
 const converter = new showdown.Converter({
   parseImgDimensions: true,
   // openLinksInNewWindow: true,
   emoji: true,
 });
 
-elNotes.querySelector("textarea").addEventListener("paste", (ev) => {
+elNotesTextarea.addEventListener("paste", (ev) => {
   const { target, clipboardData } = ev;
 
   if (!clipboardData) return;
@@ -93,7 +106,7 @@ elNotes.querySelector("textarea").addEventListener("paste", (ev) => {
   if (!html) return;
 
   const selection = window.getSelection();
-  if (!selection.rangeCount) return;
+  if (!selection?.rangeCount) return;
 
   ev.preventDefault();
 
@@ -102,7 +115,6 @@ elNotes.querySelector("textarea").addEventListener("paste", (ev) => {
     .replace(/<!--.*?-->/g, "")
     .replace(/^(\r?\n)+/, "")
     .replace(/(\r?\n)+$/, "");
-  // .replace(/(\r?\n){2,}/g, "");
 
   target.setRangeText(md);
   target.selectionStart += md.length;
@@ -128,7 +140,15 @@ elNotes.querySelectorAll("button").forEach((b) => {
   }
 });
 
-function onsubmit(ev) {
+window.addEventListener("pywebviewready", () => {
+  newVocab();
+});
+
+////////////////
+/// Functions
+////////////////
+
+function submit(ev) {
   if (ev) {
     ev.preventDefault();
   }
@@ -148,61 +168,83 @@ function onsubmit(ev) {
 
     elCompare.innerText = pinyin.join("; ").replace(/u:/g, "ü");
 
-    const elDictEntries = document.getElementById("dictionary-entries");
+    const elDictEntries = /** @type {HTMLDivElement} */ (
+      document.getElementById("dictionary-entries")
+    );
     {
       const elTemplate = Array.from(elDictEntries.childNodes).find(
         (el) => el instanceof HTMLTemplateElement
       );
 
-      elDictEntries.append(
-        ...state.vocabDetails.cedict.map((v) => {
-          const el = elTemplate.content.cloneNode(true);
+      if (elTemplate) {
+        elDictEntries.append(
+          ...state.vocabDetails.cedict.map((v) => {
+            const el = /** @type {HTMLElement} */ (
+              elTemplate.content.cloneNode(true)
+            );
 
-          el.querySelector(".simp").innerText = v.simp;
-          el.querySelector(".trad").innerText = v.trad || "";
-          el.querySelector(".pinyin").innerText = v.pinyin.replace(/u:/g, "ü");
-          el.querySelector(".english").append(
-            ...v.english.map((ens) => {
-              const li = document.createElement("li");
-              li.innerText = ens.join("; ");
-              return li;
-            })
-          );
+            /** @type {HTMLDivElement} */ (
+              el.querySelector(".simp")
+            ).innerText = v.simp;
+            /** @type {HTMLDivElement} */ (
+              el.querySelector(".trad")
+            ).innerText = v.trad || "";
+            /** @type {HTMLDivElement} */ (
+              el.querySelector(".pinyin")
+            ).innerText = v.pinyin.replace(/u:/g, "ü");
+            /** @type {HTMLDivElement} */ (el.querySelector(".english")).append(
+              ...v.english.map((ens) => {
+                const li = document.createElement("li");
+                li.innerText = ens.join("; ");
+                return li;
+              })
+            );
 
-          return el;
-        })
-      );
+            return el;
+          })
+        );
+      }
     }
 
-    const elSentences = document.getElementById("sentences");
+    const elSentences = /** @type {HTMLDivElement} */ (
+      document.getElementById("sentences")
+    );
     elSentences.setAttribute(
       "data-sentence-count",
-      state.vocabDetails.sentences.length
+      state.vocabDetails.sentences.length.toString()
     );
     {
       const elTemplate = Array.from(elSentences.childNodes).find(
         (el) => el instanceof HTMLTemplateElement
       );
 
-      const ul = document.createElement("ul");
-      ul.className = "if-checked-details";
-      elSentences.append(ul);
+      if (elTemplate) {
+        const ul = document.createElement("ul");
+        ul.className = "if-checked-details";
+        elSentences.append(ul);
 
-      ul.append(
-        ...state.vocabDetails.sentences.map((v) => {
-          const el = elTemplate.content.cloneNode(true);
+        ul.append(
+          ...state.vocabDetails.sentences.map((v) => {
+            const el = /** @type {HTMLElement} */ (
+              elTemplate.content.cloneNode(true)
+            );
 
-          el.querySelector(".simp").innerText = v.cmn;
+            /** @type {HTMLDivElement} */ (
+              el.querySelector(".simp")
+            ).innerText = v.cmn;
 
-          if (v.eng) {
-            el.querySelector(".english").innerText = v.eng;
-          } else {
-            el.querySelector("ul").remove();
-          }
+            if (v.eng) {
+              /** @type {HTMLDivElement} */ (
+                el.querySelector(".english")
+              ).innerText = v.eng;
+            } else {
+              /** @type {HTMLUListElement} */ (el.querySelector("ul")).remove();
+            }
 
-          return el;
-        })
-      );
+            return el;
+          })
+        );
+      }
     }
 
     if (
@@ -244,7 +286,7 @@ function onsubmit(ev) {
 
 function mark(type) {
   if (type) {
-    setTimeout(onsubmit);
+    setTimeout(submit);
   }
 
   switch (type || state.lastIsRight) {
@@ -257,13 +299,15 @@ function mark(type) {
   }
   type = type || "repeat";
 
-  const el = document.querySelector(`.count[data-count-type="${type}"]`);
+  const el = /** @type {HTMLDivElement} */ (
+    document.querySelector(`.count[data-count-type="${type}"]`)
+  );
   const markCount = parseInt(el.innerText) + 1;
 
-  el.innerText = markCount;
+  el.innerText = markCount.toString();
 
-  document.querySelector(
-    `#progress [data-count-type="${type}"]`
+  /** @type {HTMLDivElement} */ (
+    document.querySelector(`#progress [data-count-type="${type}"]`)
   ).style.width = `${((markCount / (state.total - state.skip)) * 100).toFixed(
     1
   )}%`;
@@ -308,7 +352,8 @@ async function newVocab() {
   pywebview.api.log({ v, wordfreq });
 
   state.vocabDetails = await pywebview.api.vocab_details(v);
-  document.getElementById("vocab").innerText = v;
+  /** @type {HTMLDivElement} */ (document.getElementById("vocab")).innerText =
+    v;
 
   elNotesTextarea.value = notes || "";
   makeNotes(true);
@@ -316,6 +361,8 @@ async function newVocab() {
   elNotes.setAttribute("data-has-notes", notes ? "1" : "");
 
   document.querySelectorAll(".external-links a").forEach((a) => {
+    if (!(a instanceof HTMLAnchorElement)) return;
+
     let href = a.getAttribute("data-href");
     if (!href) {
       a.setAttribute("data-href", a.href);
@@ -339,13 +386,15 @@ async function newVocabList() {
     state.vocabList = r.result;
     state.due = r.count;
 
-    // if (r.count < state.max / 2 && state.lastQuizTime) {
-    //   const d = new Date();
-    //   d.setMinutes(d.getMinutes() + 5);
-    //   if (state.lastQuizTime < d) {
-    //     state.due = 0;
-    //   }
-    // }
+    if (r.count < 5 && state.lastQuizTime) {
+      const d = new Date();
+      d.setMinutes(d.getMinutes() + 5);
+      if (state.lastQuizTime < d) {
+        state.due = 0;
+      }
+    }
+
+    console.log(state);
 
     if (!state.due) {
       await newVocabList();
@@ -363,23 +412,27 @@ async function newVocabList() {
     state.vocabDetails[0] &&
     state.vocabDetails.cedict[0]?.simp === state.vocabList[0].v
   ) {
-    state.vocabList.push(state.vocabList.shift());
+    const v0 = state.vocabList.shift();
+    if (v0) {
+      state.vocabList.push(v0);
+    }
   }
 
   state.total = state.vocabList.length;
   state.pendingList = [];
 
   document.querySelectorAll(".count[data-count-type]").forEach((el) => {
+    if (!(el instanceof HTMLSpanElement)) return;
     const type = el.getAttribute("data-count-type");
     switch (type) {
       case "total":
-        el.innerText = state.total;
+        el.innerText = state.total.toString();
         break;
       case "due":
-        el.innerText = state.due || "-";
+        el.innerText = (state.due || "-").toString();
         break;
       default:
-        el.innerText = 0;
+        el.innerText = "0";
     }
   });
 
@@ -388,15 +441,23 @@ async function newVocabList() {
   });
 
   document.querySelectorAll("#progress [data-count-type]").forEach((el) => {
+    if (!(el instanceof HTMLElement)) return;
     el.style.width = "0";
   });
 
   await newVocab();
 }
 
+/**
+ *
+ * @param {boolean} [skipSave]
+ * @returns
+ */
 function makeNotes(skipSave) {
   const notesText = elNotesTextarea.value;
-  const elDisplay = elNotes.querySelector("#notes-show .notes-display");
+  const elDisplay = /** @type {HTMLDivElement} */ (
+    elNotes.querySelector("#notes-show .notes-display")
+  );
 
   if (!notesText.trim() && !elDisplay.innerHTML.trim()) return;
 
@@ -412,12 +473,21 @@ function makeNotes(skipSave) {
 
   if (!skipSave) {
     const item = state.vocabList[state.i];
-    item.data = item.data || {};
+    item.data = item.data || {
+      wordfreq: 0,
+      notes: "",
+    };
     item.data.notes = notesText;
     pywebview.api.save_notes(item.v, notesText);
   }
 }
 
+/**
+ *
+ * @param {string} s
+ * @param {boolean} [isFuzzy]
+ * @returns
+ */
 function normalize_pinyin(s, isFuzzy) {
   s = s.replace(/[vü]/g, "u:").replace(/ /g, "").toLocaleLowerCase();
   if (isFuzzy) {
@@ -426,6 +496,13 @@ function normalize_pinyin(s, isFuzzy) {
   return s;
 }
 
+/**
+ *
+ * @param {string} a
+ * @param {string} b
+ * @param {boolean} [isFuzzy]
+ * @returns
+ */
 function comp_pinyin(a, b, isFuzzy) {
   return normalize_pinyin(a, isFuzzy) === normalize_pinyin(b, isFuzzy);
 }

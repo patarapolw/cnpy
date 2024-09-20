@@ -8,12 +8,19 @@ declare const pywebview: {
       cedict: ICedict[];
       sentences: ISentence[];
     }>;
-    due_vocab_list(): Promise<{
+    due_vocab_list(limit?: number): Promise<{
       result: IQuizEntry[];
       count: number;
     }>;
-    new_vocab_list(): Promise<{
+    new_vocab_list(limit?: number): Promise<{
       result: IQuizEntry[];
+    }>;
+    get_stats(): Promise<{
+      lone: string;
+      h3: string;
+      h5: string;
+      good: number;
+      accuracy: number;
     }>;
   };
 };
@@ -35,14 +42,27 @@ interface IQuizEntry {
   v: string;
   data: {
     wordfreq: number;
+    notes: string;
   };
 }
 
-declare const showdown: {
-  Converter: new () => Converter;
-};
+interface State {
+  vocabList: IQuizEntry[];
+  pendingList: IQuizEntry[];
 
-declare class Converter {
-  makeHtml(md: string): string;
-  makeMarkdown(html: string): string;
+  vocabDetails: {
+    cedict: ICedict[];
+    sentences: ISentence[];
+  };
+
+  i: number;
+  total: number;
+  max: number;
+  skip: number;
+  due: number | "-";
+
+  lastIsRight: boolean | null;
+  lastIsFuzzy: boolean;
+  lastQuizTime: Date | null;
+  isRepeat: boolean;
 }

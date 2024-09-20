@@ -11,11 +11,17 @@ VERSION = sys.argv[1] if len(sys.argv) > 1 else ""
 pyi_args = ["app.py"]
 
 pyi_args.append("--noconfirm")
-# pyi_args.append("--noconsole")
+
+if "--console" not in sys.argv:
+    pyi_args.append("--noconsole")
 
 pyi_args.extend(("--name", APP_NAME))
 
-pyi_args.extend(("--add-data", "web/*:web"))
+pyi_args.extend(("--add-data", "web/*.*:web"))
+for r in Path("web").iterdir():
+    if r.is_dir():
+        p = r.as_posix()
+        pyi_args.extend(("--add-data", f"{p}/*.*:{p}"))
 
 pyi_args.extend(("--collect-data", "wordfreq"))
 pyi_args.extend(("--collect-data", "jieba"))
@@ -30,6 +36,7 @@ if __name__ == "__main__":
             shutil.move(dist_path / f, dist_path.parent / f)
 
     PyInstaller.__main__.run(pyi_args)
+    # PyInstaller.building.build_main.main(None, "cnpy.spec")  # type: ignore
 
     for f in Path().glob("*.md"):
         shutil.copy(f, dist_path)
@@ -47,6 +54,8 @@ if __name__ == "__main__":
         zip_name += "-" + VERSION
 
     zip_name += "-" + platform.system()
+
+    (dist_path / "VERSION.txt").write_text(zip_name)
 
     shutil.make_archive(str(dist_path.parent / zip_name), "zip", dist_path)
 

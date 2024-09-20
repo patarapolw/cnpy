@@ -25,7 +25,7 @@ Stats = TypedDict(
         "h5.count": int,
         "h3": str,
         "h3.count": int,
-        "accuracy": str,
+        "accuracy": float,
         "hanzi.count": int,
     },
     total=False,
@@ -138,7 +138,7 @@ def make_stats():
 
         stats["studied"] = len(studied)
         stats["good"] = len(good)
-        stats["accuracy"] = "{:.1f}%".format(stats["good"] / stats["studied"] * 100)
+        stats["accuracy"] = stats["good"] / stats["studied"]
 
         # lone+h3.count remove duplicate
         stats["hanzi.count"] = 0

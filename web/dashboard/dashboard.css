@@ -1,0 +1,54 @@
+* {
+  font-family: sans-serif;
+}
+
+body {
+  margin: 25px;
+}
+
+.top-nav {
+  text-align: center;
+  margin-bottom: 1em;
+}
+
+.count-dashboard {
+  text-align: center;
+  margin-bottom: 1em;
+}
+
+#hanzi-list {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.hanzi {
+  display: inline-flex;
+}
+
+.hanzi:hover {
+  font-size: 3em;
+  padding: 0 3px;
+}
+
+.tier-0 {
+  color: black;
+}
+
+.tier-1 {
+  color: peru;
+}
+
+.tier-2 {
+  color: skyblue;
+}
+
+.button {
+  border: 1px solid rgba(0, 0, 0, 0.8);
+  border-radius: 3px;
+  padding: 5px 10px;
+  background-color: rgba(211, 211, 211, 0.5);
+}
+
+.button a {
+  text-decoration: none;
+}

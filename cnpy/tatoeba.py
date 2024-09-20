@@ -5,12 +5,13 @@ import json
 from urllib.request import urlretrieve
 import tarfile
 import bz2
+from typing import Callable
 
 from cnpy.db import db
 from cnpy.dir import tmp_root
 
 
-def load_db():
+def load_db(web_log: Callable[[str], None] = print):
     db.executescript(
         """
         CREATE TABLE IF NOT EXISTS sentence (
@@ -24,19 +25,21 @@ def load_db():
         CREATE INDEX IF NOT EXISTS idx_quiz_sent ON quiz (json_array_length([data], '$.sent'));
         """
     )
-    populate_db()
+    populate_db(web_log)
 
 
 def load_db_entry(r):
     return dict(r)
 
 
-def populate_db():
+def populate_db(web_log: Callable[[str], None] = print):
     if not db.execute("SELECT 1 FROM sentence LIMIT 1").fetchall():
-        download_tatoeba("cmn")
-        download_tatoeba("eng")
+        download_tatoeba("cmn", web_log)
+        download_tatoeba("eng", web_log)
 
-        download_tatoeba_links()
+        download_tatoeba_links(web_log)
+
+        web_log("Building sentence dictionary...")
 
         db.executescript(
             """
@@ -151,8 +154,10 @@ def populate_db():
         db.execute("UPDATE sentence SET [data] = NULL")
         db.commit()
 
+        web_log("Done")
 
-def download_tatoeba(lang: str):
+
+def download_tatoeba(lang: str, web_log: Callable[[str], None] = print):
     filename = f"{lang}_sentences.tsv"
 
     if not (tmp_root / filename).exists():
@@ -160,7 +165,7 @@ def download_tatoeba(lang: str):
         zipPath = tmp_root / zipFilename
 
         url = f"https://downloads.tatoeba.org/exports/per_language/{lang}/{zipFilename}"
-        print("Downloading {} from {}".format(filename, url))
+        web_log("Downloading {} from {}".format(filename, url))
         urlretrieve(url, zipPath)
 
         with (tmp_root / filename).open("wb") as unzipFile:
@@ -168,7 +173,7 @@ def download_tatoeba(lang: str):
                 unzipFile.write(zipFile.read())
 
 
-def download_tatoeba_links():
+def download_tatoeba_links(web_log: Callable[[str], None] = print):
     filename = "links.csv"
 
     if not (tmp_root / filename).exists():
@@ -176,7 +181,7 @@ def download_tatoeba_links():
         zipPath = tmp_root / zipFilename
 
         url = f"https://downloads.tatoeba.org/exports/{zipFilename}"
-        print("Downloading {} from {}".format(filename, url))
+        web_log("Downloading {} from {}".format(filename, url))
         urlretrieve(url, zipPath)
 
         with tarfile.open(zipPath) as z:
