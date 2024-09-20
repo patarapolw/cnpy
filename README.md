@@ -17,6 +17,10 @@ No typo checking. However, there is a middle-way button, "Not Sure".
 
 ![Repeat Quiz](_README/repeat.png)
 
+Note taking is powered by [markdown](https://showdownjs.com/). The content may be copy+pasted from websites in Dictionary links.
+
+![Notes](_README/notes.png)
+
 ## Vocab list ideas
 
 - Hanzi [levels](/assets/zhquiz-level/vocab.yaml) from [ZhQuiz](https://github.com/zhquiz/level/blob/master/_data/generated/vocab.yaml)
