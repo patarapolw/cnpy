@@ -19,7 +19,6 @@ srs = fsrs.FSRS()
 
 class Api:
     web_log: Callable[[str], None]
-    web_location: Callable[[str], None]
     web_ready: Callable
 
     def __init__(self, v=""):
@@ -35,6 +34,8 @@ class Api:
         quiz.load_db()
         cedict.load_db(self.web_log)
         tatoeba.load_db(self.web_log)
+
+        self.web_ready()
 
         db.execute(
             """
@@ -98,8 +99,6 @@ class Api:
                                 now.replace(tzinfo=now.astimezone().tzinfo).isoformat(),
                             ),
                         )
-
-        self.web_ready()
 
     def get_stats(self):
         self.latest_stats = make_stats()

@@ -28,14 +28,25 @@ if __name__ == "__main__":
         js_api=api,
         text_select=True,
     )
+    log_win = None
 
-    api.web_log = lambda s: win.evaluate_js(
-        "log('{}')".format(s.replace("'", "\\'").replace("\\", "\\\\"))
-    )
-    api.web_location = lambda s: win.evaluate_js(
-        "location.href = '{}'".format(s.replace("'", "\\'").replace("\\", "\\\\"))
-    )
-    api.web_ready = lambda: win.evaluate_js("ready()")
+    def web_log(s: str):
+        global log_win
+        if not log_win:
+            log_win = webview.create_window(
+                "Log",
+                "web/loading.html",
+                js_api=api,
+                text_select=True,
+                width=600,
+            )
+
+        w = log_win or win
+        w.evaluate_js("log('{}')".format(s.replace("'", "\\'").replace("\\", "\\\\")))
+
+    api.web_log = web_log
+
+    api.web_ready = lambda: win.load_url("web/dashboard.html")
 
     webview.start(lambda: api.start(), debug=is_debug)
 
