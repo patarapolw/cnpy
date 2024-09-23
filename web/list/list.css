@@ -1,0 +1,10 @@
+ol {
+  /* font-family: monospace; */
+  white-space: pre;
+}
+
+li::marker {
+  font-size: 10px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: grey;
+}

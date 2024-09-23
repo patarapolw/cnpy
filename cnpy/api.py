@@ -6,7 +6,7 @@ import datetime
 import webbrowser
 from pprint import pprint
 import random
-from typing import Callable
+from typing import Callable, Any
 
 from cnpy import quiz, cedict, tatoeba
 from cnpy.db import db
@@ -20,6 +20,7 @@ srs = fsrs.FSRS()
 class Api:
     web_log: Callable[[str], None]
     web_ready: Callable
+    web_window: Callable[[str, str], Any]
 
     def __init__(self, v=""):
         self.v = v
@@ -50,6 +51,7 @@ class Api:
             """
         )
 
+    def update_custom_lists(self):
         now = datetime.datetime.now()
         re_han = Regex(r"^\p{Han}+$")
 
@@ -391,3 +393,13 @@ class Api:
             )
 
         db.commit()
+
+    def new_window(self, url: str, title: str):
+        self.web_window(url, title)
+
+    def load_file(self, f: str):
+        return (exe_root / "user" / f).read_text(encoding="utf-8")
+
+    def save_file(self, f: str, txt: str):
+        print(f"Saving to {f}")
+        (exe_root / "user" / f).write_text(txt, encoding="utf-8")

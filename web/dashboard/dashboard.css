@@ -11,6 +11,20 @@ body {
   margin-bottom: 1em;
 }
 
+.nav {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.nav > .nav-content {
+  display: block;
+}
+
+.nav > .nav-content + .nav-content::before {
+  content: "・";
+}
+
 .count-dashboard {
   text-align: center;
   margin-bottom: 1em;

@@ -22,6 +22,10 @@ declare const pywebview: {
       good: number;
       accuracy: number;
     }>;
+    new_window(url: string, title: string): Promise<void>;
+    load_file(f: string): Promise<string>;
+    save_file(f: string, txt: string): Promise<void>;
+    update_custom_lists(): Promise<void>;
   };
 };
 

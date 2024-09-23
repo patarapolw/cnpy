@@ -30,23 +30,26 @@ if __name__ == "__main__":
     )
     log_win = None
 
+    def web_window(url: str, title: str):
+        return webview.create_window(
+            title,
+            url,
+            js_api=api,
+            text_select=True,
+            width=600,
+        )
+
     def web_log(s: str):
         global log_win
         if not log_win:
-            log_win = webview.create_window(
-                "Log",
-                "web/loading.html",
-                js_api=api,
-                text_select=True,
-                width=600,
-            )
+            log_win = web_window("web/loading.html", "Log")
 
         w = log_win or win
         w.evaluate_js("log('{}')".format(s.replace("'", "\\'").replace("\\", "\\\\")))
 
     api.web_log = web_log
-
     api.web_ready = lambda: win.load_url("web/dashboard.html")
+    api.web_window = web_window
 
     webview.start(lambda: api.start(), debug=is_debug)
 

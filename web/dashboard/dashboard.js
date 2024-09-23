@@ -12,7 +12,21 @@ const elHanziList = /** @type {HTMLDivElement} */ (
   document.getElementById("hanzi-list")
 );
 
-window.addEventListener("pywebviewready", () => {
+document.querySelectorAll('a[target="new_window"]').forEach((a) => {
+  if (!(a instanceof HTMLAnchorElement)) return;
+  a.onclick = (ev) => {
+    ev.preventDefault();
+    const u = new URL(a.href, location.origin);
+    pywebview.api.new_window(a.href, u.searchParams.get("f"));
+  };
+});
+
+window.addEventListener("focus", init);
+window.addEventListener("pywebviewready", init);
+
+async function init() {
+  await pywebview.api.update_custom_lists();
+
   pywebview.api.due_vocab_list().then((r) => {
     if (r.count) {
       elDueCount.innerText = ` (${r.count})`;
@@ -21,6 +35,8 @@ window.addEventListener("pywebviewready", () => {
 
   pywebview.api.get_stats().then((r) => {
     console.log(r);
+
+    elHanziList.textContent = "";
 
     const hanziSet = new Set();
 
@@ -48,4 +64,4 @@ window.addEventListener("pywebviewready", () => {
         (r.accuracy ? ` (${(r.accuracy * 100).toFixed(0)}%)` : ""),
     ].join(", ");
   });
-});
+}
