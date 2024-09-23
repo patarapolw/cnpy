@@ -1,6 +1,14 @@
+body {
+  margin-bottom: 50px;
+}
+
 ol {
   /* font-family: monospace; */
   white-space: pre;
+}
+
+ol:focus {
+  outline: none;
 }
 
 li::marker {

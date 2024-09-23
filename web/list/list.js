@@ -9,14 +9,29 @@ window.addEventListener("pywebviewready", async () => {
   if (!filename) return;
 
   let txt = await pywebview.api.load_file(filename);
+  /** @type {HTMLLIElement} */
+  let lastLi;
 
   const makeLi = (t) => {
     const li = document.createElement("li");
     li.innerText = t;
+    lastLi = li;
     return li;
   };
 
   elEditor.append(...txt.split("\n").map((t) => makeLi(t)));
+  setTimeout(() => {
+    const el = lastLi || elEditor;
+    el.scrollIntoView();
+
+    const range = document.createRange();
+    const selection = window.getSelection();
+    range.selectNodeContents(el);
+    range.collapse(false); // <-- Set the cursor at the end of the selection
+    selection.removeAllRanges();
+    selection.addRange(range);
+    el.focus();
+  });
 
   function save() {
     if (elEditor.innerText !== txt) {
