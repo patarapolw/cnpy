@@ -422,7 +422,7 @@ async function newVocabList() {
   state.pendingList = [];
 
   document.querySelectorAll(".count[data-count-type]").forEach((el) => {
-    if (!(el instanceof HTMLSpanElement)) return;
+    if (!(el instanceof HTMLElement)) return;
     const type = el.getAttribute("data-count-type");
     switch (type) {
       case "total":
