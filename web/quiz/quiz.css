@@ -35,11 +35,11 @@ p,
   width: 95%;
 }
 
-.nav a {
+a.internal-link {
   text-decoration: none;
 }
 
-.nav a:visited {
+a.internal-link:visited {
   color: inherit;
 }
 

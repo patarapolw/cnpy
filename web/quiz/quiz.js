@@ -19,7 +19,7 @@ const state = {
 const elInput = /** @type {HTMLInputElement} */ (
   document.getElementById("type-input")
 );
-const elCompare = /** @type {HTMLDivElement} */ (
+const elCompare = /** @type {HTMLAnchorElement} */ (
   document.getElementById("type-compare")
 );
 const elNotes = /** @type {HTMLDivElement} */ (
@@ -29,7 +29,7 @@ const elNotesTextarea = /** @type {HTMLTextAreaElement} */ (
   elNotes.querySelector("textarea")
 );
 
-elInput.parentElement?.addEventListener("submit", submit);
+elInput.parentElement.addEventListener("submit", doNext);
 elInput.focus();
 
 elInput.addEventListener("keydown", (ev) => {
@@ -47,6 +47,21 @@ elInput.addEventListener("keydown", (ev) => {
         }
       }
   }
+});
+
+let isDialog = false;
+
+document.querySelectorAll('a[target="new_window"]').forEach((a) => {
+  if (!(a instanceof HTMLAnchorElement)) return;
+  a.onclick = (ev) => {
+    ev.preventDefault();
+    if (!a.href) return;
+    isDialog = true;
+    pywebview.api.new_window(a.href, a.title || a.innerText, {
+      width: 300,
+      height: 300,
+    });
+  };
 });
 
 document.addEventListener("keydown", (ev) => {
@@ -77,6 +92,14 @@ document.addEventListener("keydown", (ev) => {
       if (!state.isRepeat) {
         newVocabList();
       }
+  }
+});
+
+window.addEventListener("focus", () => {
+  if (isDialog && elCompare.innerText) {
+    isDialog = false;
+    elCompare.innerText = "";
+    doNext();
   }
 });
 
@@ -148,7 +171,7 @@ window.addEventListener("pywebviewready", () => {
 /// Functions
 ////////////////
 
-function submit(ev) {
+function doNext(ev) {
   if (ev) {
     ev.preventDefault();
   }
@@ -162,11 +185,18 @@ function submit(ev) {
   } else {
     pywebview.api.log(state.vocabDetails.cedict);
 
-    const pinyin = state.vocabDetails.cedict
-      .map((v) => v.pinyin)
-      .filter((v, i, a) => a.indexOf(v) === i);
+    const currentItem = state.vocabList[state.i];
+
+    const pinyin =
+      currentItem.data.pinyin ||
+      state.vocabDetails.cedict
+        .map((v) => v.pinyin)
+        .filter((v, i, a) => a.indexOf(v) === i);
 
     elCompare.innerText = pinyin.join("; ").replace(/u:/g, "ü");
+    if (new Set(pinyin.map((p) => p.toLocaleLowerCase())).size > 1) {
+      elCompare.href = `./pinyin-select.html?v=${currentItem.v}`;
+    }
 
     const elDictEntries = /** @type {HTMLDivElement} */ (
       document.getElementById("dictionary-entries")
@@ -286,7 +316,7 @@ function submit(ev) {
 
 function mark(type) {
   if (type) {
-    setTimeout(submit);
+    setTimeout(doNext);
   }
 
   switch (type || state.lastIsRight) {
@@ -330,6 +360,7 @@ async function newVocab() {
   elInput.focus();
 
   elCompare.innerText = "";
+  elCompare.href = "";
 
   document.querySelectorAll(".if-checked-details").forEach((el) => el.remove());
 
@@ -349,7 +380,7 @@ async function newVocab() {
     data: { wordfreq, notes },
     v,
   } = state.vocabList[state.i];
-  pywebview.api.log({ v, wordfreq });
+  // pywebview.api.log({ v, wordfreq });
 
   state.vocabDetails = await pywebview.api.vocab_details(v);
   /** @type {HTMLDivElement} */ (document.getElementById("vocab")).innerText =

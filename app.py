@@ -1,4 +1,5 @@
 import sys
+from typing import Optional
 
 import webview
 from regex import Regex
@@ -30,13 +31,15 @@ if __name__ == "__main__":
     )
     log_win = None
 
-    def web_window(url: str, title: str):
+    def web_window(url: str, title: str, args: Optional[dict] = None):
+        args = args or {"width": 600}
+
         return webview.create_window(
             title,
             url,
             js_api=api,
             text_select=True,
-            width=600,
+            **args,
         )
 
     def web_log(s: str):

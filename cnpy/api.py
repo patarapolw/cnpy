@@ -5,7 +5,7 @@ import json
 import datetime
 from pprint import pprint
 import random
-from typing import Callable, Any, TypedDict
+from typing import Callable, Any, TypedDict, Optional
 
 from cnpy import quiz, cedict, tatoeba
 from cnpy.db import db
@@ -23,7 +23,7 @@ class UserSettings(TypedDict):
 class Api:
     web_log: Callable[[str], None]
     web_ready: Callable
-    web_window: Callable[[str, str], Any]
+    web_window: Callable[[str, str, Optional[dict]], Any]
 
     settings_path = exe_root / "user" / "settings.json"
     settings = UserSettings(levels=[])
@@ -138,6 +138,21 @@ class Api:
         self.latest_stats = make_stats()
         return self.latest_stats
 
+    def get_vocab(self, v: str):
+        return quiz.load_db_entry(
+            db.execute("SELECT * FROM quiz WHERE v = ?", (v,)).fetchone()
+        )
+
+    def set_pinyin(self, v: str, pinyin: Optional[list[str]]):
+        db.execute(
+            """
+            UPDATE quiz SET
+                [data] = json_set(IFNULL([data], '{}'), '$.pinyin', json(?))
+            WHERE v = ?
+            """,
+            (json.dumps(pinyin), v),
+        )
+
     def due_vocab_list(self, limit=20):
         all_items = [
             quiz.load_db_entry(r)
@@ -183,9 +198,7 @@ class Api:
             all_items = rs
 
             if not r0:
-                r0 = quiz.load_db_entry(
-                    db.execute("SELECT * FROM quiz WHERE v = ?", (self.v,)).fetchone()
-                )
+                r0 = self.get_vocab(self.v)
                 n += 1
 
             all_items.insert(0, r0)
@@ -426,8 +439,8 @@ class Api:
 
         db.commit()
 
-    def new_window(self, url: str, title: str):
-        self.web_window(url, title)
+    def new_window(self, url: str, title: str, args: Optional[dict] = None):
+        self.web_window(url, title, args)
 
     def load_file(self, f: str):
         return (exe_root / "user" / f).read_text(encoding="utf-8")
