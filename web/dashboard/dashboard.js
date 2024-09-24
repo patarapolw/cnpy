@@ -16,8 +16,7 @@ document.querySelectorAll('a[target="new_window"]').forEach((a) => {
   if (!(a instanceof HTMLAnchorElement)) return;
   a.onclick = (ev) => {
     ev.preventDefault();
-    const u = new URL(a.href, location.origin);
-    pywebview.api.new_window(a.href, u.searchParams.get("f") || a.innerText);
+    pywebview.api.new_window(a.href, a.innerText);
   };
 });
 
