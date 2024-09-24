@@ -37,18 +37,26 @@ window.addEventListener("pywebviewready", async () => {
   );
 
   const lvSet = new Set((await pywebview.api.get_settings()).levels);
+  /** @type {HTMLInputElement} */
+  let elHighest;
+
   document.querySelectorAll("input").forEach((el) => {
     const lv = Number(el.getAttribute("data-level") || "0");
     if (!lv) return;
 
     if (lvSet.has(lv)) {
       el.checked = true;
-      el.focus();
-      el.blur();
+      elHighest = el;
     }
 
     el.addEventListener("change", () => {
       pywebview.api.set_level(lv, el.checked);
     });
   });
+
+  if (elHighest) {
+    const tr = elHighest.closest("tr");
+    const el = tr.nextElementSibling || tr;
+    el.scrollIntoView(false);
+  }
 });

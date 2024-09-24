@@ -109,6 +109,7 @@ class Api:
                     "INSERT INTO vlist (v, created) VALUES (?,?) ON CONFLICT DO NOTHING",
                     (v, now_str),
                 )
+                vs.add(v)
 
         path = exe_root / "user/skip"
         path.mkdir(exist_ok=True)
@@ -129,6 +130,9 @@ class Api:
                             "INSERT INTO vlist (v, created, skip) VALUES (?, ?, 1)",
                             (v, now_str),
                         )
+                    vs.add(v)
+
+        db.execute("DELETE FROM vlist WHERE v NOT IN ('{}')".format("','".join(vs)))
 
     def get_stats(self):
         self.latest_stats = make_stats()
