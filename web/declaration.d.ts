@@ -1,7 +1,7 @@
 declare const pywebview: {
   api: {
     log(obj: any): void;
-    open_in_browser(url: string): void;
+    get_settings(): Promise<Settings>;
     mark(v: string, type: string): Promise<void>;
     save_notes(v: string, notes: string): Promise<void>;
     vocab_details(v: string): Promise<{
@@ -26,8 +26,14 @@ declare const pywebview: {
     load_file(f: string): Promise<string>;
     save_file(f: string, txt: string): Promise<void>;
     update_custom_lists(): Promise<void>;
+    get_levels(): Promise<Record<string, string[]>>;
+    set_level(lv: number, state: boolean): Promise<void>;
   };
 };
+
+interface Settings {
+  levels: number[];
+}
 
 interface ICedict {
   simp: string;

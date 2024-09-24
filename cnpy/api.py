@@ -3,10 +3,9 @@ from regex import Regex
 
 import json
 import datetime
-import webbrowser
 from pprint import pprint
 import random
-from typing import Callable, Any
+from typing import Callable, Any, TypedDict
 
 from cnpy import quiz, cedict, tatoeba
 from cnpy.db import db
@@ -17,19 +16,46 @@ from cnpy.dir import exe_root
 srs = fsrs.FSRS()
 
 
+class UserSettings(TypedDict):
+    levels: list[int]
+
+
 class Api:
     web_log: Callable[[str], None]
     web_ready: Callable
     web_window: Callable[[str, str], Any]
 
+    settings_path = exe_root / "user" / "settings.json"
+    settings = UserSettings(levels=[])
+
+    levels: dict[str, list[str]] = {}
+
     def __init__(self, v=""):
         self.v = v
 
+        if self.settings_path.exists():
+            self.settings = json.loads(self.settings_path.read_text("utf-8"))
+
+        folder = exe_root / "assets" / "zhquiz-level"
+        for f in folder.glob("**/*.txt"):
+            self.levels[f.with_suffix("").name] = (
+                f.read_text(encoding="utf-8").rstrip().splitlines()
+            )
+
+    def get_settings(self):
+        return self.settings
+
+    def save_settings(self):
+        self.settings_path.write_text(
+            json.dumps(
+                self.settings,
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+
     def log(self, obj):
         pprint(obj, indent=1, sort_dicts=False)
-
-    def open_in_browser(self, url):
-        webbrowser.open(url)
 
     def start(self):
         quiz.load_db()
@@ -53,6 +79,7 @@ class Api:
 
     def update_custom_lists(self):
         now = datetime.datetime.now()
+        now_str = now.replace(tzinfo=now.astimezone().tzinfo).isoformat()
         re_han = Regex(r"^\p{Han}+$")
 
         vs = set()
@@ -69,15 +96,19 @@ class Api:
                     if not rs:
                         db.execute(
                             "INSERT INTO vlist (v, created) VALUES (?,?)",
-                            (
-                                v,
-                                now.replace(tzinfo=now.astimezone().tzinfo).isoformat(),
-                            ),
+                            (v, now_str),
                         )
                     elif v in vs:
                         self.web_log(f"{f.relative_to(path)} [L{i+1}]: {v} duplicated")
 
                     vs.add(v)
+
+        for lv in self.settings.get("levels", []):
+            for v in self.levels[f"{lv:02d}"]:
+                db.execute(
+                    "INSERT INTO vlist (v, created) VALUES (?,?) ON CONFLICT DO NOTHING",
+                    (v, now_str),
+                )
 
         path = exe_root / "user/skip"
         path.mkdir(exist_ok=True)
@@ -96,10 +127,7 @@ class Api:
                     ).rowcount:
                         db.execute(
                             "INSERT INTO vlist (v, created, skip) VALUES (?, ?, 1)",
-                            (
-                                v,
-                                now.replace(tzinfo=now.astimezone().tzinfo).isoformat(),
-                            ),
+                            (v, now_str),
                         )
 
     def get_stats(self):
@@ -401,5 +429,20 @@ class Api:
         return (exe_root / "user" / f).read_text(encoding="utf-8")
 
     def save_file(self, f: str, txt: str):
-        print(f"Saving to {f}")
         (exe_root / "user" / f).write_text(txt, encoding="utf-8")
+
+    def get_levels(self):
+        return self.levels
+
+    def set_level(self, lv: int, state: bool):
+        lv_set = set(self.settings.get("levels"))
+        if state:
+            lv_set.add(lv)
+        else:
+            lv_set.remove(lv)
+
+        lv_list = list(lv_set)
+        lv_list.sort()
+
+        self.settings["levels"] = lv_list
+        self.save_settings()
