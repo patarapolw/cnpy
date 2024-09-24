@@ -39,7 +39,7 @@ window.addEventListener("pywebviewready", async () => {
         pywebview.api.set_pinyin(
           v,
           chosenPinyinSet.size < allPinyin.length
-            ? Array.from(chosenPinyinSet).sort()
+            ? allPinyin.filter((p) => chosenPinyinSet.has(p))
             : null
         );
       };

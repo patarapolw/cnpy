@@ -95,10 +95,14 @@ document.addEventListener("keydown", (ev) => {
   }
 });
 
-window.addEventListener("focus", () => {
+window.addEventListener("focus", async () => {
   if (isDialog && elCompare.innerText) {
     isDialog = false;
-    elCompare.innerText = "";
+
+    const { v } = state.vocabList[state.i];
+    state.vocabList[state.i] = await pywebview.api.get_vocab(v);
+
+    softCleanup();
     doNext();
   }
 });
@@ -187,16 +191,17 @@ function doNext(ev) {
 
     const currentItem = state.vocabList[state.i];
 
-    const pinyin =
-      currentItem.data.pinyin ||
-      state.vocabDetails.cedict
-        .map((v) => v.pinyin)
-        .filter((v, i, a) => a.indexOf(v) === i);
+    const dictPinyin = state.vocabDetails.cedict
+      .map((v) => v.pinyin)
+      .filter((v, i, a) => a.indexOf(v) === i);
 
-    elCompare.innerText = pinyin.join("; ").replace(/u:/g, "ü");
-    if (new Set(pinyin.map((p) => p.toLocaleLowerCase())).size > 1) {
+    if (new Set(dictPinyin.map((p) => p.toLocaleLowerCase())).size > 1) {
       elCompare.href = `./pinyin-select.html?v=${currentItem.v}`;
     }
+
+    const pinyin = currentItem.data.pinyin || dictPinyin;
+
+    elCompare.innerText = pinyin.join("; ").replace(/u:/g, "ü");
 
     const elDictEntries = /** @type {HTMLDivElement} */ (
       document.getElementById("dictionary-entries")
@@ -355,14 +360,18 @@ function mark(type) {
   }
 }
 
-async function newVocab() {
-  elInput.value = "";
-  elInput.focus();
-
+function softCleanup() {
   elCompare.innerText = "";
   elCompare.href = "";
 
   document.querySelectorAll(".if-checked-details").forEach((el) => el.remove());
+}
+
+async function newVocab() {
+  elInput.value = "";
+  elInput.focus();
+
+  softCleanup();
 
   state.i++;
   state.lastIsRight = null;
