@@ -42,7 +42,7 @@ body {
 }
 
 .hanzi:hover {
-  font-size: 3em;
+  font-size: 2em;
   padding: 0 3px;
   margin: 0 -0.7rem;
   box-shadow: inset 0px 0px 0.5em 0.5em rgba(255, 255, 255, 0.9);

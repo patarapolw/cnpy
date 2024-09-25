@@ -12,7 +12,7 @@ thead {
 }
 
 tr:has(:checked) {
-  background-color: #eee;
+  background-color: aliceblue;
 }
 
 th,
