@@ -1,9 +1,11 @@
 declare const pywebview: {
   api: {
     log(obj: any): void;
-    open_in_browser(url: string): void;
+    get_settings(): Promise<Settings>;
     mark(v: string, type: string): Promise<void>;
     save_notes(v: string, notes: string): Promise<void>;
+    get_vocab(v: string): Promise<IQuizEntry>;
+    set_pinyin(v: string, pinyin: string[] | null): Promise<void>;
     vocab_details(v: string): Promise<{
       cedict: ICedict[];
       sentences: ISentence[];
@@ -22,8 +24,25 @@ declare const pywebview: {
       good: number;
       accuracy: number;
     }>;
+    new_window(
+      url: string,
+      title: string,
+      args?: {
+        width: number;
+        height: number;
+      }
+    ): Promise<void>;
+    load_file(f: string): Promise<string>;
+    save_file(f: string, txt: string): Promise<void>;
+    update_custom_lists(): Promise<void>;
+    get_levels(): Promise<Record<string, string[]>>;
+    set_level(lv: number, state: boolean): Promise<void>;
   };
 };
+
+interface Settings {
+  levels: number[];
+}
 
 interface ICedict {
   simp: string;
@@ -43,6 +62,7 @@ interface IQuizEntry {
   data: {
     wordfreq: number;
     notes: string;
+    pinyin?: string[];
   };
 }
 

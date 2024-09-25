@@ -23,8 +23,40 @@ body,
 
 details,
 p,
+.nav,
 .count {
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.nav {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  width: 95%;
+}
+
+a.internal-link {
+  text-decoration: none;
+}
+
+a.internal-link:visited {
+  color: inherit;
+}
+
+.nav > .left {
+  text-align: left;
+  width: 33%;
+}
+
+.nav > .center {
+  text-align: center;
+  justify-content: center;
+  width: 34%;
+}
+
+.nav > .right {
+  text-align: right;
+  width: 33%;
 }
 
 .top-nav {

@@ -3,10 +3,9 @@ from regex import Regex
 
 import json
 import datetime
-import webbrowser
 from pprint import pprint
 import random
-from typing import Callable
+from typing import Callable, Any, TypedDict, Optional
 
 from cnpy import quiz, cedict, tatoeba
 from cnpy.db import db
@@ -17,18 +16,46 @@ from cnpy.dir import exe_root
 srs = fsrs.FSRS()
 
 
+class UserSettings(TypedDict):
+    levels: list[int]
+
+
 class Api:
     web_log: Callable[[str], None]
     web_ready: Callable
+    web_window: Callable[[str, str, Optional[dict]], Any]
+
+    settings_path = exe_root / "user" / "settings.json"
+    settings = UserSettings(levels=[])
+
+    levels: dict[str, list[str]] = {}
 
     def __init__(self, v=""):
         self.v = v
 
+        if self.settings_path.exists():
+            self.settings = json.loads(self.settings_path.read_text("utf-8"))
+
+        folder = exe_root / "assets" / "zhquiz-level"
+        for f in folder.glob("**/*.txt"):
+            self.levels[f.with_suffix("").name] = (
+                f.read_text(encoding="utf-8").rstrip().splitlines()
+            )
+
+    def get_settings(self):
+        return self.settings
+
+    def save_settings(self):
+        self.settings_path.write_text(
+            json.dumps(
+                self.settings,
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+
     def log(self, obj):
         pprint(obj, indent=1, sort_dicts=False)
-
-    def open_in_browser(self, url):
-        webbrowser.open(url)
 
     def start(self):
         quiz.load_db()
@@ -50,7 +77,9 @@ class Api:
             """
         )
 
+    def update_custom_lists(self):
         now = datetime.datetime.now()
+        now_str = now.replace(tzinfo=now.astimezone().tzinfo).isoformat()
         re_han = Regex(r"^\p{Han}+$")
 
         vs = set()
@@ -59,6 +88,9 @@ class Api:
         path.mkdir(exist_ok=True)
 
         for f in path.glob("**/*.txt"):
+            nodup_f_vs = []
+            is_dup = False
+
             for i, v in enumerate(f.open(encoding="utf-8")):
                 v = v.strip()
                 if v and re_han.fullmatch(v):
@@ -67,15 +99,27 @@ class Api:
                     if not rs:
                         db.execute(
                             "INSERT INTO vlist (v, created) VALUES (?,?)",
-                            (
-                                v,
-                                now.replace(tzinfo=now.astimezone().tzinfo).isoformat(),
-                            ),
+                            (v, now_str),
                         )
-                    elif v in vs:
+
+                    if v in vs:
                         self.web_log(f"{f.relative_to(path)} [L{i+1}]: {v} duplicated")
+                        is_dup = True
+                    else:
+                        nodup_f_vs.append(v)
 
                     vs.add(v)
+
+            if is_dup:
+                f.write_text("\n".join(nodup_f_vs), encoding="utf-8")
+
+        for lv in self.settings.get("levels", []):
+            for v in self.levels[f"{lv:02d}"]:
+                db.execute(
+                    "INSERT INTO vlist (v, created) VALUES (?,?) ON CONFLICT DO NOTHING",
+                    (v, now_str),
+                )
+                vs.add(v)
 
         path = exe_root / "user/skip"
         path.mkdir(exist_ok=True)
@@ -94,15 +138,30 @@ class Api:
                     ).rowcount:
                         db.execute(
                             "INSERT INTO vlist (v, created, skip) VALUES (?, ?, 1)",
-                            (
-                                v,
-                                now.replace(tzinfo=now.astimezone().tzinfo).isoformat(),
-                            ),
+                            (v, now_str),
                         )
+                    vs.add(v)
+
+        db.execute("DELETE FROM vlist WHERE v NOT IN ('{}')".format("','".join(vs)))
 
     def get_stats(self):
         self.latest_stats = make_stats()
         return self.latest_stats
+
+    def get_vocab(self, v: str):
+        return quiz.load_db_entry(
+            db.execute("SELECT * FROM quiz WHERE v = ?", (v,)).fetchone()
+        )
+
+    def set_pinyin(self, v: str, pinyin: Optional[list[str]]):
+        db.execute(
+            """
+            UPDATE quiz SET
+                [data] = json_set(IFNULL([data], '{}'), '$.pinyin', json(?))
+            WHERE v = ?
+            """,
+            (json.dumps(pinyin), v),
+        )
 
     def due_vocab_list(self, limit=20):
         all_items = [
@@ -149,9 +208,7 @@ class Api:
             all_items = rs
 
             if not r0:
-                r0 = quiz.load_db_entry(
-                    db.execute("SELECT * FROM quiz WHERE v = ?", (self.v,)).fetchone()
-                )
+                r0 = self.get_vocab(self.v)
                 n += 1
 
             all_items.insert(0, r0)
@@ -391,3 +448,28 @@ class Api:
             )
 
         db.commit()
+
+    def new_window(self, url: str, title: str, args: Optional[dict] = None):
+        self.web_window(url, title, args)
+
+    def load_file(self, f: str):
+        return (exe_root / "user" / f).read_text(encoding="utf-8")
+
+    def save_file(self, f: str, txt: str):
+        (exe_root / "user" / f).write_text(txt, encoding="utf-8")
+
+    def get_levels(self):
+        return self.levels
+
+    def set_level(self, lv: int, state: bool):
+        lv_set = set(self.settings.get("levels"))
+        if state:
+            lv_set.add(lv)
+        else:
+            lv_set.remove(lv)
+
+        lv_list = list(lv_set)
+        lv_list.sort()
+
+        self.settings["levels"] = lv_list
+        self.save_settings()

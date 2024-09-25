@@ -1,0 +1,17 @@
+body {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+thead {
+  visibility: collapse;
+}
+
+th,
+td {
+  border: 1px solid gray;
+}
