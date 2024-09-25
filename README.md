@@ -4,6 +4,7 @@ After every rounds of not-Right's, there will be unlimited repeat drills until y
 
 No typo checking. However, there is a middle-way button, "Not Sure".
 
+- `v` is also accepted for `u:` or `ü` (for IME practice).
 - `ESC` for Not Sure / Skip
 - `Ctrl+Z` for undo and redo later (move to the end of the queue)
 - `F1` or `F5` to end the current session, and start the repeat drill or a new session.

@@ -51,19 +51,6 @@ elInput.addEventListener("keydown", (ev) => {
 
 let isDialog = false;
 
-document.querySelectorAll('a[target="new_window"]').forEach((a) => {
-  if (!(a instanceof HTMLAnchorElement)) return;
-  a.onclick = (ev) => {
-    ev.preventDefault();
-    if (!a.href) return;
-    isDialog = true;
-    pywebview.api.new_window(a.href, a.title || a.innerText, {
-      width: 300,
-      height: 300,
-    });
-  };
-});
-
 document.addEventListener("keydown", (ev) => {
   switch (ev.key) {
     case "Escape":
@@ -197,6 +184,16 @@ function doNext(ev) {
 
     if (new Set(dictPinyin.map((p) => p.toLocaleLowerCase())).size > 1) {
       elCompare.href = `./pinyin-select.html?v=${currentItem.v}`;
+      elCompare.onclick = (ev) => {
+        ev.preventDefault();
+        const a = /** @type {HTMLAnchorElement} */ (ev.target);
+        if (!a.href) return;
+        isDialog = true;
+        pywebview.api.new_window(a.href, a.title || a.innerText, {
+          width: 300,
+          height: 300,
+        });
+      };
     }
 
     const pinyin = currentItem.data.pinyin || dictPinyin;
@@ -363,6 +360,7 @@ function mark(type) {
 function softCleanup() {
   elCompare.innerText = "";
   elCompare.href = "";
+  elCompare.onclick = () => false;
 
   document.querySelectorAll(".if-checked-details").forEach((el) => el.remove());
 }

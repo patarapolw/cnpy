@@ -88,6 +88,9 @@ class Api:
         path.mkdir(exist_ok=True)
 
         for f in path.glob("**/*.txt"):
+            nodup_f_vs = []
+            is_dup = False
+
             for i, v in enumerate(f.open(encoding="utf-8")):
                 v = v.strip()
                 if v and re_han.fullmatch(v):
@@ -98,10 +101,17 @@ class Api:
                             "INSERT INTO vlist (v, created) VALUES (?,?)",
                             (v, now_str),
                         )
-                    elif v in vs:
+
+                    if v in vs:
                         self.web_log(f"{f.relative_to(path)} [L{i+1}]: {v} duplicated")
+                        is_dup = True
+                    else:
+                        nodup_f_vs.append(v)
 
                     vs.add(v)
+
+            if is_dup:
+                f.write_text("\n".join(nodup_f_vs), encoding="utf-8")
 
         for lv in self.settings.get("levels", []):
             for v in self.levels[f"{lv:02d}"]:
