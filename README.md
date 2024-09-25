@@ -8,7 +8,7 @@ No typo checking. However, there is a middle-way button, "Not Sure".
 - `ESC` for Not Sure / Skip
 - `Ctrl+Z` for undo and redo later (move to the end of the queue)
 - `F1` or `F5` to end the current session, and start the repeat drill or a new session.
-- Mulitple answers if applicable, separated by `;`.
+- Mulitple answers if applicable, separated by `;`. Uncommon Pinyin readings can be temporarily disabled.
 - [Custom vocabularies](/user/vocab/) can be added, and will be put to the end of Due queue (if the entries exist in [the dictionary](https://www.mdbg.net/chinese/dictionary))
 - Chosen vocabularies can be added to [Skip](/user/skip/). For example, if some vocab are accidentally added to the SRS or practically uncommon.
 
