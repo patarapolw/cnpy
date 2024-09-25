@@ -16,7 +16,11 @@ document.querySelectorAll('a[target="new_window"]').forEach((a) => {
   if (!(a instanceof HTMLAnchorElement)) return;
   a.onclick = (ev) => {
     ev.preventDefault();
-    pywebview.api.new_window(a.href, a.innerText);
+    pywebview.api.new_window(
+      a.href,
+      a.innerText,
+      a.href.includes("levels.html") ? { maximized: true } : null
+    );
   };
 });
 

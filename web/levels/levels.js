@@ -28,9 +28,8 @@ window.addEventListener("pywebviewready", async () => {
           return el;
         };
 
-        const td = elRow.querySelector("td");
-        td.append(...vs.flatMap((v) => [makeElVoc(v), "，"]));
-        td.lastChild.remove();
+        const td = elRow.querySelector(".voc-container");
+        td.append(...vs.map((v) => makeElVoc(v)));
 
         return elRow;
       })

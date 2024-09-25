@@ -27,10 +27,13 @@ declare const pywebview: {
     new_window(
       url: string,
       title: string,
-      args?: {
-        width: number;
-        height: number;
-      }
+      args?:
+        | {
+            width: number;
+            height: number;
+          }
+        | { maximized: true }
+        | null
     ): Promise<void>;
     load_file(f: string): Promise<string>;
     save_file(f: string, txt: string): Promise<void>;

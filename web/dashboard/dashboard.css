@@ -37,11 +37,16 @@ body {
 
 .hanzi {
   display: inline-flex;
+  cursor: default;
+  z-index: 0;
 }
 
 .hanzi:hover {
   font-size: 3em;
   padding: 0 3px;
+  margin: 0 -0.7rem;
+  box-shadow: inset 0px 0px 0.5em 0.5em rgba(255, 255, 255, 0.9);
+  z-index: 1;
 }
 
 .tier-0 {
