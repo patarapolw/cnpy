@@ -1,0 +1,28 @@
+* {
+  font-family: sans-serif;
+}
+
+html,
+body,
+fieldset {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+fieldset {
+  display: none;
+  border: none;
+  grid-template-rows: 1fr auto;
+}
+
+fieldset.active {
+  display: grid;
+}
+
+fieldset footer {
+  margin-top: 5px;
+  display: flex;
+  flex-direction: row-reverse;
+}
