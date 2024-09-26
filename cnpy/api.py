@@ -448,7 +448,10 @@ class Api:
         self.web_window(url, title, args)
 
     def load_file(self, f: str):
-        return (exe_root / "user" / f).read_text(encoding="utf-8")
+        path = exe_root / "user" / f
+        if path.exists():
+            return (exe_root / "user" / f).read_text(encoding="utf-8")
+        return ""
 
     def save_file(self, f: str, txt: str):
         (exe_root / "user" / f).write_text(txt, encoding="utf-8")
