@@ -12,8 +12,34 @@ const elAnalyzer = /** @type {HTMLElement} */ (
 );
 const elResult = /** @type {HTMLElement} */ (document.querySelector("#result"));
 
-elButtonSubmit.addEventListener("click", (ev) => {
+elButtonSubmit.addEventListener("click", async (ev) => {
   ev.preventDefault();
+
+  const { result } = await pywebview.api.analyze(
+    elAnalyzer.querySelector("textarea").value
+  );
+
+  const ol = elResult.querySelector("ol");
+  ol.textContent = "";
+
+  /**
+   *
+   * @param {(typeof result)[0]} r
+   * @returns
+   */
+  const makeLI = (r) => {
+    const li = document.createElement("li");
+
+    const elPinyin = document.createElement("span");
+    elPinyin.className = "pinyin";
+    elPinyin.innerText = r.pinyin;
+
+    li.append(r.v, elPinyin);
+
+    return li;
+  };
+
+  ol.append(...result.map((r) => makeLI(r)));
 
   document
     .querySelectorAll("fieldset")
@@ -24,6 +50,8 @@ elButtonSubmit.addEventListener("click", (ev) => {
 
 elButtonReset.addEventListener("click", (ev) => {
   ev.preventDefault();
+
+  elAnalyzer.querySelector("textarea").value = "";
 
   document
     .querySelectorAll("fieldset")

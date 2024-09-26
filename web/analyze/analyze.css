@@ -26,3 +26,22 @@ fieldset footer {
   display: flex;
   flex-direction: row-reverse;
 }
+
+.pinyin {
+  font-size: 0.7em;
+  display: inline-block;
+  color: gray;
+  margin-left: 1em;
+  user-select: none;
+  cursor: default;
+}
+
+.pinyin::before {
+  content: "\09";
+}
+
+li::marker {
+  font-size: 10px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: grey;
+}

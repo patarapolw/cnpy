@@ -40,6 +40,12 @@ declare const pywebview: {
     update_custom_lists(): Promise<void>;
     get_levels(): Promise<Record<string, string[]>>;
     set_level(lv: number, state: boolean): Promise<void>;
+    analyze(txt: string): Promise<{
+      result: {
+        v: string;
+        pinyin: string;
+      }[];
+    }>;
   };
 };
 

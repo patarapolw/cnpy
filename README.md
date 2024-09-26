@@ -32,6 +32,10 @@ Note taking is powered bidirectionally by markdown ([showdown.js](https://showdo
   - HSK5 - Level 31-40
   - HSK6 - Level 41-60
 
+## Text analysis
+
+Native Chinese articles can be parsed and added to new vocab list. By default, vocab will appear in New more often, rather than added to Due queue.
+
 ## Statistics
 
 ![Stats](_README/stats.png)
