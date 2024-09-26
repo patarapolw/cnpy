@@ -122,6 +122,7 @@ class Api:
                     v NOT IN (
                         SELECT v FROM vlist
                     ) AND
+                    srs IS NULL AND
                     json_extract([data], '$.wordfreq') < 6
                 ORDER BY
                     json_extract([data], '$.count') DESC,
