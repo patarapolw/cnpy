@@ -16,6 +16,10 @@ const state = {
   isRepeat: false,
 };
 
+const elVocab = /** @type {HTMLDivElement} */ (
+  document.getElementById("vocab")
+);
+
 const elInput = /** @type {HTMLInputElement} */ (
   document.getElementById("type-input")
 );
@@ -127,6 +131,9 @@ elNotesTextarea.addEventListener("paste", (ev) => {
   const md = converter
     .makeMarkdown(html)
     .replace(/<!--.*?-->/g, "")
+    .replace(/([(（“])\s+</g, "$1<")
+    .replace(/>\s+([)）”。])/g, ">$1")
+    .replace(/(\r?\n)+ {1,3}([^ ])/g, " $2")
     .replace(/^(\r?\n)+/, "")
     .replace(/(\r?\n)+$/, "");
 
@@ -199,6 +206,12 @@ function doNext(ev) {
     const pinyin = currentItem.data.pinyin || dictPinyin;
 
     elCompare.innerText = pinyin.join("; ").replace(/u:/g, "ü");
+
+    elVocab.onclick = () => {
+      const u = new SpeechSynthesisUtterance(currentItem.v);
+      u.lang = "zh-CN";
+      speechSynthesis.speak(u);
+    };
 
     const elDictEntries = /** @type {HTMLDivElement} */ (
       document.getElementById("dictionary-entries")
@@ -311,6 +324,12 @@ function doNext(ev) {
     document.querySelectorAll("[data-checked]").forEach((el) => {
       el.setAttribute("data-checked", state.lastIsRight ? "right" : "wrong");
     });
+
+    elInput.value = elInput.value.replace(/u:/g, "v").replace(/v/g, "ü");
+    elInput.oninput = (ev) => {
+      ev.preventDefault();
+      return false;
+    };
   }
 
   return false;
@@ -358,6 +377,8 @@ function mark(type) {
 }
 
 function softCleanup() {
+  elVocab.onclick = null;
+
   elCompare.innerText = "";
   elCompare.href = "";
   elCompare.onclick = () => false;
@@ -367,6 +388,7 @@ function softCleanup() {
 
 async function newVocab() {
   elInput.value = "";
+  elInput.oninput = null;
   elInput.focus();
 
   softCleanup();
@@ -390,8 +412,8 @@ async function newVocab() {
   // pywebview.api.log({ v, wordfreq });
 
   state.vocabDetails = await pywebview.api.vocab_details(v);
-  /** @type {HTMLDivElement} */ (document.getElementById("vocab")).innerText =
-    v;
+  elVocab.innerText = v;
+  elVocab.onclick = null;
 
   elNotesTextarea.value = notes || "";
   makeNotes(true);
@@ -446,10 +468,7 @@ async function newVocabList() {
     state.vocabList = r.result;
   }
 
-  if (
-    state.vocabDetails[0] &&
-    state.vocabDetails.cedict[0]?.simp === state.vocabList[0].v
-  ) {
+  if (state.vocabDetails.cedict[0]?.simp === state.vocabList[0].v) {
     const v0 = state.vocabList.shift();
     if (v0) {
       state.vocabList.push(v0);
