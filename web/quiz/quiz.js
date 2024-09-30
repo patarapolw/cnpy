@@ -131,8 +131,8 @@ elNotesTextarea.addEventListener("paste", (ev) => {
   const md = converter
     .makeMarkdown(html)
     .replace(/<!--.*?-->/g, "")
-    .replace(/([(（“])\s+</g, "$1<")
-    .replace(/>\s+([)）”。])/g, ">$1")
+    .replace(/([\p{Ps}\p{Pi}]+)\s+</gu, "$1<")
+    .replace(/>\s+([\p{Pe}\p{Pf}.。,，、]+)/gu, ">$1")
     .replace(/(\r?\n)+ {1,3}([^ ])/g, " $2")
     .replace(/^(\r?\n)+/, "")
     .replace(/(\r?\n)+$/, "");

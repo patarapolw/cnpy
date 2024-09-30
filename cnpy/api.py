@@ -92,7 +92,9 @@ class Api:
                     '$.count',
                     IFNULL(json_extract([data], '$.count'), 0) + 1
                 )
-            WHERE v IN ('{}')
+            WHERE
+                v IN ('{}') AND
+                json_extract([data], '$.wordfreq') < 6
             """.format(
                 "{}",
                 "','".join(raw_vs),
