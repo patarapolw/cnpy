@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Paragraph analyzer</title>
+
+    <link rel="stylesheet" href="./analyze/analyze.css" />
+  </head>
+  <body>
+    <fieldset id="analyzer" class="active">
+      <textarea
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+      ></textarea>
+      <footer>
+        <button type="submit">Analyze</button>
+      </footer>
+    </fieldset>
+    <fieldset id="result">
+      <div style="overflow: auto">
+        <ol></ol>
+      </div>
+      <footer>
+        <button type="reset">Edit</button>
+      </footer>
+    </fieldset>
+
+    <script src="./analyze/analyze.js"></script>
+  </body>
+</html>

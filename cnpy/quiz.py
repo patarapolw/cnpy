@@ -14,6 +14,8 @@ def load_db():
 
         CREATE INDEX IF NOT EXISTS idx_quiz_srs_due ON quiz (json_extract(srs, '$.due'));
         CREATE INDEX IF NOT EXISTS idx_quiz_wordfreq ON quiz (json_extract([data], '$.wordfreq'));
+        CREATE INDEX IF NOT EXISTS idx_quiz_sent_count ON quiz (json_array_length([data], '$.sent'));
+        CREATE INDEX IF NOT EXISTS idx_quiz_count ON quiz (json_extract([data], '$.count'));
 
         CREATE TABLE IF NOT EXISTS revlog (
             v           TEXT NOT NULL,

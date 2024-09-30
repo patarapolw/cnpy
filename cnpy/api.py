@@ -1,5 +1,6 @@
 import fsrs
 from regex import Regex
+import jieba
 
 import json
 import datetime
@@ -76,6 +77,68 @@ class Api:
             UPDATE vlist SET skip = NULL
             """
         )
+
+    def analyze(self, txt: str):
+        re_han = Regex(r"^\p{Han}+$")
+        raw_vs = set(v for v in jieba.cut_for_search(txt) if re_han.fullmatch(v))
+        if not raw_vs:
+            return {"result": []}
+
+        r = db.execute(
+            """
+            UPDATE quiz SET
+                [data] = json_set(
+                    IFNULL([data], '{}'),
+                    '$.count',
+                    IFNULL(json_extract([data], '$.count'), 0) + 1
+                )
+            WHERE
+                v IN ('{}') AND
+                json_extract([data], '$.wordfreq') < 6
+            """.format(
+                "{}",
+                "','".join(raw_vs),
+            )
+        )
+        db.commit()
+        self.log(f"{r.rowcount} vocab counts updated")
+
+        rs = [
+            dict(r)
+            for r in db.execute(
+                """
+                SELECT
+                    v,
+                    (
+                        SELECT replace(replace(group_concat(DISTINCT pinyin), ',', '; '), 'u:', 'ü')
+                        FROM (
+                            SELECT pinyin
+                            FROM cedict
+                            WHERE simp = v
+                            ORDER BY pinyin DESC, lower(pinyin)
+                        )
+                    ) pinyin
+                FROM quiz
+                WHERE
+                    v IN ('{}') AND
+                    v NOT IN (
+                        SELECT v FROM vlist
+                    ) AND
+                    srs IS NULL AND
+                    json_extract([data], '$.wordfreq') < 6
+                ORDER BY
+                    json_extract([data], '$.count') DESC,
+                    json_extract([data], '$.wordfreq') > {} DESC,
+                    json_array_length([data], '$.sent') > 3 DESC,
+                    json_extract([data], '$.wordfreq') DESC,
+                    json_array_length([data], '$.sent') > 0 DESC
+                """.format(
+                    "','".join(raw_vs),
+                    self.get_freq_min(),
+                )
+            )
+        ]
+        return {"result": rs}
 
     def update_custom_lists(self):
         now = datetime.datetime.now()
@@ -217,31 +280,7 @@ class Api:
 
         return {"result": all_items[:limit], "count": n}
 
-    def new_vocab_list(self, limit=20):
-        skip_voc = [
-            r["v"] for r in db.execute("SELECT v FROM vlist WHERE skip IS NOT NULL")
-        ]
-
-        all_items = [
-            quiz.load_db_entry(r)
-            for r in db.execute(
-                """
-                SELECT * FROM quiz
-                WHERE srs IS NULL
-                AND {}
-                AND json_array_length([data], '$.sent') >= 3
-                ORDER BY RANDOM()
-                LIMIT 1000
-                """.format(
-                    (
-                        "v NOT IN ('{}')".format("','".join(skip_voc))
-                        if skip_voc
-                        else "TRUE"
-                    ),
-                ),
-            )
-        ]
-
+    def get_freq_min(self):
         # zipf freq min is p75 or at least 5
         # max = 7.79, >6 = 101, 5-6 = 1299, 4-5 = 8757
         freq_min = 5
@@ -251,74 +290,33 @@ class Api:
         if stats_min and stats_min < freq_min:
             freq_min = stats_min
 
-        freq_items = []
+        return freq_min
 
-        def format_output(f):
-            f = f[:limit]
-            random.shuffle(f)
-            return {"result": f}
-
-        for r in all_items:
-            if r["data"]["wordfreq"] > freq_min:
-                freq_items.append(r)
-
-                if len(freq_items) >= limit:
-                    return format_output(freq_items)
-
-        freq_vs = set(r["v"] for r in freq_items)
-
-        for r in all_items:
-            if r["v"] not in freq_vs:
-                freq_items.append(r)
-
-                if len(freq_items) >= limit:
-                    return format_output(freq_items)
-
-        freq_items.extend(
+    def new_vocab_list(self, limit=20):
+        all_items = [
             quiz.load_db_entry(r)
             for r in db.execute(
                 """
                 SELECT * FROM quiz
                 WHERE srs IS NULL
-                AND {}
-                AND json_array_length([data], '$.sent') < 3
-                AND json_array_length([data], '$.sent') > 0
+                AND v NOT IN (
+                    SELECT v FROM vlist WHERE skip IS NOT NULL
+                )
+                ORDER BY
+                    json_extract([data], '$.count') DESC,
+                    json_extract([data], '$.wordfreq') > {} DESC,
+                    json_array_length([data], '$.sent') > 3 DESC,
+                    json_array_length([data], '$.sent') > 0 DESC,
+                    RANDOM()
                 LIMIT {}
                 """.format(
-                    (
-                        (
-                            "v NOT IN ('{}')".format("','".join(skip_voc))
-                            if skip_voc
-                            else "TRUE"
-                        ),
-                        limit,
-                    ),
+                    self.get_freq_min(),
+                    limit,
                 ),
             )
-        )
+        ]
 
-        if len(freq_items) < limit:
-            freq_items.extend(
-                quiz.load_db_entry(r)
-                for r in db.execute(
-                    """
-                SELECT * FROM quiz
-                WHERE srs IS NULL
-                AND {}
-                AND json_array_length([data], '$.sent') = 0
-                LIMIT {}
-                """.format(
-                        (
-                            "v NOT IN ('{}')".format("','".join(skip_voc))
-                            if skip_voc
-                            else "TRUE"
-                        ),
-                        limit,
-                    ),
-                )
-            )
-
-        return format_output(freq_items)
+        return {"result": all_items}
 
     def vocab_details(self, v: str):
         rs = [
@@ -453,7 +451,10 @@ class Api:
         self.web_window(url, title, args)
 
     def load_file(self, f: str):
-        return (exe_root / "user" / f).read_text(encoding="utf-8")
+        path = exe_root / "user" / f
+        if path.exists():
+            return (exe_root / "user" / f).read_text(encoding="utf-8")
+        return ""
 
     def save_file(self, f: str, txt: str):
         (exe_root / "user" / f).write_text(txt, encoding="utf-8")

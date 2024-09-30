@@ -14,7 +14,9 @@ No typo checking. However, there is a middle-way button, "Not Sure".
 
 ![Due Quiz](_README/due.png)
 
-![New Quiz](_README/new.png)
+![Dictionaries](_README/right.png)
+
+![Select reading](_README/select.png)
 
 ![Repeat Quiz](_README/repeat.png)
 
@@ -31,6 +33,12 @@ Note taking is powered bidirectionally by markdown ([showdown.js](https://showdo
   - HSK4 - Level 21-30
   - HSK5 - Level 31-40
   - HSK6 - Level 41-60
+
+![Levels](_README/levels.png)
+
+## Text analysis
+
+Native Chinese articles can be parsed and added to new vocab list. By default, vocab will appear in New more often, rather than added to Due queue.
 
 ## Statistics
 

@@ -89,6 +89,7 @@ a.internal-link:visited {
 
 #vocab {
   font-size: 80px;
+  cursor: default;
 }
 
 #type-input {
