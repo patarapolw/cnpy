@@ -40,6 +40,8 @@ Note taking is powered bidirectionally by markdown ([showdown.js](https://showdo
 
 Native Chinese articles can be parsed and added to new vocab list. By default, vocab will appear in New more often, rather than added to Due queue.
 
+![Parsed vocab](_README/text.png)
+
 ## Statistics
 
 ![Stats](_README/stats.png)
