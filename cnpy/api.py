@@ -252,6 +252,7 @@ class Api:
         ]
 
         n = len(all_items)
+        n_new = len([r for r in all_items if not r.get("srs")])
 
         # random between near difficulty, like [5.0,5.5), [5.5,6.0)
         random.shuffle(all_items)
@@ -278,7 +279,11 @@ class Api:
 
             self.v = ""
 
-        return {"result": all_items[:limit], "count": n}
+        return {
+            "result": all_items[:limit],
+            "count": n,
+            "new": n_new,
+        }
 
     def get_freq_min(self):
         # zipf freq min is p75 or at least 5

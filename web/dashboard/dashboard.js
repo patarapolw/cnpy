@@ -40,8 +40,19 @@ async function doLoading() {
 
   await Promise.all([
     pywebview.api.due_vocab_list().then((r) => {
+      elDueCount.textContent = "";
+
       if (r.count) {
-        elDueCount.innerText = ` (${r.count})`;
+        const due = r.count - r.new;
+        elDueCount.append(document.createTextNode(` (${due}`));
+
+        if (r.new) {
+          const s = document.createElement("small");
+          s.innerText = `+${r.new}`;
+          elDueCount.append(s);
+        }
+
+        elDueCount.append(document.createTextNode(")"));
       }
     }),
     pywebview.api.get_stats().then((r) => {

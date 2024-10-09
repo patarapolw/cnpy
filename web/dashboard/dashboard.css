@@ -11,6 +11,10 @@ body {
   margin-bottom: 1em;
 }
 
+#due-count small {
+  font-size: 0.7em;
+}
+
 .nav {
   display: flex;
   flex-direction: row;
