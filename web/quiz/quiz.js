@@ -83,6 +83,11 @@ document.addEventListener("keydown", (ev) => {
       if (!state.isRepeat) {
         newVocabList();
       }
+      break;
+    case "Enter":
+      if (!elInput.value) {
+        ev.preventDefault();
+      }
   }
 });
 

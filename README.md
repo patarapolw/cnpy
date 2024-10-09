@@ -14,6 +14,8 @@ No typo checking. However, there is a middle-way button, "Not Sure".
 
 ![Due Quiz](_README/due.png)
 
+![Dictionaries](_README/image.png)
+
 ![Dictionaries](_README/right.png)
 
 ![Select reading](_README/select.png)
