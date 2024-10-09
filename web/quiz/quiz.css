@@ -24,7 +24,8 @@ body,
 details,
 p,
 .nav,
-.count {
+.count,
+[contenteditable] {
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -94,7 +95,15 @@ a.internal-link:visited {
 
 #type-input {
   text-align: center;
-  font-size: 16px;
+  border: 2px solid black;
+  border-radius: 3px;
+  padding: 2px 1.5em;
+  min-width: calc(200px - 3em);
+}
+
+#type-input:not([data-checked=""]) {
+  caret-color: transparent;
+  background-color: yellow;
 }
 
 #type-input[data-checked="right"] {

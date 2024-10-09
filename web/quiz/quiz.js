@@ -20,7 +20,7 @@ const elVocab = /** @type {HTMLDivElement} */ (
   document.getElementById("vocab")
 );
 
-const elInput = /** @type {HTMLInputElement} */ (
+const elInput = /** @type {HTMLDivElement} */ (
   document.getElementById("type-input")
 );
 const elCompare = /** @type {HTMLAnchorElement} */ (
@@ -33,7 +33,27 @@ const elNotesTextarea = /** @type {HTMLTextAreaElement} */ (
   elNotes.querySelector("textarea")
 );
 
-elInput.parentElement.addEventListener("submit", doNext);
+elInput.addEventListener("keypress", (ev) => {
+  switch (ev.key) {
+    case "Enter":
+      if (elInput.innerText) {
+        doNext();
+      }
+      ev.preventDefault();
+  }
+});
+elInput.addEventListener("paste", (ev) => {
+  const { clipboardData } = ev;
+  if (!clipboardData) return;
+
+  if (clipboardData.getData("text/html")) {
+    setTimeout(() => {
+      const { innerText } = elInput;
+      elInput.textContent = "";
+      elInput.innerText = innerText;
+    });
+  }
+});
 elInput.focus();
 
 elInput.addEventListener("keydown", (ev) => {
@@ -83,11 +103,6 @@ document.addEventListener("keydown", (ev) => {
       if (!state.isRepeat) {
         newVocabList();
       }
-      break;
-    case "Enter":
-      if (!elInput.value) {
-        ev.preventDefault();
-      }
   }
 });
 
@@ -120,10 +135,9 @@ const converter = new showdown.Converter({
 });
 
 elNotesTextarea.addEventListener("paste", (ev) => {
-  const { target, clipboardData } = ev;
+  const { clipboardData } = ev;
 
   if (!clipboardData) return;
-  if (!(target instanceof HTMLTextAreaElement)) return;
 
   const html = clipboardData.getData("text/html");
   if (!html) return;
@@ -141,6 +155,8 @@ elNotesTextarea.addEventListener("paste", (ev) => {
     .replace(/(\r?\n)+ {1,3}([^ ])/g, " $2")
     .replace(/^(\r?\n)+/, "")
     .replace(/(\r?\n)+$/, "");
+
+  const target = elNotesTextarea;
 
   target.setRangeText(md);
   target.selectionStart += md.length;
@@ -312,13 +328,13 @@ function doNext(ev) {
     }
 
     state.lastIsFuzzy = false;
-    state.lastIsRight = elInput.value
+    state.lastIsRight = elInput.innerText
       .split(";")
       .every((v) => pinyin.some((p) => comp_pinyin(p, v.trim())));
 
     if (!state.lastIsRight) {
       if (
-        elInput.value
+        elInput.innerText
           .split(";")
           .every((v) => pinyin.some((p) => comp_pinyin(p, v.trim(), true)))
       ) {
@@ -330,7 +346,9 @@ function doNext(ev) {
       el.setAttribute("data-checked", state.lastIsRight ? "right" : "wrong");
     });
 
-    elInput.value = elInput.value.replace(/u:/g, "v").replace(/v/g, "ü");
+    elInput.innerText = elInput.innerText
+      .replace(/u:/g, "v")
+      .replace(/v/g, "ü");
     elInput.oninput = (ev) => {
       ev.preventDefault();
       return false;
@@ -392,7 +410,7 @@ function softCleanup() {
 }
 
 async function newVocab() {
-  elInput.value = "";
+  elInput.innerText = "";
   elInput.oninput = null;
   elInput.focus();
 
