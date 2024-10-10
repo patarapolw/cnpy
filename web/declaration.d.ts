@@ -89,7 +89,8 @@ interface State {
   total: number;
   max: number;
   skip: number;
-  due: number | "-";
+  due: number;
+  new: number;
 
   lastIsRight: boolean | null;
   lastIsFuzzy: boolean;

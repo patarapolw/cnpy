@@ -88,6 +88,10 @@ a.internal-link:visited {
   color: red;
 }
 
+.count small {
+  font-size: 0.7em;
+}
+
 #vocab {
   font-size: 80px;
   cursor: default;

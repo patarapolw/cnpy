@@ -7,7 +7,8 @@ const state = {
   total: 20,
   max: 20,
   skip: 0,
-  due: "-",
+  due: -1,
+  new: 0,
   vocabDetails: { cedict: [], sentences: [] },
   pendingList: [],
   lastIsRight: null,
@@ -468,6 +469,7 @@ async function newVocabList() {
     const r = await pywebview.api.due_vocab_list(state.max);
     state.vocabList = r.result;
     state.due = r.count;
+    state.new = r.new;
 
     if (r.count < 5 && state.lastQuizTime) {
       const d = new Date();
@@ -480,6 +482,7 @@ async function newVocabList() {
     console.log(state);
 
     if (!state.due) {
+      state.new = 0;
       await newVocabList();
       return;
     }
@@ -509,7 +512,17 @@ async function newVocabList() {
         el.innerText = state.total.toString();
         break;
       case "due":
-        el.innerText = (state.due || "-").toString();
+        if (!state.due) {
+          el.innerText = "-";
+        } else {
+          el.textContent = "";
+          el.append(document.createTextNode(`${state.due - state.new || ""}`));
+          if (state.new) {
+            const s = document.createElement("small");
+            s.innerText = `+${state.new}`;
+            el.append(s);
+          }
+        }
         break;
       default:
         el.innerText = "0";

@@ -44,7 +44,7 @@ async function doLoading() {
 
       if (r.count) {
         const due = r.count - r.new;
-        elDueCount.append(document.createTextNode(` (${due}`));
+        elDueCount.append(document.createTextNode(` (${due || ""}`));
 
         if (r.new) {
           const s = document.createElement("small");
