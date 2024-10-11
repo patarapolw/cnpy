@@ -56,8 +56,6 @@ async function doLoading() {
       }
     }),
     pywebview.api.get_stats().then((r) => {
-      console.log(r);
-
       elHanziList.textContent = "";
 
       const hanziSet = new Set();

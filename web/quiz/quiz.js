@@ -148,11 +148,53 @@ elNotesTextarea.addEventListener("paste", (ev) => {
 
   ev.preventDefault();
 
-  const md = converter
-    .makeMarkdown(html)
+  const div = document.createElement("div");
+  div.innerHTML = html
     .replace(/<!--.*?-->/g, "")
-    .replace(/([\p{Ps}\p{Pi}]+)\s+</gu, "$1<")
-    .replace(/>\s+([\p{Pe}\p{Pf}.。,，、]+)/gu, ">$1")
+    .replace(/&[a-z]{2,4};/gi, (p) => p.toLocaleLowerCase());
+  div.innerHTML = div.innerHTML.trim();
+
+  while (div.childElementCount === 1) {
+    const n = div.childNodes.item(0);
+    if (n instanceof HTMLDivElement) {
+      div.innerHTML = n.innerHTML;
+    } else {
+      break;
+    }
+  }
+
+  div.querySelectorAll("span").forEach((el) => {
+    const style = el.getAttribute("style") || "";
+    if (
+      !el.hasAttribute("lang") &&
+      !style.replace(/font-size:\s*100%;/g, "").trim()
+    ) {
+      el.replaceWith(...el.childNodes);
+    }
+  });
+
+  div.querySelectorAll("div").forEach((el) => {
+    if (!el.hasAttribute("lang") && !el.hasAttribute("style")) {
+      if (
+        ![...el.childNodes].some(
+          (n) => n.nodeType === Node.TEXT_NODE || n instanceof HTMLSpanElement
+        )
+      ) {
+        el.replaceWith(...el.childNodes);
+      }
+    }
+  });
+
+  div.querySelectorAll("*").forEach((el) => {
+    el.removeAttribute("id");
+    el.removeAttribute("class");
+  });
+
+  const md = converter
+    .makeMarkdown(div.innerHTML)
+    .replace(/<!--.*?-->/g, "")
+    .replace(/([\p{Ps}\p{Pi}／]+)\s+</gu, "$1<")
+    .replace(/>\s+([\p{Pe}\p{Pf}.。,，、／]+)/gu, ">$1")
     .replace(/(\r?\n)+ {1,3}([^ ])/g, " $2")
     .replace(/^(\r?\n)+/, "")
     .replace(/(\r?\n)+$/, "");
@@ -478,8 +520,6 @@ async function newVocabList() {
         state.due = 0;
       }
     }
-
-    console.log(state);
 
     if (!state.due) {
       state.new = 0;
