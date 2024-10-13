@@ -23,7 +23,6 @@ for r in Path("web").iterdir():
         p = r.as_posix()
         pyi_args.extend(("--add-data", f"{p}/*.*:{p}"))
 
-pyi_args.extend(("--collect-data", "wordfreq"))
 pyi_args.extend(("--collect-data", "jieba"))
 
 

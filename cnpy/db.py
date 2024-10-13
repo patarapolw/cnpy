@@ -8,3 +8,5 @@ db_path.parent.mkdir(exist_ok=True)
 
 db = sqlite3.connect(db_path, check_same_thread=False)
 db.row_factory = sqlite3.Row
+
+assets_db = sqlite3.connect(exe_root / "assets/assets.db")

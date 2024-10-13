@@ -1,4 +1,3 @@
-from wordfreq import zipf_frequency
 from regex import Regex
 
 import json
@@ -6,7 +5,7 @@ from urllib.request import urlretrieve
 from zipfile import ZipFile
 from typing import Callable
 
-from cnpy.db import db
+from cnpy.db import db, assets_db
 from cnpy.dir import tmp_root
 
 
@@ -103,44 +102,36 @@ def populate_db(web_log: Callable[[str], None] = print):
                 (simp, trad, pinyin, json.dumps(english, ensure_ascii=False)),
             )
 
-        db.execute(
-            """
-            UPDATE quiz SET
-                [data] = json_remove([data], '$.wordfreq')
-            WHERE [data] IS NOT NULL
-            """
-        )
-
         db.commit()
 
     if not db.execute(
         "SELECT 1 FROM quiz WHERE json_extract([data], '$.wordfreq') IS NOT NULL LIMIT 1"
     ).fetchall():
-        f_dict = {}
+
+        def f_wordfreq(v: str):
+            for r in assets_db.execute("SELECT f FROM wordfreq WHERE v = ?", (v,)):
+                return r[0]
+            return None
+
+        db.create_function("f_wordfreq", 1, f_wordfreq)
+
         re_han = Regex(r"^\p{Han}+$")
 
         for r in db.execute("SELECT DISTINCT simp FROM cedict"):
             v = r["simp"]
-            if v not in f_dict and re_han.fullmatch(v):
-                f_dict[v] = zipf_frequency(v, "zh")
+            if not re_han.fullmatch(v):
+                continue
 
-        for v, f in f_dict.items():
-            is_updated = db.execute(
-                """
-                UPDATE quiz SET
-                    [data] = json_set(IFNULL([data], '{}'), '$.wordfreq', ?)
-                WHERE v = ?
-                """,
-                (f, v),
-            ).rowcount
+            db.execute("INSERT INTO quiz (v) VALUES (?) ON CONFLICT DO NOTHING", (v,))
 
-            if not is_updated:
-                db.execute(
-                    """
-                    INSERT INTO quiz (v, [data]) VALUES (?, json_object('wordfreq', ?))
-                    """,
-                    (v, f),
-                )
+        db.commit()
+
+        db.execute(
+            """
+            UPDATE quiz SET
+                [data] = json_set(IFNULL([data], '{}'), '$.wordfreq', f_wordfreq(v))
+            """,
+        )
 
         db.commit()
 
@@ -155,12 +146,6 @@ def reset_db():
     )
 
     load_db()
-
-    db.executescript(
-        """
-        UPDATE cedict SET [data] = NULL WHERE [data] = '{}';
-        """
-    )
 
 
 if __name__ == "__main__":
