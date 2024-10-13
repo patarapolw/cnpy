@@ -62,7 +62,7 @@ def make_stats():
 
     if good:
         for r in good:
-            f = r["data"]["wordfreq"]
+            f = r["data"]["wordfreq"] or 0
 
             if f >= 6:
                 pass

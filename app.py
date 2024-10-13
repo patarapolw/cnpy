@@ -44,7 +44,7 @@ if __name__ == "__main__":
 
     def web_log(s: str):
         global log_win
-        if not log_win:
+        if win.original_url != "web/loading.html" and not log_win:
             log_win = web_window("web/loading.html", "Log")
 
         w = log_win or win

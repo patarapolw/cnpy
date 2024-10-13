@@ -104,16 +104,12 @@ def populate_db(web_log: Callable[[str], None] = print):
 
         db.commit()
 
+        web_log("Done")
+
     if not db.execute(
         "SELECT 1 FROM quiz WHERE json_extract([data], '$.wordfreq') IS NOT NULL LIMIT 1"
     ).fetchall():
-
-        def f_wordfreq(v: str):
-            for r in assets_db.execute("SELECT f FROM wordfreq WHERE v = ?", (v,)):
-                return r[0]
-            return None
-
-        db.create_function("f_wordfreq", 1, f_wordfreq)
+        web_log("Building wordfreq...")
 
         re_han = Regex(r"^\p{Han}+$")
 
@@ -126,12 +122,24 @@ def populate_db(web_log: Callable[[str], None] = print):
 
         db.commit()
 
-        db.execute(
-            """
-            UPDATE quiz SET
-                [data] = json_set(IFNULL([data], '{}'), '$.wordfreq', f_wordfreq(v))
-            """,
-        )
+        for r in db.execute(
+            "SELECT v, [data] FROM quiz WHERE json_extract([data], '$.wordfreq') IS NULL"
+        ):
+            f = None
+            for k in assets_db.execute(
+                "SELECT f FROM wordfreq WHERE v = ? LIMIT 1", (r["v"],)
+            ):
+                f = k["f"]
+
+            if f is None:
+                continue
+
+            d = json.loads(r["data"]) if r["data"] else {}
+            d["wordfreq"] = f
+            db.execute(
+                "UPDATE quiz SET [data] = ? WHERE v = ?",
+                (json.dumps(d, ensure_ascii=False), r["v"]),
+            )
 
         db.commit()
 

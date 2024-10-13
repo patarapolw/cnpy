@@ -45,14 +45,14 @@ def dump_wordfreq():
 
         trad, simp, _ = ln.split(" ", 2)
 
-        v = simp
-        if not re_han.fullmatch(v):
-            continue
+        for v in [trad, simp]:
+            if not re_han.fullmatch(v):
+                continue
 
-        db.execute(
-            "INSERT INTO wordfreq (v, f) VALUES (?,?) ON CONFLICT DO NOTHING",
-            (v, zipf_frequency(v, "zh")),
-        )
+            db.execute(
+                "INSERT INTO wordfreq (v, f) VALUES (?,?) ON CONFLICT DO NOTHING",
+                (v, zipf_frequency(v, "zh")),
+            )
 
     db.commit()
 

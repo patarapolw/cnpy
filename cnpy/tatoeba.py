@@ -1,3 +1,4 @@
+import json
 from typing import Callable
 
 from cnpy.db import db, assets_db
@@ -26,10 +27,12 @@ def load_db_entry(r):
 
 def populate_db(web_log: Callable[[str], None] = print):
     if not db.execute("SELECT 1 FROM sentence LIMIT 1").fetchall():
+        web_log("Building sentence corpus...")
+
         for r in assets_db.execute("SELECT id, cmn, eng, voc FROM tatoeba"):
             db.execute(
-                "INSERT INTO sentence (id, cmn, eng, [data])",
-                (r["id"], r["cmn"], r["eng"], r["voc"]),
+                "INSERT INTO sentence (id, cmn, eng, [data]) VALUES (?,?,?,?)",
+                (r["id"], r["cmn"], r["eng"], json.dumps(r["voc"], ensure_ascii=False)),
             )
         db.commit()
 
