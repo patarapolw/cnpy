@@ -7,6 +7,7 @@
     "start": "pnpm run py app.py",
     "dev": "pnpm run py app.py --debug",
     "vocab": "pnpm run py app.py --vocab",
+    "prepare": "pnpm run py preoare_assets.py",
     "build": "pnpm run py build.py %npm_package_version%",
     "py": "pipenv run py"
   },
