@@ -264,15 +264,15 @@ class Api:
         result = []
         r_last = []
         max_review = 50 - review_counter
-        max_new = 20
-        for i, r in enumerate(all_items):
-            if i >= limit:
+        max_new = 10
+        for r in all_items:
+            if len(result) + len(r_last) >= limit:
                 break
 
             if max_review > 0:
                 max_review -= 1
                 result.append(r)
-            elif max_new > 0 and not r.get("srs"):
+            elif max_review > -1 and max_new > 0 and not r.get("srs"):
                 max_new -= 1
                 result.append(r)
             else:
