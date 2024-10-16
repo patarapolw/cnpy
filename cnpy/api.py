@@ -212,9 +212,10 @@ class Api:
         return self.latest_stats
 
     def get_vocab(self, v: str):
-        return quiz.load_db_entry(
-            db.execute("SELECT * FROM quiz WHERE v = ?", (v,)).fetchone()
-        )
+        for r in db.execute("SELECT * FROM quiz WHERE v = ?", (v,)):
+            return quiz.load_db_entry(r)
+
+        return None
 
     def set_pinyin(self, v: str, pinyin: Optional[list[str]]):
         db.execute(
@@ -226,7 +227,7 @@ class Api:
             (json.dumps(pinyin), v),
         )
 
-    def due_vocab_list(self, limit=20):
+    def due_vocab_list(self, limit=20, review_counter=0):
         all_items = [
             quiz.load_db_entry(r)
             for r in db.execute(
@@ -260,27 +261,46 @@ class Api:
             key=lambda r: int(r.get("srs", {}).get("difficulty", 0) * 2), reverse=True
         )
 
+        result = []
+        r_last = []
+        max_review = 50 - review_counter
+        max_new = 20
+        for i, r in enumerate(all_items):
+            if i >= limit:
+                break
+
+            if max_review > 0:
+                max_review -= 1
+                result.append(r)
+            elif max_new > 0 and not r.get("srs"):
+                max_new -= 1
+                result.append(r)
+            else:
+                r_last.append(r)
+
+        result.extend(r_last)
+        random.shuffle(result)
+
         if self.v:
-            r0 = None
-            rs = []
-            for r in all_items:
+            v0 = None
+
+            for r in result:
                 if r["v"] == self.v:
-                    r0 = r
-                else:
-                    rs.append(r)
+                    v0 = r
 
-            all_items = rs
+            if v0:
+                result.remove(v0)
+                result.insert(0, v0)
+            else:
+                v0 = self.get_vocab(self.v)
 
-            if not r0:
-                r0 = self.get_vocab(self.v)
-                n += 1
-
-            all_items.insert(0, r0)
+            if v0:
+                result.insert(0, v0)
 
             self.v = ""
 
         return {
-            "result": all_items[:limit],
+            "result": result[:limit],
             "count": n,
             "new": n_new,
         }
