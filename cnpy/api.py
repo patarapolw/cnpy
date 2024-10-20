@@ -266,19 +266,20 @@ class Api:
         max_review = limit * 2 - review_counter
         max_new = 10
         for r in all_items:
-            if len(result) + len(r_last) >= limit:
+            if len(result) >= limit:
                 break
 
             if max_review > 0:
                 max_review -= 1
                 result.append(r)
-            elif max_review + limit > 0 and max_new > 0 and not r.get("srs"):
+            elif max_review + 10 > 0 and max_new > 0 and not r.get("srs"):
                 max_new -= 1
                 result.append(r)
             else:
                 r_last.append(r)
 
         result.extend(r_last)
+        result = result[:limit]
         random.shuffle(result)
 
         if self.v:
