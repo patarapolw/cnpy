@@ -10,7 +10,10 @@ declare const pywebview: {
       cedict: ICedict[];
       sentences: ISentence[];
     }>;
-    due_vocab_list(limit?: number): Promise<{
+    due_vocab_list(
+      limit?: number,
+      review_counter?: number
+    ): Promise<{
       result: IQuizEntry[];
       count: number;
       new: number;
@@ -91,6 +94,7 @@ interface State {
   skip: number;
   due: number;
   new: number;
+  review_counter: number;
 
   lastIsRight: boolean | null;
   lastIsFuzzy: boolean;

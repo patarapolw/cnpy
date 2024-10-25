@@ -9,6 +9,7 @@ const state = {
   skip: 0,
   due: -1,
   new: 0,
+  review_counter: 0,
   vocabDetails: { cedict: [], sentences: [] },
   pendingList: [],
   lastIsRight: null,
@@ -102,6 +103,7 @@ document.addEventListener("keydown", (ev) => {
     case "F5":
     case "F1":
       if (!state.isRepeat) {
+        state.review_counter -= state.max - state.i;
         newVocabList();
       }
   }
@@ -508,10 +510,14 @@ async function newVocabList() {
     state.vocabList = state.pendingList;
     state.isRepeat = true;
   } else if (state.due) {
-    const r = await pywebview.api.due_vocab_list(state.max);
+    const r = await pywebview.api.due_vocab_list(
+      state.max,
+      state.review_counter
+    );
     state.vocabList = r.result;
     state.due = r.count;
     state.new = r.new;
+    state.review_counter += r.result.length;
 
     if (r.count < 5 && state.lastQuizTime) {
       const d = new Date();
