@@ -1,4 +1,5 @@
 from regex import Regex
+import jieba
 
 import json
 from urllib.request import urlretrieve
@@ -122,20 +123,24 @@ def populate_db(web_log: Callable[[str], None] = print):
 
         db.commit()
 
-        for r in db.execute(
-            "SELECT v, [data] FROM quiz WHERE json_extract([data], '$.wordfreq') IS NULL"
-        ):
-            f = None
-            for k in assets_db.execute(
-                "SELECT f FROM wordfreq WHERE v = ? LIMIT 1", (r["v"],)
-            ):
-                f = k["f"]
-
-            if f is None:
-                continue
-
+        for r in db.execute("SELECT v, [data] FROM quiz"):
             d = json.loads(r["data"]) if r["data"] else {}
-            d["wordfreq"] = f
+
+            if "wordfreq" not in d:
+                for k in assets_db.execute(
+                    "SELECT f FROM wordfreq WHERE v = ? LIMIT 1", (r["v"],)
+                ):
+                    d["wordfreq"] = k["f"]
+
+            if "vs" not in d:
+                d["vs"] = list(
+                    set(
+                        s
+                        for s in jieba.cut_for_search(r["v"])
+                        if re_han.fullmatch(r["v"])
+                    )
+                )
+
             db.execute(
                 "UPDATE quiz SET [data] = ? WHERE v = ?",
                 (json.dumps(d, ensure_ascii=False), r["v"]),

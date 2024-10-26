@@ -66,8 +66,11 @@ def dump_tatoeba():
             id      INT NOT NULL PRIMARY KEY,
             cmn     TEXT NOT NULL,
             eng     TEXT,
-            voc     JSON
+            voc     JSON,
+            f       FLOAT
         );
+
+        CREATE INDEX IF NOT EXISTS idx_tatoeba_f ON tatoeba (f);
         """
     )
 
@@ -136,29 +139,29 @@ def dump_tatoeba():
             if re_en.search(sentence):
                 continue
 
+            f = 0
+            voc = set()
+            for v in jieba.cut_for_search(sentence):
+                if re_han.fullmatch(v):
+                    if v not in voc:
+                        voc.add(v)
+                        f += zipf_frequency(v, "zh")
+
             db.execute(
                 """
-                INSERT INTO tatoeba (id, cmn, eng, voc) VALUES (?,?,(
+                INSERT INTO tatoeba (id, cmn, eng, voc, f) VALUES (?,?,(
                     SELECT eng FROM eng WHERE id = (
                         SELECT id2 FROM links WHERE id1 = ?
                     )
-                ),?)
+                ),?,?)
                 ON CONFLICT DO NOTHING
                 """,
                 (
                     id1,
                     sentence,
                     id1,
-                    json.dumps(
-                        list(
-                            set(
-                                v
-                                for v in jieba.cut_for_search(sentence)
-                                if re_han.fullmatch(v)
-                            )
-                        ),
-                        ensure_ascii=False,
-                    ),
+                    json.dumps(list(voc), ensure_ascii=False),
+                    f,
                 ),
             )
 
