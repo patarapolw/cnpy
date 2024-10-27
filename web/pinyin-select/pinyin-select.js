@@ -1,7 +1,7 @@
 //@ts-check
 
 const elPinyinSelect = document.getElementById("pinyin-select");
-const elExceptions = document.getElementById("exceptions");
+const elWarnings = document.getElementById("warnings");
 
 window.addEventListener("pywebviewready", async () => {
   const v = new URL(location.href, location.origin).searchParams.get("v");
@@ -77,7 +77,7 @@ window.addEventListener("pywebviewready", async () => {
     })
   );
 
-  elExceptions.onclick = () => {
+  elWarnings.onclick = () => {
     const p = prompt(
       "Pinyin to warn, separated by ; (comma)",
       warnPinyin.join("; ")

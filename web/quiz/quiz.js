@@ -253,7 +253,7 @@ function doNext(ev) {
       .map((v) => v.pinyin)
       .filter((v, i, a) => a.indexOf(v) === i);
 
-    const { pinyin = dictPinyin, mustPinyin, warnPinyin } = currentItem.data;
+    let { pinyin = dictPinyin, mustPinyin, warnPinyin } = currentItem.data;
     const inputPinyin = elInput.innerText.split(";").map((v) => v.trim());
 
     if (warnPinyin) {
@@ -278,7 +278,23 @@ function doNext(ev) {
       });
     };
 
-    elCompare.innerText = pinyin.join("; ").replace(/u:/g, "ü");
+    elCompare.textContent = "";
+
+    if (mustPinyin) {
+      const b = document.createElement("b");
+      b.innerText = mustPinyin.join("; ").replace(/u:/g, "ü");
+      elCompare.append(b);
+
+      const remaining = pinyin
+        .filter((p) => !mustPinyin.some((s) => comp_pinyin(s, p)))
+        .join("; ")
+        .replace(/u:/g, "ü");
+      if (remaining) {
+        elCompare.append("; " + remaining);
+      }
+    } else {
+      elCompare.innerText = pinyin.join("; ").replace(/u:/g, "ü");
+    }
 
     elVocab.onclick = () => {
       const u = new SpeechSynthesisUtterance(currentItem.v);
