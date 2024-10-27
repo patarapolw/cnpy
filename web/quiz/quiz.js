@@ -66,7 +66,7 @@ elInput.addEventListener("keydown", (ev) => {
       if (typeof state.lastIsRight === "boolean") {
         ev.preventDefault();
 
-        if (ev.key === "z") {
+        if (ev.ctrlKey && ev.key === "z") {
           state.vocabList.push(...state.vocabList.splice(state.i, 1));
           state.i--;
           newVocab();
@@ -247,13 +247,20 @@ function doNext(ev) {
 
     newVocab();
   } else {
-    pywebview.api.log(state.vocabDetails.cedict);
-
     const currentItem = state.vocabList[state.i];
 
     const dictPinyin = state.vocabDetails.cedict
       .map((v) => v.pinyin)
       .filter((v, i, a) => a.indexOf(v) === i);
+
+    const { pinyin = dictPinyin, mustPinyin, warnPinyin } = currentItem.data;
+    const inputPinyin = elInput.innerText.split(";").map((v) => v.trim());
+
+    if (warnPinyin) {
+      if (inputPinyin.some((v) => warnPinyin.some((p) => comp_pinyin(p, v)))) {
+        return;
+      }
+    }
 
     elCompare.setAttribute(
       "data-pinyin-count",
@@ -270,8 +277,6 @@ function doNext(ev) {
         height: 300,
       });
     };
-
-    const pinyin = currentItem.data.pinyin || dictPinyin;
 
     elCompare.innerText = pinyin.join("; ").replace(/u:/g, "ü");
 
@@ -375,9 +380,17 @@ function doNext(ev) {
     }
 
     state.lastIsFuzzy = false;
-    state.lastIsRight = elInput.innerText
-      .split(";")
-      .every((v) => pinyin.some((p) => comp_pinyin(p, v.trim())));
+    state.lastIsRight = inputPinyin.every((v) =>
+      pinyin.some((p) => comp_pinyin(p, v))
+    );
+
+    if (mustPinyin) {
+      state.lastIsRight =
+        state.lastIsRight &&
+        mustPinyin.every((v) => inputPinyin.some((p) => comp_pinyin(p, v)));
+    }
+
+    pywebview.api.log(state.vocabDetails.cedict);
 
     if (!state.lastIsRight) {
       if (

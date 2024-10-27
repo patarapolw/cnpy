@@ -7,8 +7,8 @@ window.addEventListener("pywebviewready", async () => {
   const v = new URL(location.href, location.origin).searchParams.get("v");
   if (!v) return;
 
-  const {
-    data: { pinyin: _chosenPinyin, mustPinyin, warnPinyin },
+  let {
+    data: { pinyin: _chosenPinyin, mustPinyin = [], warnPinyin = [] },
   } = await pywebview.api.get_vocab(v);
 
   const r = await pywebview.api.vocab_details(v);
@@ -55,6 +55,15 @@ window.addEventListener("pywebviewready", async () => {
 
       const elImportant = document.createElement("input");
       elImportant.type = "checkbox";
+      elImportant.checked = mustPinyin.includes(p);
+      elImportant.oninput = () => {
+        if (elImportant.checked) {
+          mustPinyin.push(p);
+        } else {
+          mustPinyin = mustPinyin.filter((s) => s !== p);
+        }
+        pywebview.api.set_pinyin(v, mustPinyin, "mustPinyin");
+      };
 
       elField.append(elImportant);
 
@@ -69,6 +78,17 @@ window.addEventListener("pywebviewready", async () => {
   );
 
   elExceptions.onclick = () => {
-    const p = prompt("Pinyin to warn, separated by ; (comma)");
+    const p = prompt(
+      "Pinyin to warn, separated by ; (comma)",
+      warnPinyin.join("; ")
+    );
+    if (typeof p === "string") {
+      warnPinyin = p
+        .split(";")
+        .map((s) => s.trim().replace(/[vü]/g, "u:").replace(/ +/g, " "))
+        .filter((s) => /^[a-z:]+[1-5]$/.test(s));
+
+      pywebview.api.set_pinyin(v, warnPinyin, "warnPinyin");
+    }
   };
 });
