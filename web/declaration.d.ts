@@ -76,6 +76,8 @@ interface IQuizEntry {
     wordfreq: number;
     notes: string;
     pinyin?: string[];
+    mustPinyin?: string[];
+    warnPinyin?: string[];
   };
 }
 

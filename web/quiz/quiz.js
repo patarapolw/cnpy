@@ -255,19 +255,21 @@ function doNext(ev) {
       .map((v) => v.pinyin)
       .filter((v, i, a) => a.indexOf(v) === i);
 
-    if (new Set(dictPinyin.map((p) => p.toLocaleLowerCase())).size > 1) {
-      elCompare.href = `./pinyin-select.html?v=${currentItem.v}`;
-      elCompare.onclick = (ev) => {
-        ev.preventDefault();
-        const a = /** @type {HTMLAnchorElement} */ (ev.target);
-        if (!a.href) return;
-        isDialog = true;
-        pywebview.api.new_window(a.href, a.title || a.innerText, {
-          width: 300,
-          height: 300,
-        });
-      };
-    }
+    elCompare.setAttribute(
+      "data-pinyin-count",
+      new Set(dictPinyin.map((p) => p.toLocaleLowerCase())).size.toString()
+    );
+    elCompare.href = `./pinyin-select.html?v=${currentItem.v}`;
+    elCompare.onclick = (ev) => {
+      ev.preventDefault();
+      const a = /** @type {HTMLAnchorElement} */ (ev.target);
+      if (!a.href) return;
+      isDialog = true;
+      pywebview.api.new_window(a.href, a.title || a.innerText, {
+        width: 300,
+        height: 300,
+      });
+    };
 
     const pinyin = currentItem.data.pinyin || dictPinyin;
 

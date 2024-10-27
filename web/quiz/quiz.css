@@ -118,6 +118,10 @@ a.internal-link:visited {
   background-color: lightcoral;
 }
 
+#type-compare[data-pinyin-count="1"] {
+  color: initial;
+}
+
 .if-checked[data-checked=""] {
   display: none;
 }
