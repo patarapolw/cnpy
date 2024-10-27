@@ -86,7 +86,7 @@ window.addEventListener("pywebviewready", async () => {
       warnPinyin = p
         .split(";")
         .map((s) => s.trim().replace(/[vü]/g, "u:").replace(/ +/g, " "))
-        .filter((s) => /^[a-z:]+[1-5]$/.test(s));
+        .filter((s) => /^([a-z:]+[1-5]($| ))+$/.test(s));
 
       pywebview.api.set_pinyin(v, warnPinyin, "warnPinyin");
     }

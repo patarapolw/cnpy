@@ -149,6 +149,10 @@ a.internal-link:visited {
   color: initial;
 }
 
+#type-compare b {
+  font-family: sans-serif;
+}
+
 .if-checked[data-checked=""] {
   display: none;
 }

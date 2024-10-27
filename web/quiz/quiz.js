@@ -264,7 +264,11 @@ function doNext(ev) {
 
     elCompare.setAttribute(
       "data-pinyin-count",
-      new Set(dictPinyin.map((p) => p.toLocaleLowerCase())).size.toString()
+      (
+        new Set(dictPinyin.map((p) => p.toLocaleLowerCase())).size +
+        (mustPinyin?.length || 0) +
+        (warnPinyin?.length || 0)
+      ).toString()
     );
     elCompare.href = `./pinyin-select.html?v=${currentItem.v}`;
     elCompare.onclick = (ev) => {
