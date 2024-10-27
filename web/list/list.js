@@ -51,4 +51,19 @@ window.addEventListener("pywebviewready", async () => {
   });
 
   elEditor.addEventListener("mouseleave", save);
+
+  elEditor.addEventListener("paste", (ev) => {
+    const { clipboardData } = ev;
+    if (!clipboardData) return;
+
+    const html = clipboardData.getData("text/html");
+
+    const div = document.createElement("div");
+    div.innerHTML = html;
+    if (div.querySelector("li .pinyin")) {
+      ev.preventDefault();
+      div.querySelectorAll(".pinyin").forEach((el) => el.remove());
+      elEditor.append(...div.querySelectorAll("li"));
+    }
+  });
 });
