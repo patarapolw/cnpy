@@ -2,6 +2,7 @@
 
 const elPinyinSelect = document.getElementById("pinyin-select");
 const elWarnings = document.getElementById("warnings");
+const elWarningItems = document.getElementById("warning-items");
 
 window.addEventListener("pywebviewready", async () => {
   const v = new URL(location.href, location.origin).searchParams.get("v");
@@ -91,6 +92,8 @@ window.addEventListener("pywebviewready", async () => {
     })
   );
 
+  elWarningItems.innerText = warnPinyin.join("; ");
+
   elWarnings.onclick = () => {
     const p = prompt(
       "Pinyin to warn, separated by ; (comma)",
@@ -102,6 +105,7 @@ window.addEventListener("pywebviewready", async () => {
         .map((s) => s.trim().replace(/[vü]/g, "u:").replace(/ +/g, " "))
         .filter((s) => /^([a-z:]+[1-5]($| ))+$/.test(s));
 
+      elWarningItems.innerText = warnPinyin.join("; ");
       pywebview.api.set_pinyin(v, warnPinyin, "warnPinyin");
     }
   };
