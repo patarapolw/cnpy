@@ -273,7 +273,7 @@ function doNext(ev) {
     elCompare.href = `./pinyin-select.html?v=${currentItem.v}`;
     elCompare.onclick = (ev) => {
       ev.preventDefault();
-      const a = /** @type {HTMLAnchorElement} */ (ev.target);
+      const a = elCompare;
       if (!a.href) return;
       isDialog = true;
       pywebview.api.new_window(a.href, a.title || a.innerText, {

@@ -18,9 +18,11 @@ window.addEventListener("pywebviewready", async () => {
     .map((v) => v.pinyin)
     .filter((v, i) => lowercasePinyin.indexOf(v.toLocaleLowerCase()) === i);
 
-  elPinyinSelect.setAttribute("data-pinyin-count", allPinyin.length.toString());
-
   const chosenPinyinSet = new Set(_chosenPinyin || allPinyin);
+  elPinyinSelect.setAttribute(
+    "data-pinyin-count",
+    chosenPinyinSet.size.toString()
+  );
 
   elPinyinSelect.append(
     ...allPinyin.map((p) => {
@@ -37,11 +39,20 @@ window.addEventListener("pywebviewready", async () => {
         } else {
           if (chosenPinyinSet.size > 1) {
             chosenPinyinSet.delete(p);
+            if (elImportant.checked) {
+              elImportant.checked = false;
+              parseElImportant();
+            }
           } else {
             elCheck.checked = !elCheck.checked;
             return;
           }
         }
+
+        elPinyinSelect.setAttribute(
+          "data-pinyin-count",
+          chosenPinyinSet.size.toString()
+        );
 
         pywebview.api.set_pinyin(
           v,
@@ -56,7 +67,8 @@ window.addEventListener("pywebviewready", async () => {
       const elImportant = document.createElement("input");
       elImportant.type = "checkbox";
       elImportant.checked = mustPinyin.includes(p);
-      elImportant.oninput = () => {
+
+      const parseElImportant = () => {
         if (elImportant.checked) {
           mustPinyin.push(p);
         } else {
@@ -64,6 +76,8 @@ window.addEventListener("pywebviewready", async () => {
         }
         pywebview.api.set_pinyin(v, mustPinyin, "mustPinyin");
       };
+
+      elImportant.oninput = parseElImportant;
 
       elField.append(elImportant);
 
