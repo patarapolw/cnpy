@@ -253,11 +253,13 @@ function doNext(ev) {
       .map((v) => v.pinyin)
       .filter((v, i, a) => a.indexOf(v) === i);
 
-    let { pinyin = dictPinyin, mustPinyin, warnPinyin } = currentItem.data;
+    let { pinyin, mustPinyin, warnPinyin } = currentItem.data;
+    pinyin = pinyin || dictPinyin;
     const inputPinyin = elInput.innerText.split(";").map((v) => v.trim());
 
-    if (warnPinyin) {
+    if (warnPinyin?.length) {
       if (inputPinyin.some((v) => warnPinyin.some((p) => comp_pinyin(p, v)))) {
+        elCompare.setAttribute("data-checked", "warn");
         return;
       }
     }
@@ -284,7 +286,7 @@ function doNext(ev) {
 
     elCompare.textContent = "";
 
-    if (mustPinyin) {
+    if (mustPinyin?.length) {
       const b = document.createElement("b");
       b.innerText = mustPinyin.join("; ").replace(/u:/g, "ü");
       elCompare.append(b);
@@ -404,7 +406,7 @@ function doNext(ev) {
       pinyin.some((p) => comp_pinyin(p, v))
     );
 
-    if (mustPinyin) {
+    if (mustPinyin?.length) {
       state.lastIsRight =
         state.lastIsRight &&
         mustPinyin.every((v) => inputPinyin.some((p) => comp_pinyin(p, v)));

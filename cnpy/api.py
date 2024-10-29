@@ -298,8 +298,6 @@ class Api:
             if v0:
                 result.insert(0, v0)
 
-            self.v = ""
-
         return {
             "result": result[:limit],
             "count": n,
@@ -414,6 +412,8 @@ class Api:
         return {"cedict": rs, "sentences": sentences[:5]}
 
     def mark(self, v: str, t: str):
+        self.v = ""
+
         card = fsrs.Card()
         self.log({v, t})
 
