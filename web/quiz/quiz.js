@@ -259,7 +259,13 @@ function doNext(ev) {
 
     if (warnPinyin?.length) {
       if (inputPinyin.some((v) => warnPinyin.some((p) => comp_pinyin(p, v)))) {
-        elCompare.setAttribute("data-checked", "warn");
+        const attrName = "data-checked";
+        elInput.setAttribute(attrName, "warn");
+        setTimeout(() => {
+          if (elInput.getAttribute(attrName) === "warn") {
+            elInput.removeAttribute(attrName);
+          }
+        }, 1000);
         return;
       }
     }
