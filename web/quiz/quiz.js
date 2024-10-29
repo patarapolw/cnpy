@@ -263,7 +263,7 @@ function doNext(ev) {
         elInput.setAttribute(attrName, "warn");
         setTimeout(() => {
           if (elInput.getAttribute(attrName) === "warn") {
-            elInput.removeAttribute(attrName);
+            elInput.setAttribute(attrName, "");
           }
         }, 1000);
         return;
