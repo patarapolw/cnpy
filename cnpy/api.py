@@ -32,7 +32,7 @@ class Api:
     levels: dict[str, list[str]] = {}
 
     def __init__(self):
-        self.vs = []
+        self.v = None
 
         if self.settings_path.exists():
             self.settings = json.loads(self.settings_path.read_text("utf-8"))
@@ -255,16 +255,16 @@ class Api:
         n = len(all_items)
         n_new = len([r for r in all_items if not r.get("srs")])
 
-        if self.vs:
-            result = self.vs
-            self.vs = []
+        if self.v:
+            v = self.v
+            self.v = None
 
-            if result:
-                return {
-                    "result": result,
-                    "count": n,
-                    "new": n_new,
-                }
+            return {
+                "result": [v],
+                "count": n,
+                "new": n_new,
+                "customItemSRS": v.get("srs"),
+            }
 
         # random between near difficulty, like [5.0,5.5), [5.5,6.0)
         random.shuffle(all_items)
@@ -299,17 +299,13 @@ class Api:
             "new": n_new,
         }
 
-    def set_vocab_list(self, vs: list[str]):
-        self.vs = []
-        result = []
+    def set_vocab(self, v: str):
+        self.v = None
 
-        for v in vs:
-            r = self.get_vocab(v)
-            if r:
-                self.vs.append(r)
-                result.append(r["v"])
-
-        return {"result": result}
+        r = self.get_vocab(v)
+        if r:
+            self.v = r
+            return self.v
 
     def get_freq_min(self):
         # zipf freq min is p75 or at least 5
@@ -419,7 +415,7 @@ class Api:
         return {"cedict": rs, "sentences": sentences[:5]}
 
     def mark(self, v: str, t: str):
-        self.vs = []
+        self.v = None
 
         card = fsrs.Card()
         self.log({v, t})

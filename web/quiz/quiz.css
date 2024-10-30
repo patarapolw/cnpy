@@ -21,6 +21,18 @@ body,
   margin-bottom: 10px;
 }
 
+#quiz:not([data-type]) #counter {
+  visibility: hidden;
+}
+
+#quiz:not([data-type="standard"]) #counter .right {
+  visibility: hidden;
+}
+
+#quiz[data-type="old-custom"] .hide-showcase {
+  display: none;
+}
+
 details,
 p,
 .nav,
@@ -192,6 +204,7 @@ summary {
 }
 
 .external-links {
+  margin-top: 0.5em;
   text-align: center;
 }
 

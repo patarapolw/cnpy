@@ -83,7 +83,10 @@ async function doLoading() {
               [
                 {
                   text: "🔊",
-                  action: () => speak(c),
+                  action: (ev) => {
+                    ev.stopImmediatePropagation();
+                    speak(c);
+                  },
                 },
                 {
                   text: "Open",
@@ -126,13 +129,11 @@ function speak(s) {
 /**
  *
  * @param {string} v
- * @param {boolean} [isQuiz=true]
  */
-async function openItem(v, isQuiz = true) {
-  const r = await pywebview.api.set_vocab_list([v]);
-  console.log(r);
-  if (r.result.length) {
-    pywebview.api.new_window("./quiz.html", "Quiz");
+async function openItem(v) {
+  const r = await pywebview.api.set_vocab(v);
+  if (r) {
+    pywebview.api.new_window("./quiz.html", v);
   } else {
     alert(`Cannot open vocab: ${v}`);
   }

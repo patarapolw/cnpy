@@ -18,10 +18,11 @@ const state = {
   isRepeat: false,
 };
 
+const elRoot = document.getElementById("quiz");
+const elStatus = document.getElementById("status");
 const elVocab = /** @type {HTMLDivElement} */ (
   document.getElementById("vocab")
 );
-
 const elInput = /** @type {HTMLDivElement} */ (
   document.getElementById("type-input")
 );
@@ -249,28 +250,31 @@ function doNext(ev) {
   } else {
     const currentItem = state.vocabList[state.i];
 
+    const ks = [...currentItem.v].filter((k, i, a) => a.indexOf(k) === i);
     ctxmenu.update("#vocab", [
       {
         text: "🔊",
         action: () => speak(currentItem.v),
       },
-      ...Array.from(currentItem.v).map((k) => {
-        /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
-        const m = {
-          text: k,
-          subMenu: [
-            {
-              text: "🔊",
-              action: () => speak(k),
-            },
-            {
-              text: "Open",
-              action: () => openItem(k),
-            },
-          ],
-        };
-        return m;
-      }),
+      ...(ks.length > 1
+        ? ks.map((k) => {
+            /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
+            const m = {
+              text: k,
+              subMenu: [
+                {
+                  text: "🔊",
+                  action: () => speak(k),
+                },
+                {
+                  text: "Open",
+                  action: () => openItem(k),
+                },
+              ],
+            };
+            return m;
+          })
+        : []),
     ]);
 
     const dictPinyin = state.vocabDetails.cedict
@@ -468,6 +472,7 @@ function mark(type) {
   if (type) {
     setTimeout(doNext);
   }
+  elStatus.textContent = "";
 
   switch (type || state.lastIsRight) {
     case true:
@@ -602,6 +607,8 @@ async function newVocabList() {
 
   state.isRepeat = false;
 
+  let customItemSRS;
+
   if (state.pendingList.length > 0) {
     state.vocabList = state.pendingList;
     state.isRepeat = true;
@@ -614,6 +621,18 @@ async function newVocabList() {
     state.due = r.count;
     state.new = r.new;
     state.review_counter += r.result.length;
+
+    if (!state.mode) {
+      customItemSRS = r.customItemSRS;
+
+      state.mode =
+        customItemSRS === undefined
+          ? "standard"
+          : customItemSRS
+          ? "old-custom"
+          : "new-custom";
+      elRoot.setAttribute("data-type", state.mode);
+    }
 
     if (r.count < 5 && state.lastQuizTime) {
       const d = new Date();
@@ -681,6 +700,54 @@ async function newVocabList() {
   });
 
   await newVocab();
+
+  if (customItemSRS) {
+    let showDetails = false;
+
+    const i = document.createElement("i");
+    i.innerText = (() => {
+      let untilDue = +new Date(customItemSRS.due) - +new Date();
+      if (untilDue < 0) {
+        return "(past due)";
+      }
+
+      untilDue /= 1000 * 60; // minutes
+      if (untilDue < 1) {
+        return "(due soon)";
+      }
+
+      if (untilDue < 60) {
+        const n = Math.floor(untilDue);
+        return `(due in ${n} minutes${n > 1 ? "s" : ""})`;
+      }
+
+      untilDue /= 60; // hours
+      if (untilDue < 24) {
+        const n = Math.floor(untilDue);
+        return `(due in ${n} hour${n > 1 ? "s" : ""})`;
+      }
+
+      untilDue /= 24; // days
+      if (untilDue > 7) {
+        showDetails = true;
+      }
+      if (untilDue < 30) {
+        const n = Math.floor(untilDue);
+        return `(due in ${n} day${n > 1 ? "s" : ""})`;
+      }
+
+      return `(due ${customItemSRS.due.split("T")[0]})`;
+    })();
+
+    if (showDetails) {
+      state.isRepeat = true;
+      mark("repeat");
+    } else {
+      elRoot.setAttribute("data-type", "new-custom");
+    }
+
+    elStatus.append(i);
+  }
 }
 
 /**
@@ -757,12 +824,11 @@ function speak(s) {
 /**
  *
  * @param {string} v
- * @param {boolean} [isQuiz=true]
  */
-async function openItem(v, isQuiz = true) {
-  const r = await pywebview.api.set_vocab_list([v]);
-  if (r.result.length) {
-    pywebview.api.new_window("./quiz.html", "Quiz");
+async function openItem(v) {
+  const r = await pywebview.api.set_vocab(v);
+  if (r) {
+    pywebview.api.new_window("./quiz.html", v);
   } else {
     alert(`Cannot open vocab: ${v}`);
   }

@@ -21,10 +21,11 @@ declare const pywebview: {
       result: IQuizEntry[];
       count: number;
       new: number;
+      customItemSRS?: any;
     }>;
-    set_vocab_list(vs: string[]): Promise<{
-      result: string[];
-    }>;
+    set_vocab(v: string): Promise<{
+      srs?: any;
+    } | null>;
     new_vocab_list(limit?: number): Promise<{
       result: IQuizEntry[];
     }>;
@@ -109,6 +110,8 @@ interface State {
   lastIsFuzzy: boolean;
   lastQuizTime: Date | null;
   isRepeat: boolean;
+
+  mode?: string;
 }
 
 declare const ctxmenu: import("../node_modules/ctxmenu/index").CTXMenuSingleton;
