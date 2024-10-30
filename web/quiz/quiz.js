@@ -1,7 +1,5 @@
 //@ts-check
 
-ctxmenu;
-
 /** @type {State} */
 const state = {
   vocabList: [],
@@ -266,9 +264,8 @@ function doNext(ev) {
               action: () => speak(k),
             },
             {
-              text: "Quiz",
-              action: () => null,
-              disabled: true,
+              text: "Open",
+              action: () => openItem(k),
             },
           ],
         };
@@ -523,8 +520,6 @@ async function newVocab() {
   elInput.oninput = null;
   elInput.focus();
 
-  ctxmenu.delete("#vocab");
-
   softCleanup();
 
   state.i++;
@@ -534,6 +529,41 @@ async function newVocab() {
     await newVocabList();
     return;
   }
+
+  ctxmenu.update("#counter", [
+    ...state.vocabList.slice(0, state.i).map((s) => {
+      /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
+      const m = {
+        text: s.v,
+        subMenu: [
+          {
+            text: "🔊",
+            action: () => speak(s.v),
+          },
+          {
+            text: "Open",
+            action: () => openItem(s.v),
+          },
+        ],
+      };
+      return m;
+    }),
+    {
+      text: "...",
+      action: async () => {
+        let v = prompt("Custom vocab to quiz:") || "";
+        v = v.trim();
+        if (!v) return;
+
+        if (!/^\p{sc=Han}+$/u.test(v)) {
+          alert(`Invalid vocab: ${v}`);
+        }
+
+        openItem(v);
+      },
+    },
+  ]);
+  ctxmenu.delete("#vocab");
 
   document.querySelectorAll("[data-checked]").forEach((el) => {
     el.setAttribute("data-checked", "");
@@ -722,4 +752,18 @@ utterance.lang = "zh-CN";
 function speak(s) {
   utterance.text = s;
   speechSynthesis.speak(utterance);
+}
+
+/**
+ *
+ * @param {string} v
+ * @param {boolean} [isQuiz=true]
+ */
+async function openItem(v, isQuiz = true) {
+  const r = await pywebview.api.set_vocab_list([v]);
+  if (r.result.length) {
+    pywebview.api.new_window("./quiz.html", "Quiz");
+  } else {
+    alert(`Cannot open vocab: ${v}`);
+  }
 }

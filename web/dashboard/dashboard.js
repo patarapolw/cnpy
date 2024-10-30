@@ -71,8 +71,30 @@ async function doLoading() {
             const el = document.createElement("span");
             el.innerText = c;
             el.className = className;
+            el.setAttribute("data-hanzi", c);
+            el.addEventListener("mouseenter", () => {
+              ctxmenu.hide();
+            });
 
             elHanziList.append(el);
+
+            ctxmenu.update(
+              `[data-hanzi="${c}"]`,
+              [
+                {
+                  text: "🔊",
+                  action: () => speak(c),
+                },
+                {
+                  text: "Open",
+                  action: () => openItem(c),
+                },
+              ],
+              {
+                onShow: () => el.classList.add("hover"),
+                onHide: () => el.classList.remove("hover"),
+              }
+            );
           }
         }
       });
@@ -87,4 +109,31 @@ async function doLoading() {
   ]);
 
   reloadQueue = null;
+}
+
+const utterance = new SpeechSynthesisUtterance();
+utterance.lang = "zh-CN";
+
+/**
+ *
+ * @param {string} s
+ */
+function speak(s) {
+  utterance.text = s;
+  speechSynthesis.speak(utterance);
+}
+
+/**
+ *
+ * @param {string} v
+ * @param {boolean} [isQuiz=true]
+ */
+async function openItem(v, isQuiz = true) {
+  const r = await pywebview.api.set_vocab_list([v]);
+  console.log(r);
+  if (r.result.length) {
+    pywebview.api.new_window("./quiz.html", "Quiz");
+  } else {
+    alert(`Cannot open vocab: ${v}`);
+  }
 }

@@ -1,12 +1,11 @@
 {
   "name": "cnpy",
-  "version": "1.4.0",
+  "version": "1.5.0-preview",
   "description": "Pinyin SRS that repeats until everything right",
   "main": "index.js",
   "scripts": {
     "start": "pnpm run py app.py",
     "dev": "pnpm run py app.py --debug",
-    "vocab": "pnpm run py app.py --vocab",
     "prepare": "pnpm run py preoare_assets.py",
     "build": "pnpm run py build.py %npm_package_version%",
     "py": "pipenv run py"

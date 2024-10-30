@@ -22,6 +22,9 @@ declare const pywebview: {
       count: number;
       new: number;
     }>;
+    set_vocab_list(vs: string[]): Promise<{
+      result: string[];
+    }>;
     new_vocab_list(limit?: number): Promise<{
       result: IQuizEntry[];
     }>;

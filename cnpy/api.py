@@ -31,8 +31,8 @@ class Api:
 
     levels: dict[str, list[str]] = {}
 
-    def __init__(self, v=""):
-        self.v = v
+    def __init__(self):
+        self.vs = []
 
         if self.settings_path.exists():
             self.settings = json.loads(self.settings_path.read_text("utf-8"))
@@ -255,6 +255,17 @@ class Api:
         n = len(all_items)
         n_new = len([r for r in all_items if not r.get("srs")])
 
+        if self.vs:
+            result = self.vs
+            self.vs = []
+
+            if result:
+                return {
+                    "result": result,
+                    "count": n,
+                    "new": n_new,
+                }
+
         # random between near difficulty, like [5.0,5.5), [5.5,6.0)
         random.shuffle(all_items)
         all_items.sort(
@@ -282,27 +293,23 @@ class Api:
         result = result[:limit]
         random.shuffle(result)
 
-        if self.v:
-            v0 = None
-
-            for r in result:
-                if r["v"] == self.v:
-                    v0 = r
-
-            if v0:
-                result.remove(v0)
-                result.insert(0, v0)
-            else:
-                v0 = self.get_vocab(self.v)
-
-            if v0:
-                result.insert(0, v0)
-
         return {
-            "result": result[:limit],
+            "result": result,
             "count": n,
             "new": n_new,
         }
+
+    def set_vocab_list(self, vs: list[str]):
+        self.vs = []
+        result = []
+
+        for v in vs:
+            r = self.get_vocab(v)
+            if r:
+                self.vs.append(r)
+                result.append(r["v"])
+
+        return {"result": result}
 
     def get_freq_min(self):
         # zipf freq min is p75 or at least 5
@@ -412,7 +419,7 @@ class Api:
         return {"cedict": rs, "sentences": sentences[:5]}
 
     def mark(self, v: str, t: str):
-        self.v = ""
+        self.vs = []
 
         card = fsrs.Card()
         self.log({v, t})

@@ -83,6 +83,10 @@ a.internal-link:visited {
   background-color: red;
 }
 
+#counter {
+  cursor: default;
+}
+
 .count[data-count-type="total"][data-repeat="true"] {
   text-decoration: underline;
   color: red;
