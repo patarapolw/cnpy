@@ -1,5 +1,7 @@
 //@ts-check
 
+ctxmenu;
+
 /** @type {State} */
 const state = {
   vocabList: [],
@@ -249,6 +251,31 @@ function doNext(ev) {
   } else {
     const currentItem = state.vocabList[state.i];
 
+    ctxmenu.update("#vocab", [
+      {
+        text: "🔊",
+        action: () => speak(currentItem.v),
+      },
+      ...Array.from(currentItem.v).map((k) => {
+        /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
+        const m = {
+          text: k,
+          subMenu: [
+            {
+              text: "🔊",
+              action: () => speak(k),
+            },
+            {
+              text: "Quiz",
+              action: () => null,
+              disabled: true,
+            },
+          ],
+        };
+        return m;
+      }),
+    ]);
+
     const dictPinyin = state.vocabDetails.cedict
       .map((v) => v.pinyin)
       .filter((v, i, a) => a.indexOf(v) === i);
@@ -307,12 +334,6 @@ function doNext(ev) {
     } else {
       elCompare.innerText = pinyin.join("; ").replace(/u:/g, "ü");
     }
-
-    elVocab.onclick = () => {
-      const u = new SpeechSynthesisUtterance(currentItem.v);
-      u.lang = "zh-CN";
-      speechSynthesis.speak(u);
-    };
 
     const elDictEntries = /** @type {HTMLDivElement} */ (
       document.getElementById("dictionary-entries")
@@ -502,6 +523,8 @@ async function newVocab() {
   elInput.oninput = null;
   elInput.focus();
 
+  ctxmenu.delete("#vocab");
+
   softCleanup();
 
   state.i++;
@@ -687,4 +710,16 @@ function normalize_pinyin(s, isFuzzy) {
  */
 function comp_pinyin(a, b, isFuzzy) {
   return normalize_pinyin(a, isFuzzy) === normalize_pinyin(b, isFuzzy);
+}
+
+const utterance = new SpeechSynthesisUtterance();
+utterance.lang = "zh-CN";
+
+/**
+ *
+ * @param {string} s
+ */
+function speak(s) {
+  utterance.text = s;
+  speechSynthesis.speak(utterance);
 }

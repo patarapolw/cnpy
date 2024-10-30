@@ -107,3 +107,5 @@ interface State {
   lastQuizTime: Date | null;
   isRepeat: boolean;
 }
+
+declare const ctxmenu: import("../node_modules/ctxmenu/index").CTXMenuSingleton;
