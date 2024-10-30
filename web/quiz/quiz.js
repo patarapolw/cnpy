@@ -81,6 +81,7 @@ let isDialog = false;
 document.addEventListener("keydown", (ev) => {
   switch (ev.key) {
     case "Escape":
+      if (state.mode === "show") return;
       if (state.isRepeat) {
         if (state.lastIsRight === true) {
           mark("repeat");
@@ -103,6 +104,7 @@ document.addEventListener("keydown", (ev) => {
       break;
     case "F5":
     case "F1":
+      if (state.mode === "show") return;
       if (!state.isRepeat) {
         state.review_counter -= state.max - state.i;
         newVocabList();
@@ -242,6 +244,7 @@ function doNext(ev) {
   }
 
   if (elCompare.innerText) {
+    if (state.mode === "show") return;
     if (typeof state.lastIsRight === "boolean") {
       mark();
     }
@@ -625,12 +628,7 @@ async function newVocabList() {
     if (!state.mode) {
       customItemSRS = r.customItemSRS;
 
-      state.mode =
-        customItemSRS === undefined
-          ? "standard"
-          : customItemSRS
-          ? "old-custom"
-          : "new-custom";
+      state.mode = customItemSRS === undefined ? "standard" : "show";
       elRoot.setAttribute("data-type", state.mode);
     }
 
@@ -701,13 +699,17 @@ async function newVocabList() {
 
   await newVocab();
 
-  if (customItemSRS) {
-    let showDetails = false;
+  if (customItemSRS !== undefined) {
+    let showDetails = true;
 
     const i = document.createElement("i");
     i.innerText = (() => {
+      if (!customItemSRS?.due) return "";
+      showDetails = false;
+
       let untilDue = +new Date(customItemSRS.due) - +new Date();
       if (untilDue < 0) {
+        showDetails = false;
         return "(past due)";
       }
 
@@ -716,9 +718,13 @@ async function newVocabList() {
         return "(due soon)";
       }
 
+      if (untilDue > 10) {
+        showDetails = true;
+      }
+
       if (untilDue < 60) {
         const n = Math.floor(untilDue);
-        return `(due in ${n} minutes${n > 1 ? "s" : ""})`;
+        return `(due in ${n} minute${n > 1 ? "s" : ""})`;
       }
 
       untilDue /= 60; // hours
@@ -728,9 +734,6 @@ async function newVocabList() {
       }
 
       untilDue /= 24; // days
-      if (untilDue > 7) {
-        showDetails = true;
-      }
       if (untilDue < 30) {
         const n = Math.floor(untilDue);
         return `(due in ${n} day${n > 1 ? "s" : ""})`;
@@ -743,7 +746,7 @@ async function newVocabList() {
       state.isRepeat = true;
       mark("repeat");
     } else {
-      elRoot.setAttribute("data-type", "new-custom");
+      elRoot.setAttribute("data-type", "due");
     }
 
     elStatus.append(i);

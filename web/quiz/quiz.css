@@ -21,15 +21,9 @@ body,
   margin-bottom: 10px;
 }
 
-#quiz:not([data-type]) #counter {
-  visibility: hidden;
-}
-
-#quiz:not([data-type="standard"]) #counter .right {
-  visibility: hidden;
-}
-
-#quiz[data-type="old-custom"] .hide-showcase {
+#quiz:not([data-type="standard"]) #counter,
+#quiz:not([data-type="standard"]) #check-buttons-area,
+#quiz[data-type="show"] .hide-showcase {
   display: none;
 }
 
