@@ -1,0 +1,20 @@
+#pinyin-select {
+  margin-bottom: 1em;
+}
+
+.checkbox {
+  width: 3em;
+  display: inline-flex;
+  flex-direction: row;
+}
+
+.checkbox > input[type="checkbox"]:not(:checked) + input[type="checkbox"] {
+  display: none;
+}
+
+[data-pinyin-count="1"]
+  .checkbox
+  > input[type="checkbox"]
+  + input[type="checkbox"] {
+  display: none;
+}

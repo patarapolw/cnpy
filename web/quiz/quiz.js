@@ -66,7 +66,7 @@ elInput.addEventListener("keydown", (ev) => {
       if (typeof state.lastIsRight === "boolean") {
         ev.preventDefault();
 
-        if (ev.key === "z") {
+        if (ev.ctrlKey && ev.key === "z") {
           state.vocabList.push(...state.vocabList.splice(state.i, 1));
           state.i--;
           newVocab();
@@ -247,31 +247,66 @@ function doNext(ev) {
 
     newVocab();
   } else {
-    pywebview.api.log(state.vocabDetails.cedict);
-
     const currentItem = state.vocabList[state.i];
 
     const dictPinyin = state.vocabDetails.cedict
       .map((v) => v.pinyin)
       .filter((v, i, a) => a.indexOf(v) === i);
 
-    if (new Set(dictPinyin.map((p) => p.toLocaleLowerCase())).size > 1) {
-      elCompare.href = `./pinyin-select.html?v=${currentItem.v}`;
-      elCompare.onclick = (ev) => {
-        ev.preventDefault();
-        const a = /** @type {HTMLAnchorElement} */ (ev.target);
-        if (!a.href) return;
-        isDialog = true;
-        pywebview.api.new_window(a.href, a.title || a.innerText, {
-          width: 300,
-          height: 300,
-        });
-      };
+    let { pinyin, mustPinyin, warnPinyin } = currentItem.data;
+    pinyin = pinyin || dictPinyin;
+    const inputPinyin = elInput.innerText.split(";").map((v) => v.trim());
+
+    if (warnPinyin?.length) {
+      if (inputPinyin.some((v) => warnPinyin.some((p) => comp_pinyin(p, v)))) {
+        const attrName = "data-checked";
+        elInput.setAttribute(attrName, "warn");
+        setTimeout(() => {
+          if (elInput.getAttribute(attrName) === "warn") {
+            elInput.setAttribute(attrName, "");
+          }
+        }, 1000);
+        return;
+      }
     }
 
-    const pinyin = currentItem.data.pinyin || dictPinyin;
+    elCompare.setAttribute(
+      "data-pinyin-count",
+      (
+        new Set(dictPinyin.map((p) => p.toLocaleLowerCase())).size +
+        (mustPinyin?.length || 0) +
+        (warnPinyin?.length || 0)
+      ).toString()
+    );
+    elCompare.href = `./pinyin-select.html?v=${currentItem.v}`;
+    elCompare.onclick = (ev) => {
+      ev.preventDefault();
+      const a = elCompare;
+      if (!a.href) return;
+      isDialog = true;
+      pywebview.api.new_window(a.href, a.title || a.innerText, {
+        width: 300,
+        height: 300,
+      });
+    };
 
-    elCompare.innerText = pinyin.join("; ").replace(/u:/g, "ü");
+    elCompare.textContent = "";
+
+    if (mustPinyin?.length) {
+      const b = document.createElement("b");
+      b.innerText = mustPinyin.join("; ").replace(/u:/g, "ü");
+      elCompare.append(b);
+
+      const remaining = pinyin
+        .filter((p) => !mustPinyin.some((s) => comp_pinyin(s, p)))
+        .join("; ")
+        .replace(/u:/g, "ü");
+      if (remaining) {
+        elCompare.append("; " + remaining);
+      }
+    } else {
+      elCompare.innerText = pinyin.join("; ").replace(/u:/g, "ü");
+    }
 
     elVocab.onclick = () => {
       const u = new SpeechSynthesisUtterance(currentItem.v);
@@ -373,9 +408,17 @@ function doNext(ev) {
     }
 
     state.lastIsFuzzy = false;
-    state.lastIsRight = elInput.innerText
-      .split(";")
-      .every((v) => pinyin.some((p) => comp_pinyin(p, v.trim())));
+    state.lastIsRight = inputPinyin.every((v) =>
+      pinyin.some((p) => comp_pinyin(p, v))
+    );
+
+    if (mustPinyin?.length) {
+      state.lastIsRight =
+        state.lastIsRight &&
+        mustPinyin.every((v) => inputPinyin.some((p) => comp_pinyin(p, v)));
+    }
+
+    pywebview.api.log(state.vocabDetails.cedict);
 
     if (!state.lastIsRight) {
       if (

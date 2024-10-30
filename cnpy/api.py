@@ -217,14 +217,14 @@ class Api:
 
         return None
 
-    def set_pinyin(self, v: str, pinyin: Optional[list[str]]):
+    def set_pinyin(self, v: str, pinyin: Optional[list[str]], type_="pinyin"):
         db.execute(
             """
             UPDATE quiz SET
-                [data] = json_set(IFNULL([data], '{}'), '$.pinyin', json(?))
+                [data] = json_set(IFNULL([data], '{}'), '$.'||?, json(?))
             WHERE v = ?
             """,
-            (json.dumps(pinyin), v),
+            (type_, json.dumps(pinyin), v),
         )
 
     def due_vocab_list(self, limit=20, review_counter=0):
@@ -297,8 +297,6 @@ class Api:
 
             if v0:
                 result.insert(0, v0)
-
-            self.v = ""
 
         return {
             "result": result[:limit],
@@ -414,6 +412,8 @@ class Api:
         return {"cedict": rs, "sentences": sentences[:5]}
 
     def mark(self, v: str, t: str):
+        self.v = ""
+
         card = fsrs.Card()
         self.log({v, t})
 

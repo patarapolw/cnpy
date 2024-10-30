@@ -36,7 +36,14 @@ window.addEventListener("pywebviewready", async () => {
   function save() {
     if (elEditor.innerText !== txt) {
       txt = elEditor.innerText;
-      pywebview.api.save_file(filename, txt);
+      pywebview.api.save_file(
+        filename,
+        txt
+          .split("\n")
+          .map((s) => s.trim())
+          .filter((s) => /^\p{sc=Han}+$/u.test(s))
+          .join("\n")
+      );
     }
   }
 

@@ -5,7 +5,11 @@ declare const pywebview: {
     mark(v: string, type: string): Promise<void>;
     save_notes(v: string, notes: string): Promise<void>;
     get_vocab(v: string): Promise<IQuizEntry>;
-    set_pinyin(v: string, pinyin: string[] | null): Promise<void>;
+    set_pinyin(
+      v: string,
+      pinyin: string[] | null,
+      type?: string
+    ): Promise<void>;
     vocab_details(v: string): Promise<{
       cedict: ICedict[];
       sentences: ISentence[];
@@ -76,6 +80,8 @@ interface IQuizEntry {
     wordfreq: number;
     notes: string;
     pinyin?: string[];
+    mustPinyin?: string[];
+    warnPinyin?: string[];
   };
 }
 
