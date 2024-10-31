@@ -297,6 +297,12 @@ function doNext(ev) {
             elInput.setAttribute(attrName, "");
           }
         }, 1000);
+
+        if (typeof state.lastIsRight === "boolean") {
+          state.i--;
+          newVocab();
+        }
+
         return;
       }
     }
@@ -539,28 +545,30 @@ async function newVocab() {
   }
 
   ctxmenu.update("#counter", [
-    ...state.vocabList.slice(0, state.i).map((s) => {
-      /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
-      const m = {
-        text: s.v,
-        subMenu: [
-          {
-            text: "🔊",
-            action: () => speak(s.v),
-          },
-          {
-            text: "Open",
-            action: () => openItem(s.v),
-          },
-        ],
-      };
-      return m;
-    }),
+    ...state.vocabList
+      .slice(0, state.i)
+      .reverse()
+      .map((s) => {
+        /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
+        const m = {
+          text: s.v,
+          subMenu: [
+            {
+              text: "🔊",
+              action: () => speak(s.v),
+            },
+            {
+              text: "Open",
+              action: () => openItem(s.v),
+            },
+          ],
+        };
+        return m;
+      }),
     {
       text: "...",
       action: async () => {
-        let v = prompt("Custom vocab to quiz:") || "";
-        v = v.trim();
+        const v = prompt("Custom vocab to quiz:");
         if (!v) return;
 
         if (!/^\p{sc=Han}+$/u.test(v)) {
@@ -707,7 +715,8 @@ async function newVocabList() {
       if (!customItemSRS?.due) return "";
       showDetails = false;
 
-      let untilDue = +new Date(customItemSRS.due) - +new Date();
+      const due = new Date(customItemSRS.due);
+      let untilDue = +due - +new Date();
       if (untilDue < 0) {
         showDetails = false;
         return "(past due)";
@@ -739,7 +748,7 @@ async function newVocabList() {
         return `(due in ${n} day${n > 1 ? "s" : ""})`;
       }
 
-      return `(due ${customItemSRS.due.split("T")[0]})`;
+      return `(due ${due.toLocaleDateString()})`;
     })();
 
     if (showDetails) {
