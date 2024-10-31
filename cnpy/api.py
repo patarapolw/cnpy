@@ -415,7 +415,7 @@ class Api:
         segments = []
         if len(v) > 2:
             for r in jieba.cut_for_search(v):
-                if len(r) > 1:
+                if len(r) > 1 and r != v:
                     segments.append(r)
 
         return {
