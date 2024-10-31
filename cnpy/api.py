@@ -346,7 +346,7 @@ class Api:
         return {"result": all_items}
 
     def vocab_details(self, v: str):
-        rs = [
+        dict_entries = [
             cedict.load_db_entry(r)
             for r in db.execute("SELECT * FROM cedict WHERE simp = ?", (v,))
         ]
@@ -364,7 +364,7 @@ class Api:
 
             return -len([en for en in r["english"] if en[0] != "("])
 
-        rs.sort(key=sorter)
+        dict_entries.sort(key=sorter)
 
         sentences = [
             tatoeba.load_db_entry(r)
@@ -412,7 +412,17 @@ class Api:
                 if r["cmn"] not in prev_cmn:
                     sentences.append(r)
 
-        return {"cedict": rs, "sentences": sentences[:5]}
+        segments = []
+        if len(v) > 2:
+            for r in jieba.cut_for_search(v):
+                if len(r) > 1:
+                    segments.append(r)
+
+        return {
+            "cedict": dict_entries,
+            "sentences": sentences[:5],
+            "segments": segments,
+        }
 
     def mark(self, v: str, t: str):
         self.v = None

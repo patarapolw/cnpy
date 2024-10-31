@@ -63,6 +63,14 @@ window.addEventListener("pywebviewready", async () => {
     const { clipboardData } = ev;
     if (!clipboardData) return;
 
+    setTimeout(() => {
+      elEditor.querySelectorAll("li").forEach((li) => {
+        if (!li.innerText.trim()) {
+          li.remove();
+        }
+      });
+    });
+
     const html = clipboardData.getData("text/html");
 
     const div = document.createElement("div");

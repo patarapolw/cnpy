@@ -13,6 +13,7 @@ declare const pywebview: {
     vocab_details(v: string): Promise<{
       cedict: ICedict[];
       sentences: ISentence[];
+      segments: string[];
     }>;
     due_vocab_list(
       limit?: number,
@@ -96,6 +97,7 @@ interface State {
   vocabDetails: {
     cedict: ICedict[];
     sentences: ISentence[];
+    segments: string[];
   };
 
   i: number;

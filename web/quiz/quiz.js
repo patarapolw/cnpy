@@ -10,7 +10,7 @@ const state = {
   due: -1,
   new: 0,
   review_counter: 0,
-  vocabDetails: { cedict: [], sentences: [] },
+  vocabDetails: { cedict: [], sentences: [], segments: [] },
   pendingList: [],
   lastIsRight: null,
   lastIsFuzzy: false,
@@ -278,6 +278,23 @@ function doNext(ev) {
             return m;
           })
         : []),
+      ...state.vocabDetails.segments.map((k) => {
+        /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
+        const m = {
+          text: k,
+          subMenu: [
+            {
+              text: "🔊",
+              action: () => speak(k),
+            },
+            {
+              text: "Open",
+              action: () => openItem(k),
+            },
+          ],
+        };
+        return m;
+      }),
     ]);
 
     const dictPinyin = state.vocabDetails.cedict
@@ -290,6 +307,14 @@ function doNext(ev) {
 
     if (warnPinyin?.length) {
       if (inputPinyin.some((v) => warnPinyin.some((p) => comp_pinyin(p, v)))) {
+        const txt = elInput.innerText;
+
+        if (typeof state.lastIsRight === "boolean") {
+          state.i--;
+          newVocab();
+        }
+
+        elInput.innerText = txt;
         const attrName = "data-checked";
         elInput.setAttribute(attrName, "warn");
         setTimeout(() => {
@@ -297,11 +322,6 @@ function doNext(ev) {
             elInput.setAttribute(attrName, "");
           }
         }, 1000);
-
-        if (typeof state.lastIsRight === "boolean") {
-          state.i--;
-          newVocab();
-        }
 
         return;
       }
