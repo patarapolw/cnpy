@@ -7,7 +7,7 @@ from zipfile import ZipFile
 from typing import Callable
 
 from cnpy.db import db, assets_db
-from cnpy.dir import tmp_root
+from cnpy.dir import tmp_root, assets_root
 
 
 def load_db(web_log: Callable[[str], None] = print):
@@ -46,7 +46,7 @@ def load_db_entry(r):
 def populate_db(web_log: Callable[[str], None] = print):
     if not db.execute("SELECT 1 FROM cedict LIMIT 1").fetchall():
         filename = "cedict_ts.u8"
-        cedict = tmp_root / filename
+        cedict = assets_root / filename
 
         if not cedict.exists():
             zipPath = tmp_root / "cedict.zip"

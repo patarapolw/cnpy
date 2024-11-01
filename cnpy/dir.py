@@ -16,6 +16,9 @@ else:
 tmp_root = exe_root / "tmp"
 tmp_root.mkdir(exist_ok=True)
 
+assets_root = exe_root / "assets"
+user_root = exe_root / "user"
+
 if __name__ == "__main__":
     print(f"frozen: {is_frozen}")
     print("bundle dir is", bundle_dir)
