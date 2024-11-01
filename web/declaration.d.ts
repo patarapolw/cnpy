@@ -13,6 +13,7 @@ declare const pywebview: {
     vocab_details(v: string): Promise<{
       cedict: ICedict[];
       sentences: ISentence[];
+      segments: string[];
     }>;
     due_vocab_list(
       limit?: number,
@@ -21,7 +22,11 @@ declare const pywebview: {
       result: IQuizEntry[];
       count: number;
       new: number;
+      customItemSRS?: any;
     }>;
+    set_vocab(v: string): Promise<{
+      srs?: any;
+    } | null>;
     new_vocab_list(limit?: number): Promise<{
       result: IQuizEntry[];
     }>;
@@ -92,6 +97,7 @@ interface State {
   vocabDetails: {
     cedict: ICedict[];
     sentences: ISentence[];
+    segments: string[];
   };
 
   i: number;
@@ -106,4 +112,8 @@ interface State {
   lastIsFuzzy: boolean;
   lastQuizTime: Date | null;
   isRepeat: boolean;
+
+  mode?: string;
 }
+
+declare const ctxmenu: import("../node_modules/ctxmenu/index").CTXMenuSingleton;

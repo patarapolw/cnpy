@@ -21,6 +21,12 @@ body,
   margin-bottom: 10px;
 }
 
+#quiz:not([data-type="standard"]) #counter,
+#quiz:not([data-type="standard"]) #check-buttons-area,
+#quiz[data-type="show"] .hide-showcase {
+  display: none;
+}
+
 details,
 p,
 .nav,
@@ -81,6 +87,10 @@ a.internal-link:visited {
 
 .top-nav#progress [data-count-type="wrong"] {
   background-color: red;
+}
+
+#counter {
+  cursor: default;
 }
 
 .count[data-count-type="total"][data-repeat="true"] {
@@ -188,6 +198,7 @@ summary {
 }
 
 .external-links {
+  margin-top: 0.5em;
   text-align: center;
 }
 

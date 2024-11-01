@@ -45,7 +45,8 @@ body {
   z-index: 0;
 }
 
-.hanzi:hover {
+.hanzi:hover,
+.hanzi.hover {
   font-size: 2em;
   padding: 0 3px;
   margin: 0 -0.7rem;

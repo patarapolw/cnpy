@@ -10,12 +10,12 @@
 
   <body>
     <div id="quiz">
-      <nav class="top-nav" id="progress">
+      <nav class="top-nav hide-showcase" id="progress">
         <div data-count-type="right"></div>
         <div data-count-type="repeat"></div>
         <div data-count-type="wrong"></div>
       </nav>
-      <nav class="nav">
+      <nav id="counter" class="nav hide-showcase">
         <div class="left"></div>
 
         <div class="center nav">
@@ -42,9 +42,13 @@
       </nav>
 
       <div id="vocab" lang="zh-CN">&nbsp;</div>
+
+      <div id="status"></div>
+
       <div
         contenteditable=""
         id="type-input"
+        class="hide-showcase"
         autocomplete="off"
         autocorrect="off"
         autocapitalize="off"
@@ -57,7 +61,11 @@
         target="new_window"
         title="Specify valid Pinyin"
       ></a>
-      <div class="buttons if-checked" data-checked="">
+      <div
+        id="check-buttons-area"
+        class="buttons if-checked hide-showcase"
+        data-checked=""
+      >
         <button
           class="if-wrong"
           data-checked=""
@@ -186,6 +194,7 @@
     </div>
 
     <script src="./_lib/showdown.min.js"></script>
+    <script src="./_lib/ctxmenu.min.js"></script>
     <script src="./quiz/quiz.js"></script>
   </body>
 </html>

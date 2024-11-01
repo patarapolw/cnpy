@@ -2,7 +2,6 @@ import sys
 from typing import Optional
 
 import webview
-from regex import Regex
 
 from cnpy.db import db
 from cnpy.api import Api
@@ -10,18 +9,12 @@ from cnpy.api import Api
 
 if __name__ == "__main__":
     is_debug = False
-    v = ""
 
-    re_han = Regex(r"\p{Han}+")
     for arg in sys.argv[1:]:
         if arg == "--debug":
             is_debug = True
-        elif arg == "--vocab":
-            v = input("Please input vocabulary to load: ")
-        elif re_han.fullmatch(arg):
-            v = arg
 
-    api = Api(v=v)
+    api = Api()
 
     win = webview.create_window(
         "Pinyin Quiz",

@@ -8,10 +8,10 @@ from pprint import pprint
 import random
 from typing import Callable, Any, TypedDict, Optional
 
-from cnpy import quiz, cedict, tatoeba
+from cnpy import quiz, cedict, sentence
 from cnpy.db import db
 from cnpy.stats import make_stats
-from cnpy.dir import exe_root
+from cnpy.dir import assets_root, user_root
 
 
 srs = fsrs.FSRS()
@@ -26,18 +26,18 @@ class Api:
     web_ready: Callable
     web_window: Callable[[str, str, Optional[dict]], Any]
 
-    settings_path = exe_root / "user" / "settings.json"
+    settings_path = user_root / "settings.json"
     settings = UserSettings(levels=[])
 
     levels: dict[str, list[str]] = {}
 
-    def __init__(self, v=""):
-        self.v = v
+    def __init__(self):
+        self.v = None
 
         if self.settings_path.exists():
             self.settings = json.loads(self.settings_path.read_text("utf-8"))
 
-        folder = exe_root / "assets" / "zhquiz-level"
+        folder = assets_root / "zhquiz-level"
         for f in folder.glob("**/*.txt"):
             self.levels[f.with_suffix("").name] = (
                 f.read_text(encoding="utf-8").rstrip().splitlines()
@@ -61,7 +61,7 @@ class Api:
     def start(self):
         quiz.load_db()
         cedict.load_db(self.web_log)
-        tatoeba.load_db(self.web_log)
+        sentence.load_db(self.web_log)
 
         self.web_ready()
 
@@ -147,7 +147,7 @@ class Api:
 
         vs = set()
 
-        path = exe_root / "user/vocab"
+        path = user_root / "vocab"
         path.mkdir(exist_ok=True)
 
         for f in path.glob("**/*.txt"):
@@ -184,7 +184,7 @@ class Api:
                 )
                 vs.add(v)
 
-        path = exe_root / "user/skip"
+        path = user_root / "skip"
         path.mkdir(exist_ok=True)
 
         for f in path.glob("**/*.txt"):
@@ -255,6 +255,17 @@ class Api:
         n = len(all_items)
         n_new = len([r for r in all_items if not r.get("srs")])
 
+        if self.v:
+            v = self.v
+            self.v = None
+
+            return {
+                "result": [v],
+                "count": n,
+                "new": n_new,
+                "customItemSRS": v.get("srs"),
+            }
+
         # random between near difficulty, like [5.0,5.5), [5.5,6.0)
         random.shuffle(all_items)
         all_items.sort(
@@ -282,27 +293,19 @@ class Api:
         result = result[:limit]
         random.shuffle(result)
 
-        if self.v:
-            v0 = None
-
-            for r in result:
-                if r["v"] == self.v:
-                    v0 = r
-
-            if v0:
-                result.remove(v0)
-                result.insert(0, v0)
-            else:
-                v0 = self.get_vocab(self.v)
-
-            if v0:
-                result.insert(0, v0)
-
         return {
-            "result": result[:limit],
+            "result": result,
             "count": n,
             "new": n_new,
         }
+
+    def set_vocab(self, v: str):
+        self.v = None
+
+        r = self.get_vocab(v)
+        if r:
+            self.v = r
+            return self.v
 
     def get_freq_min(self):
         # zipf freq min is p75 or at least 5
@@ -343,7 +346,7 @@ class Api:
         return {"result": all_items}
 
     def vocab_details(self, v: str):
-        rs = [
+        dict_entries = [
             cedict.load_db_entry(r)
             for r in db.execute("SELECT * FROM cedict WHERE simp = ?", (v,))
         ]
@@ -361,10 +364,10 @@ class Api:
 
             return -len([en for en in r["english"] if en[0] != "("])
 
-        rs.sort(key=sorter)
+        dict_entries.sort(key=sorter)
 
         sentences = [
-            tatoeba.load_db_entry(r)
+            sentence.load_db_entry(r)
             for r in db.execute(
                 """
             SELECT *
@@ -405,14 +408,24 @@ class Api:
                 ),
                 (v,),
             ):
-                r = tatoeba.load_db_entry(r)
+                r = sentence.load_db_entry(r)
                 if r["cmn"] not in prev_cmn:
                     sentences.append(r)
 
-        return {"cedict": rs, "sentences": sentences[:5]}
+        segments = []
+        if len(v) > 2:
+            for r in jieba.cut_for_search(v):
+                if len(r) > 1 and r != v:
+                    segments.append(r)
+
+        return {
+            "cedict": dict_entries,
+            "sentences": sentences[:5],
+            "segments": segments,
+        }
 
     def mark(self, v: str, t: str):
-        self.v = ""
+        self.v = None
 
         card = fsrs.Card()
         self.log({v, t})
@@ -477,13 +490,13 @@ class Api:
         self.web_window(url, title, args)
 
     def load_file(self, f: str):
-        path = exe_root / "user" / f
+        path = user_root / f
         if path.exists():
-            return (exe_root / "user" / f).read_text(encoding="utf-8")
+            return (user_root / f).read_text(encoding="utf-8")
         return ""
 
     def save_file(self, f: str, txt: str):
-        (exe_root / "user" / f).write_text(txt, encoding="utf-8")
+        (user_root / f).write_text(txt, encoding="utf-8")
 
     def get_levels(self):
         return self.levels
