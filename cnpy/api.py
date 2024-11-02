@@ -335,6 +335,12 @@ with server:
             "new": n_new,
         }
 
+    @bottle.post("/api/get_vocab/<v>")
+    def get_vocab(v: str):
+        return quiz.load_db_entry(
+            db.execute("SELECT * FROM quiz WHERE v = ?", (v,)).fetchone()
+        )
+
     @bottle.post("/api/set_vocab_for_quiz/<v>")
     def set_vocab_for_quiz(v: str):
         g.v_quiz = None

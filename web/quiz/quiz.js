@@ -590,7 +590,7 @@ async function newVocab() {
     {
       text: "...",
       action: async () => {
-        const v = prompt("Custom vocab to quiz:");
+        const v = prompt("Custom vocab:");
         if (!v) return;
 
         if (!/^\p{sc=Han}+$/u.test(v)) {
