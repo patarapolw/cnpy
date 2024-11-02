@@ -27,6 +27,13 @@ document.querySelectorAll('a[target="new_window"]').forEach((a) => {
   };
 });
 
+ctxmenu.attach(".nav", [
+  {
+    text: "Update CC-CEDICT",
+    action: () => api.update_dict(),
+  },
+]);
+
 let reloadQueue = null;
 
 window.addEventListener("focus", () => {

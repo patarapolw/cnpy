@@ -19,7 +19,8 @@ class UserSettings(TypedDict):
 
 
 class ServerGlobal:
-    web_log: Callable[[str], None]
+    web_log: Callable
+    web_close_log: Callable
     web_ready: Callable
     web_window: Callable[[str, str, Optional[dict]], Any]
 
@@ -452,6 +453,11 @@ with server:
             "sentences": sentences[:5],
             "segments": segments,
         }
+
+    @bottle.post("/api/update_dict")
+    def update_dict():
+        cedict.reset_db(lambda s: g.web_log(s, height=300))
+        g.web_close_log()
 
     @bottle.post("/api/mark/<v>/<t>")
     def mark(v: str, t: str):

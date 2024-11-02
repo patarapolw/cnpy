@@ -152,8 +152,18 @@ export const api = {
   async analyze(txt) {
     return fetchAPI("/api/analyze", { txt }).then((r) => r.json());
   },
+  async update_dict() {
+    return fetchAPI("/api/update_dict");
+  },
 };
 
+/**
+ *
+ * @param {string} url
+ * @param {Record<string, any> | null} payload
+ * @param {string} method
+ * @returns
+ */
 async function fetchAPI(url, payload = null, method = "POST") {
   const r = await fetch(url, {
     headers: {

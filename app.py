@@ -1,4 +1,5 @@
 import sys
+import re
 from typing import Optional
 
 import webview
@@ -31,15 +32,33 @@ if __name__ == "__main__":
             **args,
         )
 
-    def web_log(s: str):
+    def web_log(s: str, *, height=500):
         global log_win
-        if not (win.get_current_url() or "").endswith("/loading.html") and not log_win:
-            log_win = web_window("/loading.html", "Log")
+        if log_win:
+            try:
+                log_win.width
+            except TypeError:
+                log_win = None
+
+        current_url = win.get_current_url() or ""
+        if not current_url.endswith("/loading.html") and not log_win:
+            log_win = web_window(
+                re.sub(r"\w+\.html$", "loading.html", current_url),
+                "Log",
+                {"width": 600, "height": height},
+            )
 
         w = log_win or win
         w.evaluate_js("log('{}')".format(s.replace("'", "\\'").replace("\\", "\\\\")))
 
+    def web_close_log():
+        global log_win
+        if log_win:
+            log_win.destroy()
+            log_win = None
+
     g.web_log = web_log
+    g.web_close_log = web_close_log
     g.web_ready = lambda: win.load_url("/dashboard.html")
     g.web_window = web_window
 
