@@ -253,30 +253,31 @@ function doNext(ev) {
   } else {
     const currentItem = state.vocabList[state.i];
 
-    const ks = [...currentItem.v].filter((k, i, a) => a.indexOf(k) === i);
     ctxmenu.update("#vocab", [
       {
         text: "🔊",
         action: () => speak(currentItem.v),
       },
-      ...(ks.length > 1
-        ? ks.map((k) => {
-            /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
-            const m = {
-              text: k,
-              subMenu: [
-                {
-                  text: "🔊",
-                  action: () => speak(k),
-                },
-                {
-                  text: "Open",
-                  action: () => openItem(k),
-                },
-              ],
-            };
-            return m;
-          })
+      ...(currentItem.v.length > 1
+        ? [...currentItem.v]
+            .filter((k, i, a) => a.indexOf(k) === i)
+            .map((k) => {
+              /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
+              const m = {
+                text: k,
+                subMenu: [
+                  {
+                    text: "🔊",
+                    action: () => speak(k),
+                  },
+                  {
+                    text: "Open",
+                    action: () => openItem(k),
+                  },
+                ],
+              };
+              return m;
+            })
         : []),
       ...state.vocabDetails.segments.map((k) => {
         /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
