@@ -1,5 +1,7 @@
 //@ts-check
 
+import { api } from "../api.js";
+
 const filename = new URL(location.href, location.origin).searchParams.get("f");
 const elEditor = /** @type {HTMLOListElement} */ (
   document.getElementById("editor")
@@ -8,7 +10,7 @@ const elEditor = /** @type {HTMLOListElement} */ (
 window.addEventListener("pywebviewready", async () => {
   if (!filename) return;
 
-  let txt = await pywebview.api.load_file(filename);
+  let txt = await api.load_file(filename);
   /** @type {HTMLLIElement} */
   let lastLi;
 
@@ -36,7 +38,7 @@ window.addEventListener("pywebviewready", async () => {
   function save() {
     if (elEditor.innerText !== txt) {
       txt = elEditor.innerText;
-      pywebview.api.save_file(
+      api.save_file(
         filename,
         txt
           .split("\n")

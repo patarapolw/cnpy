@@ -1,27 +1,24 @@
 import fsrs
 from regex import Regex
 import jieba
+import bottle
 
 import json
 import datetime
-from pprint import pprint
 import random
 from typing import Callable, Any, TypedDict, Optional
 
 from cnpy import quiz, cedict, sentence
 from cnpy.db import db
 from cnpy.stats import make_stats
-from cnpy.dir import assets_root, user_root
-
-
-srs = fsrs.FSRS()
+from cnpy.dir import assets_root, user_root, web_root
 
 
 class UserSettings(TypedDict):
     levels: list[int]
 
 
-class Api:
+class ServerGlobal:
     web_log: Callable[[str], None]
     web_ready: Callable
     web_window: Callable[[str, str, Optional[dict]], Any]
@@ -30,55 +27,90 @@ class Api:
     settings = UserSettings(levels=[])
 
     levels: dict[str, list[str]] = {}
+    v_quiz: Any = None
 
-    def __init__(self):
-        self.v = None
+    latest_stats = make_stats()
 
-        if self.settings_path.exists():
-            self.settings = json.loads(self.settings_path.read_text("utf-8"))
 
-        folder = assets_root / "zhquiz-level"
-        for f in folder.glob("**/*.txt"):
-            self.levels[f.with_suffix("").name] = (
-                f.read_text(encoding="utf-8").rstrip().splitlines()
-            )
+def start():
+    quiz.load_db()
+    cedict.load_db(g.web_log)
+    sentence.load_db(g.web_log)
 
-    def get_settings(self):
-        return self.settings
+    g.web_ready()
 
-    def save_settings(self):
-        self.settings_path.write_text(
-            json.dumps(
-                self.settings,
-                ensure_ascii=False,
-                indent=2,
-            )
+    db.execute(
+        """
+        DELETE FROM revlog
+        WHERE unixepoch('now') - unixepoch(created) > 60*60*24
+        """
+    )
+
+    db.execute(
+        """
+        UPDATE vlist SET skip = NULL
+        """
+    )
+
+
+def fn_get_freq_min():
+    # zipf freq min is p75 or at least 5
+    # max = 7.79, >6 = 101, 5-6 = 1299, 4-5 = 8757
+    freq_min = 5
+    stats_min = g.latest_stats["p75"] * 0.75 if "p75" in g.latest_stats else None
+    if stats_min and stats_min < freq_min:
+        freq_min = stats_min
+
+    return freq_min
+
+
+def fn_save_settings():
+    g.settings_path.write_text(
+        json.dumps(
+            g.settings,
+            ensure_ascii=False,
+            indent=2,
         )
+    )
 
-    def log(self, obj):
-        pprint(obj, indent=1, sort_dicts=False)
 
-    def start(self):
-        quiz.load_db()
-        cedict.load_db(self.web_log)
-        sentence.load_db(self.web_log)
+srs = fsrs.FSRS()
+g = ServerGlobal()
+server = bottle.Bottle()
 
-        self.web_ready()
+if g.settings_path.exists():
+    g.settings = json.loads(g.settings_path.read_text("utf-8"))
 
-        db.execute(
-            """
-            DELETE FROM revlog
-            WHERE unixepoch('now') - unixepoch(created) > 60*60*24
-            """
-        )
+folder = assets_root / "zhquiz-level"
+for f in folder.glob("**/*.txt"):
+    g.levels[f.with_suffix("").name] = (
+        f.read_text(encoding="utf-8").rstrip().splitlines()
+    )
 
-        db.execute(
-            """
-            UPDATE vlist SET skip = NULL
-            """
-        )
 
-    def analyze(self, txt: str):
+with server:
+
+    @bottle.get("/")
+    def index():
+        return bottle.static_file("loading.html", root=web_root)
+
+    @bottle.get("/favicon.ico")
+    def favicon():
+        return None
+
+    @bottle.get("/<filepath:path>")
+    def serve_static(filepath):
+        return bottle.static_file(filepath, root=web_root)
+
+    @bottle.post("/api/get_settings")
+    def get_settings():
+        return g.settings
+
+    @bottle.post("/api/analyze")
+    def analyze():
+        json: Any = bottle.request.json
+        txt = json["txt"]
+
         re_han = Regex(r"^\p{Han}+$")
         raw_vs = set(v for v in jieba.cut_for_search(txt) if re_han.fullmatch(v))
         if not raw_vs:
@@ -101,7 +133,7 @@ class Api:
             )
         )
         db.commit()
-        self.log(f"{r.rowcount} vocab counts updated")
+        print(f"{r.rowcount} vocab counts updated")
 
         rs = [
             dict(r)
@@ -134,13 +166,14 @@ class Api:
                     json_array_length([data], '$.sent') > 0 DESC
                 """.format(
                     "','".join(raw_vs),
-                    self.get_freq_min(),
+                    fn_get_freq_min(),
                 )
             )
         ]
         return {"result": rs}
 
-    def update_custom_lists(self):
+    @bottle.post("/api/update_custom_lists")
+    def update_custom_lists():
         now = datetime.datetime.now()
         now_str = now.replace(tzinfo=now.astimezone().tzinfo).isoformat()
         re_han = Regex(r"^\p{Han}+$")
@@ -166,7 +199,7 @@ class Api:
                         )
 
                     if v in vs:
-                        self.web_log(f"{f.relative_to(path)} [L{i+1}]: {v} duplicated")
+                        g.web_log(f"{f.relative_to(path)} [L{i+1}]: {v} duplicated")
                         is_dup = True
                     else:
                         nodup_f_vs.append(v)
@@ -176,8 +209,8 @@ class Api:
             if is_dup:
                 f.write_text("\n".join(nodup_f_vs), encoding="utf-8")
 
-        for lv in self.settings.get("levels", []):
-            for v in self.levels[f"{lv:02d}"]:
+        for lv in g.settings.get("levels", []):
+            for v in g.levels[f"{lv:02d}"]:
                 db.execute(
                     "INSERT INTO vlist (v, created) VALUES (?,?) ON CONFLICT DO NOTHING",
                     (v, now_str),
@@ -207,27 +240,29 @@ class Api:
 
         db.execute("DELETE FROM vlist WHERE v NOT IN ('{}')".format("','".join(vs)))
 
-    def get_stats(self):
-        self.latest_stats = make_stats()
-        return self.latest_stats
+    @bottle.post("/api/get_stats")
+    def get_stats():
+        g.latest_stats = make_stats()
+        return g.latest_stats
 
-    def get_vocab(self, v: str):
-        for r in db.execute("SELECT * FROM quiz WHERE v = ?", (v,)):
-            return quiz.load_db_entry(r)
+    @bottle.post("/api/set_pinyin/<v>/<t>")
+    def set_pinyin(v: str, t):
+        obj: Any = bottle.request.json
+        pinyin = obj["pinyin"]
 
-        return None
-
-    def set_pinyin(self, v: str, pinyin: Optional[list[str]], type_="pinyin"):
         db.execute(
             """
             UPDATE quiz SET
                 [data] = json_set(IFNULL([data], '{}'), '$.'||?, json(?))
             WHERE v = ?
             """,
-            (type_, json.dumps(pinyin), v),
+            (t, json.dumps(pinyin), v),
         )
 
-    def due_vocab_list(self, limit=20, review_counter=0):
+    @bottle.post("/api/due_vocab_list/<review_counter:int>")
+    def due_vocab_list(review_counter: int):
+        limit = 20
+
         all_items = [
             quiz.load_db_entry(r)
             for r in db.execute(
@@ -255,9 +290,9 @@ class Api:
         n = len(all_items)
         n_new = len([r for r in all_items if not r.get("srs")])
 
-        if self.v:
-            v = self.v
-            self.v = None
+        if g.v_quiz:
+            v = g.v_quiz
+            g.v_quiz = None
 
             return {
                 "result": [v],
@@ -299,27 +334,20 @@ class Api:
             "new": n_new,
         }
 
-    def set_vocab(self, v: str):
-        self.v = None
+    @bottle.post("/api/set_vocab_for_quiz/<v>")
+    def set_vocab_for_quiz(v: str):
+        g.v_quiz = None
 
-        r = self.get_vocab(v)
-        if r:
-            self.v = r
-            return self.v
+        for r in db.execute("SELECT * FROM quiz WHERE v = ?", (v,)):
+            g.v_quiz = quiz.load_db_entry(r)
+            break
 
-    def get_freq_min(self):
-        # zipf freq min is p75 or at least 5
-        # max = 7.79, >6 = 101, 5-6 = 1299, 4-5 = 8757
-        freq_min = 5
-        stats_min = (
-            self.latest_stats["p75"] * 0.75 if "p75" in self.latest_stats else None
-        )
-        if stats_min and stats_min < freq_min:
-            freq_min = stats_min
+        return {"ok": bool(g.v_quiz)}
 
-        return freq_min
+    @bottle.post("/api/new_vocab_list")
+    def new_vocab_list():
+        limit = 20
 
-    def new_vocab_list(self, limit=20):
         all_items = [
             quiz.load_db_entry(r)
             for r in db.execute(
@@ -337,7 +365,7 @@ class Api:
                     RANDOM()
                 LIMIT {}
                 """.format(
-                    self.get_freq_min(),
+                    fn_get_freq_min(),
                     limit,
                 ),
             )
@@ -345,7 +373,8 @@ class Api:
 
         return {"result": all_items}
 
-    def vocab_details(self, v: str):
+    @bottle.post("/api/vocab_details/<v>")
+    def vocab_details(v: str):
         dict_entries = [
             cedict.load_db_entry(r)
             for r in db.execute("SELECT * FROM cedict WHERE simp = ?", (v,))
@@ -424,11 +453,12 @@ class Api:
             "segments": segments,
         }
 
-    def mark(self, v: str, t: str):
-        self.v = None
+    @bottle.post("/api/mark/<v>/<t>")
+    def mark(v: str, t: str):
+        g.v_quiz = None
 
         card = fsrs.Card()
-        self.log({v, t})
+        print([v, t])
 
         prev_srs = None
 
@@ -470,7 +500,11 @@ class Api:
 
         db.commit()
 
-    def save_notes(self, v: str, notes: str):
+    @bottle.post("/api/save_notes/<v>")
+    def save_notes(v: str):
+        obj: Any = bottle.request.json
+        notes = obj["notes"]
+
         if not db.execute(
             """
             UPDATE quiz SET
@@ -486,30 +520,45 @@ class Api:
 
         db.commit()
 
-    def new_window(self, url: str, title: str, args: Optional[dict] = None):
-        self.web_window(url, title, args)
+    @bottle.post("/api/new_window")
+    def new_window():
+        obj: Any = bottle.request.json
 
-    def load_file(self, f: str):
+        g.web_window(
+            obj["url"],
+            obj["title"],
+            obj.get("args"),
+        )
+
+    @bottle.post("/api/load_file/<f:path>")
+    def load_file(f: str):
         path = user_root / f
         if path.exists():
             return (user_root / f).read_text(encoding="utf-8")
         return ""
 
-    def save_file(self, f: str, txt: str):
+    @bottle.post("/api/save_file/<f:path>")
+    def save_file(f: str):
+        json: Any = bottle.request.json
+        txt = json["txt"]
+
         (user_root / f).write_text(txt, encoding="utf-8")
 
-    def get_levels(self):
-        return self.levels
+    @bottle.post("/api/get_levels")
+    def get_levels():
+        return g.levels
 
-    def set_level(self, lv: int, state: bool):
-        lv_set = set(self.settings.get("levels"))
-        if state:
-            lv_set.add(lv)
-        else:
+    @bottle.post("/api/set_levels/<lv:int>/<t>")
+    def set_level(lv: int, t: str):
+        lv_set = set(g.settings.get("levels"))
+        if t == "remove":
             lv_set.remove(lv)
+        else:
+            lv_set.add(lv)
 
         lv_list = list(lv_set)
         lv_list.sort()
 
-        self.settings["levels"] = lv_list
-        self.save_settings()
+        g.settings["levels"] = lv_list
+
+        fn_save_settings()

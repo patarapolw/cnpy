@@ -1,5 +1,7 @@
 //@ts-check
 
+import { api } from "../api.js";
+
 const elPinyinSelect = document.getElementById("pinyin-select");
 const elWarnings = document.getElementById("warnings");
 const elWarningItems = document.getElementById("warning-items");
@@ -10,9 +12,9 @@ window.addEventListener("pywebviewready", async () => {
 
   let {
     data: { pinyin: _chosenPinyin, mustPinyin = [], warnPinyin = [] },
-  } = await pywebview.api.get_vocab(v);
+  } = await api.get_vocab(v);
 
-  const r = await pywebview.api.vocab_details(v);
+  const r = await api.vocab_details(v);
 
   const lowercasePinyin = r.cedict.map((v) => v.pinyin.toLocaleLowerCase());
   const allPinyin = r.cedict
@@ -55,7 +57,7 @@ window.addEventListener("pywebviewready", async () => {
           chosenPinyinSet.size.toString()
         );
 
-        pywebview.api.set_pinyin(
+        api.set_pinyin(
           v,
           chosenPinyinSet.size < allPinyin.length
             ? allPinyin.filter((p) => chosenPinyinSet.has(p))
@@ -75,7 +77,7 @@ window.addEventListener("pywebviewready", async () => {
         } else {
           mustPinyin = mustPinyin.filter((s) => s !== p);
         }
-        pywebview.api.set_pinyin(v, mustPinyin, "mustPinyin");
+        api.set_pinyin(v, mustPinyin, "mustPinyin");
       };
 
       elImportant.oninput = parseElImportant;
@@ -106,7 +108,7 @@ window.addEventListener("pywebviewready", async () => {
         .filter((s) => /^([a-z:]+[1-5]($| ))+$/.test(s));
 
       elWarningItems.innerText = warnPinyin.join("; ");
-      pywebview.api.set_pinyin(v, warnPinyin, "warnPinyin");
+      api.set_pinyin(v, warnPinyin, "warnPinyin");
     }
   };
 });

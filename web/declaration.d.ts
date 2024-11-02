@@ -1,67 +1,3 @@
-declare const pywebview: {
-  api: {
-    log(obj: any): void;
-    get_settings(): Promise<Settings>;
-    mark(v: string, type: string): Promise<void>;
-    save_notes(v: string, notes: string): Promise<void>;
-    get_vocab(v: string): Promise<IQuizEntry>;
-    set_pinyin(
-      v: string,
-      pinyin: string[] | null,
-      type?: string
-    ): Promise<void>;
-    vocab_details(v: string): Promise<{
-      cedict: ICedict[];
-      sentences: ISentence[];
-      segments: string[];
-    }>;
-    due_vocab_list(
-      limit?: number,
-      review_counter?: number
-    ): Promise<{
-      result: IQuizEntry[];
-      count: number;
-      new: number;
-      customItemSRS?: any;
-    }>;
-    set_vocab(v: string): Promise<{
-      srs?: any;
-    } | null>;
-    new_vocab_list(limit?: number): Promise<{
-      result: IQuizEntry[];
-    }>;
-    get_stats(): Promise<{
-      lone: string;
-      h3: string;
-      h5: string;
-      good: number;
-      accuracy: number;
-    }>;
-    new_window(
-      url: string,
-      title: string,
-      args?:
-        | {
-            width: number;
-            height: number;
-          }
-        | { maximized: true }
-        | null
-    ): Promise<void>;
-    load_file(f: string): Promise<string>;
-    save_file(f: string, txt: string): Promise<void>;
-    update_custom_lists(): Promise<void>;
-    get_levels(): Promise<Record<string, string[]>>;
-    set_level(lv: number, state: boolean): Promise<void>;
-    analyze(txt: string): Promise<{
-      result: {
-        v: string;
-        pinyin: string;
-      }[];
-    }>;
-  };
-};
-
 interface Settings {
   levels: number[];
 }
@@ -117,3 +53,7 @@ interface State {
 }
 
 declare const ctxmenu: import("../node_modules/ctxmenu/index").CTXMenuSingleton;
+
+declare const showdown: {
+  Converter: import("showdown").ConverterStatic;
+};

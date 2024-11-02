@@ -1,5 +1,8 @@
 //@ts-check
 
+import { api } from "../api.js";
+import { comp_pinyin, openItem, speak } from "../util.js";
+
 /** @type {State} */
 const state = {
   vocabList: [],
@@ -117,7 +120,7 @@ window.addEventListener("focus", async () => {
     isDialog = false;
 
     const { v } = state.vocabList[state.i];
-    state.vocabList[state.i] = await pywebview.api.get_vocab(v);
+    state.vocabList[state.i] = await api.get_vocab(v);
 
     softCleanup();
     doNext();
@@ -342,7 +345,7 @@ function doNext(ev) {
       const a = elCompare;
       if (!a.href) return;
       isDialog = true;
-      pywebview.api.new_window(a.href, a.title || a.innerText, {
+      api.new_window(a.href, a.title || a.innerText, {
         width: 300,
         height: 300,
       });
@@ -470,8 +473,6 @@ function doNext(ev) {
         mustPinyin.every((v) => inputPinyin.some((p) => comp_pinyin(p, v)));
     }
 
-    pywebview.api.log(state.vocabDetails.cedict);
-
     if (!state.lastIsRight) {
       if (
         elInput.innerText
@@ -536,7 +537,7 @@ function mark(type) {
   state.lastIsRight = null;
 
   if (!state.isRepeat) {
-    pywebview.api.mark(currentItem.v, type);
+    api.mark(currentItem.v, type);
   }
 }
 
@@ -612,7 +613,7 @@ async function newVocab() {
   } = state.vocabList[state.i];
   // pywebview.api.log({ v, wordfreq });
 
-  state.vocabDetails = await pywebview.api.vocab_details(v);
+  state.vocabDetails = await api.vocab_details(v);
   elVocab.innerText = v;
   elVocab.onclick = null;
 
@@ -645,10 +646,7 @@ async function newVocabList() {
     state.vocabList = state.pendingList;
     state.isRepeat = true;
   } else if (state.due) {
-    const r = await pywebview.api.due_vocab_list(
-      state.max,
-      state.review_counter
-    );
+    const r = await api.due_vocab_list(state.review_counter);
     state.vocabList = r.result;
     state.due = r.count;
     state.new = r.new;
@@ -678,7 +676,7 @@ async function newVocabList() {
     // milliseconds
     state.lastQuizTime = new Date();
   } else {
-    const r = await pywebview.api.new_vocab_list(state.max);
+    const r = await api.new_vocab_list();
     state.vocabList = r.result;
   }
 
@@ -813,56 +811,6 @@ function makeNotes(skipSave) {
       notes: "",
     };
     item.data.notes = notesText;
-    pywebview.api.save_notes(item.v, notesText);
-  }
-}
-
-/**
- *
- * @param {string} s
- * @param {boolean} [isFuzzy]
- * @returns
- */
-function normalize_pinyin(s, isFuzzy) {
-  s = s.replace(/[vü]/g, "u:").replace(/ /g, "").toLocaleLowerCase();
-  if (isFuzzy) {
-    s = s.replace(/\d+/g, " ");
-  }
-  return s;
-}
-
-/**
- *
- * @param {string} a
- * @param {string} b
- * @param {boolean} [isFuzzy]
- * @returns
- */
-function comp_pinyin(a, b, isFuzzy) {
-  return normalize_pinyin(a, isFuzzy) === normalize_pinyin(b, isFuzzy);
-}
-
-const utterance = new SpeechSynthesisUtterance();
-utterance.lang = "zh-CN";
-
-/**
- *
- * @param {string} s
- */
-function speak(s) {
-  utterance.text = s;
-  speechSynthesis.speak(utterance);
-}
-
-/**
- *
- * @param {string} v
- */
-async function openItem(v) {
-  const r = await pywebview.api.set_vocab(v);
-  if (r) {
-    pywebview.api.new_window("./quiz.html", v);
-  } else {
-    alert(`Cannot open vocab: ${v}`);
+    api.save_notes(item.v, notesText);
   }
 }

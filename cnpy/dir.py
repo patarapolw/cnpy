@@ -18,6 +18,7 @@ tmp_root.mkdir(exist_ok=True)
 
 assets_root = exe_root / "assets"
 user_root = exe_root / "user"
+web_root = exe_root / "web"
 
 if __name__ == "__main__":
     print(f"frozen: {is_frozen}")
