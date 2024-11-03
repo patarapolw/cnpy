@@ -45,9 +45,9 @@ export function comp_pinyin(a, b, isFuzzy) {
  */
 export async function openItem(v) {
   const r = await api.set_vocab_for_quiz(v);
-  if (r) {
+  if (r.ok) {
     api.new_window("./quiz.html", v);
   } else {
-    alert(`Cannot open vocab: ${v}`);
+    alert(`Invalid vocab: ${v}`);
   }
 }
