@@ -51,7 +51,7 @@ window.addEventListener("pywebviewready", async () => {
     }
 
     el.addEventListener("change", () => {
-      api.set_level(lv, el.checked);
+      api.set_level(lv, el.checked ? "add" : "remove");
     });
   });
 

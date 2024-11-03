@@ -136,8 +136,8 @@ export const api = {
    * @param {number} lv
    * @param {'add' | 'remove'} state
    */
-  async set_levels(lv, state = "add") {
-    return fetchAPI(`/api/set_levels/${lv}/${state}`);
+  async set_level(lv, state = "add") {
+    return fetchAPI(`/api/set_level/${lv}/${state}`);
   },
   /**
    *

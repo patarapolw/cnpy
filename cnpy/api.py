@@ -560,7 +560,7 @@ with server:
     def get_levels():
         return g.levels
 
-    @bottle.post("/api/set_levels/<lv:int>/<t>")
+    @bottle.post("/api/set_level/<lv:int>/<t>")
     def set_level(lv: int, t: str):
         lv_set = set(g.settings.get("levels"))
         if t == "remove":
