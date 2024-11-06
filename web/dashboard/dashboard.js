@@ -106,6 +106,7 @@ async function doLoading() {
               {
                 onShow: () => el.classList.add("hover"),
                 onHide: () => el.classList.remove("hover"),
+                attributes: { lang: "zh-CN" },
               }
             );
           }

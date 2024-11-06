@@ -256,50 +256,54 @@ function doNext(ev) {
   } else {
     const currentItem = state.vocabList[state.i];
 
-    ctxmenu.update("#vocab", [
-      {
-        text: "🔊",
-        action: () => speak(currentItem.v),
-      },
-      ...(currentItem.v.length > 1
-        ? [...currentItem.v]
-            .filter((k, i, a) => a.indexOf(k) === i)
-            .map((k) => {
-              /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
-              const m = {
-                text: k,
-                subMenu: [
-                  {
-                    text: "🔊",
-                    action: () => speak(k),
-                  },
-                  {
-                    text: "Open",
-                    action: () => openItem(k),
-                  },
-                ],
-              };
-              return m;
-            })
-        : []),
-      ...state.vocabDetails.segments.map((k) => {
-        /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
-        const m = {
-          text: k,
-          subMenu: [
-            {
-              text: "🔊",
-              action: () => speak(k),
-            },
-            {
-              text: "Open",
-              action: () => openItem(k),
-            },
-          ],
-        };
-        return m;
-      }),
-    ]);
+    ctxmenu.update(
+      "#vocab",
+      [
+        {
+          text: "🔊",
+          action: () => speak(currentItem.v),
+        },
+        ...(currentItem.v.length > 1
+          ? [...currentItem.v]
+              .filter((k, i, a) => a.indexOf(k) === i)
+              .map((k) => {
+                /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
+                const m = {
+                  text: k,
+                  subMenu: [
+                    {
+                      text: "🔊",
+                      action: () => speak(k),
+                    },
+                    {
+                      text: "Open",
+                      action: () => openItem(k),
+                    },
+                  ],
+                };
+                return m;
+              })
+          : []),
+        ...state.vocabDetails.segments.map((k) => {
+          /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
+          const m = {
+            text: k,
+            subMenu: [
+              {
+                text: "🔊",
+                action: () => speak(k),
+              },
+              {
+                text: "Open",
+                action: () => openItem(k),
+              },
+            ],
+          };
+          return m;
+        }),
+      ],
+      { attributes: { lang: "zh-CN" } }
+    );
 
     const dictPinyin = state.vocabDetails.cedict
       .map((v) => v.pinyin)
@@ -566,41 +570,45 @@ async function newVocab() {
     return;
   }
 
-  ctxmenu.update("#counter", [
-    ...state.vocabList
-      .slice(0, state.i)
-      .reverse()
-      .map((s) => {
-        /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
-        const m = {
-          text: s.v,
-          subMenu: [
-            {
-              text: "🔊",
-              action: () => speak(s.v),
-            },
-            {
-              text: "Open",
-              action: () => openItem(s.v),
-            },
-          ],
-        };
-        return m;
-      }),
-    {
-      text: "...",
-      action: async () => {
-        const v = prompt("Custom vocab:");
-        if (!v) return;
+  ctxmenu.update(
+    "#counter",
+    [
+      ...state.vocabList
+        .slice(0, state.i)
+        .reverse()
+        .map((s) => {
+          /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
+          const m = {
+            text: s.v,
+            subMenu: [
+              {
+                text: "🔊",
+                action: () => speak(s.v),
+              },
+              {
+                text: "Open",
+                action: () => openItem(s.v),
+              },
+            ],
+          };
+          return m;
+        }),
+      {
+        text: "...",
+        action: async () => {
+          const v = prompt("Custom vocab:");
+          if (!v) return;
 
-        if (!/^\p{sc=Han}+$/u.test(v)) {
-          alert(`Invalid vocab: ${v}`);
-        }
+          if (!/^\p{sc=Han}+$/u.test(v)) {
+            alert(`Invalid vocab: ${v}`);
+          }
 
-        openItem(v);
+          openItem(v);
+        },
       },
-    },
-  ]);
+    ],
+    { attributes: { lang: "zh-CN" } }
+  );
   ctxmenu.delete("#vocab");
 
   document.querySelectorAll("[data-checked]").forEach((el) => {

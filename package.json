@@ -6,7 +6,7 @@
   "scripts": {
     "start": "pnpm run py app.py",
     "dev": "pnpm run py app.py --debug",
-    "prepare": "pnpm run py preoare_assets.py",
+    "prepare": "pnpm run py prepare_assets.py",
     "build": "pnpm run py build.py %npm_package_version%",
     "py": "pipenv run python"
   },
