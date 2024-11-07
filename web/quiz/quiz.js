@@ -137,6 +137,24 @@ window.addEventListener("click", (ev) => {
   }
 });
 
+ctxmenu.attach("#counter .right", [
+  {
+    text: "Add vocab list",
+    action: () => api.new_window("./list.html?f=vocab/vocab.txt", "Add vocab"),
+    style: "text-align: left",
+  },
+  {
+    text: "Skip vocab list",
+    action: () => api.new_window("./list.html?f=skip/skip.txt", "Skip"),
+    style: "text-align: left",
+  },
+  {
+    text: "Update CC-CEDICT",
+    action: () => api.update_dict(),
+    style: "text-align: left",
+  },
+]);
+
 const converter = new showdown.Converter({
   parseImgDimensions: true,
   // openLinksInNewWindow: true,
@@ -571,7 +589,7 @@ async function newVocab() {
   }
 
   ctxmenu.update(
-    "#counter",
+    "#counter .center",
     [
       ...state.vocabList
         .slice(0, state.i)
