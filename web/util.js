@@ -21,7 +21,10 @@ export function speak(s) {
  * @returns
  */
 export function normalize_pinyin(s, isFuzzy) {
-  s = s.replace(/[vü]/g, "u:").replace(/ /g, "").toLocaleLowerCase();
+  s = s
+    .replace(/[vü]/g, "u:")
+    .replace(/[^a-z1-5:]/gi, "")
+    .toLocaleLowerCase();
   if (isFuzzy) {
     s = s.replace(/\d+/g, " ");
   }
