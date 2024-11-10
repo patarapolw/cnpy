@@ -1,10 +1,11 @@
 import sys
+import re
 from typing import Optional
 
 import webview
 
 from cnpy.db import db
-from cnpy.api import Api
+from cnpy.api import server, g, start
 
 
 if __name__ == "__main__":
@@ -14,13 +15,11 @@ if __name__ == "__main__":
         if arg == "--debug":
             is_debug = True
 
-    api = Api()
-
     win = webview.create_window(
         "Pinyin Quiz",
-        "web/loading.html",
-        js_api=api,
+        server,  # type: ignore
         text_select=True,
+        confirm_close=True,
     )
     log_win = None
 
@@ -30,23 +29,40 @@ if __name__ == "__main__":
         return webview.create_window(
             title,
             url,
-            js_api=api,
             text_select=True,
             **args,
         )
 
-    def web_log(s: str):
+    def web_log(s: str, *, height=500):
         global log_win
-        if not (win.get_current_url() or "").endswith("/loading.html") and not log_win:
-            log_win = web_window("web/loading.html", "Log")
+        if log_win:
+            try:
+                log_win.width
+            except TypeError:
+                log_win = None
+
+        current_url = win.get_current_url() or ""
+        if not current_url.endswith("/loading.html") and not log_win:
+            log_win = web_window(
+                re.sub(r"\w+\.html$", "loading.html", current_url),
+                "Log",
+                {"width": 600, "height": height},
+            )
 
         w = log_win or win
         w.evaluate_js("log('{}')".format(s.replace("'", "\\'").replace("\\", "\\\\")))
 
-    api.web_log = web_log
-    api.web_ready = lambda: win.load_url("web/dashboard.html")
-    api.web_window = web_window
+    def web_close_log():
+        global log_win
+        if log_win:
+            log_win.destroy()
+            log_win = None
 
-    webview.start(lambda: api.start(), debug=is_debug)
+    g.web_log = web_log
+    g.web_close_log = web_close_log
+    g.web_ready = lambda: win.load_url("/dashboard.html")
+    g.web_window = web_window
+
+    webview.start(lambda: start(), debug=is_debug)
 
     db.commit()

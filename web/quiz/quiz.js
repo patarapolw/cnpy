@@ -1,5 +1,8 @@
 //@ts-check
 
+import { api } from "../api.js";
+import { comp_pinyin, openItem, speak } from "../util.js";
+
 /** @type {State} */
 const state = {
   vocabList: [],
@@ -117,7 +120,7 @@ window.addEventListener("focus", async () => {
     isDialog = false;
 
     const { v } = state.vocabList[state.i];
-    state.vocabList[state.i] = await pywebview.api.get_vocab(v);
+    state.vocabList[state.i] = await api.get_vocab(v);
 
     softCleanup();
     doNext();
@@ -133,6 +136,24 @@ window.addEventListener("click", (ev) => {
     }
   }
 });
+
+ctxmenu.attach("#counter .right", [
+  {
+    text: "Add vocab list",
+    action: () => api.new_window("./list.html?f=vocab/vocab.txt", "Add vocab"),
+    style: "text-align: left",
+  },
+  {
+    text: "Skip vocab list",
+    action: () => api.new_window("./list.html?f=skip/skip.txt", "Skip"),
+    style: "text-align: left",
+  },
+  {
+    text: "Update CC-CEDICT",
+    action: () => api.update_dict(),
+    style: "text-align: left",
+  },
+]);
 
 const converter = new showdown.Converter({
   parseImgDimensions: true,
@@ -253,49 +274,54 @@ function doNext(ev) {
   } else {
     const currentItem = state.vocabList[state.i];
 
-    const ks = [...currentItem.v].filter((k, i, a) => a.indexOf(k) === i);
-    ctxmenu.update("#vocab", [
-      {
-        text: "🔊",
-        action: () => speak(currentItem.v),
-      },
-      ...(ks.length > 1
-        ? ks.map((k) => {
-            /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
-            const m = {
-              text: k,
-              subMenu: [
-                {
-                  text: "🔊",
-                  action: () => speak(k),
-                },
-                {
-                  text: "Open",
-                  action: () => openItem(k),
-                },
-              ],
-            };
-            return m;
-          })
-        : []),
-      ...state.vocabDetails.segments.map((k) => {
-        /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
-        const m = {
-          text: k,
-          subMenu: [
-            {
-              text: "🔊",
-              action: () => speak(k),
-            },
-            {
-              text: "Open",
-              action: () => openItem(k),
-            },
-          ],
-        };
-        return m;
-      }),
-    ]);
+    ctxmenu.update(
+      "#vocab",
+      [
+        {
+          text: "🔊",
+          action: () => speak(currentItem.v),
+        },
+        ...(currentItem.v.length > 1
+          ? [...currentItem.v]
+              .filter((k, i, a) => a.indexOf(k) === i)
+              .map((k) => {
+                /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
+                const m = {
+                  text: k,
+                  subMenu: [
+                    {
+                      text: "🔊",
+                      action: () => speak(k),
+                    },
+                    {
+                      text: "Open",
+                      action: () => openItem(k),
+                    },
+                  ],
+                };
+                return m;
+              })
+          : []),
+        ...state.vocabDetails.segments.map((k) => {
+          /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
+          const m = {
+            text: k,
+            subMenu: [
+              {
+                text: "🔊",
+                action: () => speak(k),
+              },
+              {
+                text: "Open",
+                action: () => openItem(k),
+              },
+            ],
+          };
+          return m;
+        }),
+      ],
+      { attributes: { lang: "zh-CN" } }
+    );
 
     const dictPinyin = state.vocabDetails.cedict
       .map((v) => v.pinyin)
@@ -341,7 +367,7 @@ function doNext(ev) {
       const a = elCompare;
       if (!a.href) return;
       isDialog = true;
-      pywebview.api.new_window(a.href, a.title || a.innerText, {
+      api.new_window(a.href, a.title || a.innerText, {
         width: 300,
         height: 300,
       });
@@ -469,8 +495,6 @@ function doNext(ev) {
         mustPinyin.every((v) => inputPinyin.some((p) => comp_pinyin(p, v)));
     }
 
-    pywebview.api.log(state.vocabDetails.cedict);
-
     if (!state.lastIsRight) {
       if (
         elInput.innerText
@@ -535,7 +559,7 @@ function mark(type) {
   state.lastIsRight = null;
 
   if (!state.isRepeat) {
-    pywebview.api.mark(currentItem.v, type);
+    api.mark(currentItem.v, type);
   }
 }
 
@@ -564,41 +588,45 @@ async function newVocab() {
     return;
   }
 
-  ctxmenu.update("#counter", [
-    ...state.vocabList
-      .slice(0, state.i)
-      .reverse()
-      .map((s) => {
-        /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
-        const m = {
-          text: s.v,
-          subMenu: [
-            {
-              text: "🔊",
-              action: () => speak(s.v),
-            },
-            {
-              text: "Open",
-              action: () => openItem(s.v),
-            },
-          ],
-        };
-        return m;
-      }),
-    {
-      text: "...",
-      action: async () => {
-        const v = prompt("Custom vocab to quiz:");
-        if (!v) return;
+  ctxmenu.update(
+    "#counter .center",
+    [
+      ...state.vocabList
+        .slice(0, state.i)
+        .reverse()
+        .map((s) => {
+          /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
+          const m = {
+            text: s.v,
+            subMenu: [
+              {
+                text: "🔊",
+                action: () => speak(s.v),
+              },
+              {
+                text: "Open",
+                action: () => openItem(s.v),
+              },
+            ],
+          };
+          return m;
+        }),
+      {
+        text: "...",
+        action: async () => {
+          const v = prompt("Custom vocab:");
+          if (!v) return;
 
-        if (!/^\p{sc=Han}+$/u.test(v)) {
-          alert(`Invalid vocab: ${v}`);
-        }
+          if (!/^\p{sc=Han}+$/u.test(v)) {
+            alert(`Invalid vocab: ${v}`);
+          }
 
-        openItem(v);
+          openItem(v);
+        },
       },
-    },
-  ]);
+    ],
+    { attributes: { lang: "zh-CN" } }
+  );
   ctxmenu.delete("#vocab");
 
   document.querySelectorAll("[data-checked]").forEach((el) => {
@@ -611,7 +639,7 @@ async function newVocab() {
   } = state.vocabList[state.i];
   // pywebview.api.log({ v, wordfreq });
 
-  state.vocabDetails = await pywebview.api.vocab_details(v);
+  state.vocabDetails = await api.vocab_details(v);
   elVocab.innerText = v;
   elVocab.onclick = null;
 
@@ -644,10 +672,7 @@ async function newVocabList() {
     state.vocabList = state.pendingList;
     state.isRepeat = true;
   } else if (state.due) {
-    const r = await pywebview.api.due_vocab_list(
-      state.max,
-      state.review_counter
-    );
+    const r = await api.due_vocab_list(state.review_counter);
     state.vocabList = r.result;
     state.due = r.count;
     state.new = r.new;
@@ -677,7 +702,7 @@ async function newVocabList() {
     // milliseconds
     state.lastQuizTime = new Date();
   } else {
-    const r = await pywebview.api.new_vocab_list(state.max);
+    const r = await api.new_vocab_list();
     state.vocabList = r.result;
   }
 
@@ -812,56 +837,6 @@ function makeNotes(skipSave) {
       notes: "",
     };
     item.data.notes = notesText;
-    pywebview.api.save_notes(item.v, notesText);
-  }
-}
-
-/**
- *
- * @param {string} s
- * @param {boolean} [isFuzzy]
- * @returns
- */
-function normalize_pinyin(s, isFuzzy) {
-  s = s.replace(/[vü]/g, "u:").replace(/ /g, "").toLocaleLowerCase();
-  if (isFuzzy) {
-    s = s.replace(/\d+/g, " ");
-  }
-  return s;
-}
-
-/**
- *
- * @param {string} a
- * @param {string} b
- * @param {boolean} [isFuzzy]
- * @returns
- */
-function comp_pinyin(a, b, isFuzzy) {
-  return normalize_pinyin(a, isFuzzy) === normalize_pinyin(b, isFuzzy);
-}
-
-const utterance = new SpeechSynthesisUtterance();
-utterance.lang = "zh-CN";
-
-/**
- *
- * @param {string} s
- */
-function speak(s) {
-  utterance.text = s;
-  speechSynthesis.speak(utterance);
-}
-
-/**
- *
- * @param {string} v
- */
-async function openItem(v) {
-  const r = await pywebview.api.set_vocab(v);
-  if (r) {
-    pywebview.api.new_window("./quiz.html", v);
-  } else {
-    alert(`Cannot open vocab: ${v}`);
+    api.save_notes(item.v, notesText);
   }
 }

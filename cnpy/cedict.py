@@ -48,7 +48,8 @@ def populate_db(web_log: Callable[[str], None] = print):
         filename = "cedict_ts.u8"
         cedict = assets_root / filename
 
-        if not cedict.exists():
+        # if not cedict.exists():
+        if True:
             zipPath = tmp_root / "cedict.zip"
 
             url = "https://www.mdbg.net/chinese/export/cedict/cedict_1_0_ts_utf-8_mdbg.zip"
@@ -151,14 +152,14 @@ def populate_db(web_log: Callable[[str], None] = print):
         web_log("Done")
 
 
-def reset_db():
+def reset_db(web_log: Callable[[str], None] = print):
     db.executescript(
         """
         DROP TABLE cedict;
         """
     )
 
-    load_db()
+    load_db(web_log)
 
 
 if __name__ == "__main__":

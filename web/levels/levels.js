@@ -1,10 +1,12 @@
 //@ts-check
 
+import { api } from "../api.js";
+
 const elTableBody = document.querySelector("tbody");
 const elRowTemplate = elTableBody.querySelector("template");
 
 window.addEventListener("pywebviewready", async () => {
-  const levels = await pywebview.api.get_levels();
+  const levels = await api.get_levels();
 
   elTableBody.append(
     ...Object.entries(levels)
@@ -35,7 +37,7 @@ window.addEventListener("pywebviewready", async () => {
       })
   );
 
-  const lvSet = new Set((await pywebview.api.get_settings()).levels);
+  const lvSet = new Set((await api.get_settings()).levels);
   /** @type {HTMLInputElement} */
   let elHighest;
 
@@ -49,7 +51,7 @@ window.addEventListener("pywebviewready", async () => {
     }
 
     el.addEventListener("change", () => {
-      pywebview.api.set_level(lv, el.checked);
+      api.set_level(lv, el.checked ? "add" : "remove");
     });
   });
 

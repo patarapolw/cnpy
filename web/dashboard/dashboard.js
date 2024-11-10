@@ -1,5 +1,8 @@
 //@ts-check
 
+import { api } from "../api.js";
+import { openItem, speak } from "../util.js";
+
 const elDueCount = /** @type {HTMLSpanElement} */ (
   document.getElementById("due-count")
 );
@@ -16,13 +19,20 @@ document.querySelectorAll('a[target="new_window"]').forEach((a) => {
   if (!(a instanceof HTMLAnchorElement)) return;
   a.onclick = (ev) => {
     ev.preventDefault();
-    pywebview.api.new_window(
+    api.new_window(
       a.href,
       a.innerText,
       a.href.includes("levels.html") ? { maximized: true } : null
     );
   };
 });
+
+ctxmenu.attach(".nav", [
+  {
+    text: "Update CC-CEDICT",
+    action: () => api.update_dict(),
+  },
+]);
 
 let reloadQueue = null;
 
@@ -36,10 +46,10 @@ window.addEventListener("pywebviewready", () => {
 });
 
 async function doLoading() {
-  await pywebview.api.update_custom_lists();
+  await api.update_custom_lists();
 
   await Promise.all([
-    pywebview.api.due_vocab_list().then((r) => {
+    api.due_vocab_list().then((r) => {
       elDueCount.textContent = "";
 
       if (r.count) {
@@ -55,7 +65,7 @@ async function doLoading() {
         elDueCount.append(document.createTextNode(")"));
       }
     }),
-    pywebview.api.get_stats().then((r) => {
+    api.get_stats().then((r) => {
       elHanziList.textContent = "";
 
       const hanziSet = new Set();
@@ -96,6 +106,7 @@ async function doLoading() {
               {
                 onShow: () => el.classList.add("hover"),
                 onHide: () => el.classList.remove("hover"),
+                attributes: { lang: "zh-CN" },
               }
             );
           }
@@ -112,29 +123,4 @@ async function doLoading() {
   ]);
 
   reloadQueue = null;
-}
-
-const utterance = new SpeechSynthesisUtterance();
-utterance.lang = "zh-CN";
-
-/**
- *
- * @param {string} s
- */
-function speak(s) {
-  utterance.text = s;
-  speechSynthesis.speak(utterance);
-}
-
-/**
- *
- * @param {string} v
- */
-async function openItem(v) {
-  const r = await pywebview.api.set_vocab(v);
-  if (r) {
-    pywebview.api.new_window("./quiz.html", v);
-  } else {
-    alert(`Cannot open vocab: ${v}`);
-  }
 }

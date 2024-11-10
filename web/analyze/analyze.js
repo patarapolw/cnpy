@@ -1,5 +1,7 @@
 //@ts-check
 
+import { api } from "../api.js";
+
 const elButtonSubmit = /** @type {HTMLButtonElement} */ (
   document.querySelector('button[type="submit"]')
 );
@@ -15,7 +17,7 @@ const elResult = /** @type {HTMLElement} */ (document.querySelector("#result"));
 elButtonSubmit.addEventListener("click", async (ev) => {
   ev.preventDefault();
 
-  const { result } = await pywebview.api.analyze(
+  const { result } = await api.analyze(
     elAnalyzer.querySelector("textarea").value
   );
 

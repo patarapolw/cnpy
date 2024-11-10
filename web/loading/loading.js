@@ -7,3 +7,5 @@ const elLogging = /** @type {HTMLPreElement} */ (
 function log(s) {
   elLogging.innerText += s + "\n";
 }
+
+Object.assign(window, { log });
