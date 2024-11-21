@@ -25,11 +25,11 @@ def emoti_audio(text: str, voice=""):
     See https://github.com/netease-youdao/EmotiVoice/pull/60#issuecomment-2476641137
 
     Args:
-        text (str): Text to speak
+        text (str): text to speak
         voice (str, optional): https://github.com/netease-youdao/EmotiVoice/wiki/%F0%9F%98%8A-voice-wiki-page
 
     Returns:
-        Path | None: None is unsuccessful
+        Path | None: None if unsuccessful
     """
     if not voice:
         voice = "6097"
@@ -70,6 +70,18 @@ def emoti_audio(text: str, voice=""):
 
 
 def gtts_audio(text: str):
+    """
+    This project is not affiliated with Google or Google Cloud. Breaking upstream changes can occur without notice. This project is leveraging the undocumented Google Translate speech functionality and is different from Google Cloud Text-to-Speech.
+
+    See https://gtts.readthedocs.io/
+
+    Args:
+        text (str): text to speak
+
+    Returns:
+        Path | None: None if unsuccessful
+    """
+
     voice = "gtts"
     outPath = ttsDir / f"[{voice}]{text}.mp3"
     if outPath.exists():
