@@ -3,13 +3,13 @@ from gtts import gTTS, gTTSError
 import requests
 import json
 
-from .dir import web_root
+from .dir import tmp_root
 
 is_emoti_available = True
 is_gtts_avaible = True
 
 
-ttsDir = web_root / "tts"
+ttsDir = tmp_root / "tts"
 ttsDir.mkdir(exist_ok=True)
 
 

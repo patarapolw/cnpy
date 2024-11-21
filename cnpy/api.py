@@ -106,7 +106,7 @@ with server:
         g.settings = json.loads(g.settings_path.read_text("utf-8"))
         p = tts_audio(s, g.settings.get("voice"))
         if p:
-            return bottle.redirect(f"/tts/{p.name}")
+            return bottle.static_file(p.name, root=p.parent)
 
     @bottle.get("/<filepath:path>")
     def serve_static(filepath):
