@@ -14,7 +14,7 @@ ttsDir.mkdir(exist_ok=True)
 
 
 def tts_audio(text: str, voice=""):
-    return gtts_audio(text) or emoti_audio(text, voice)
+    return emoti_audio(text, voice) or gtts_audio(text)
 
 
 def emoti_audio(text: str, voice=""):
@@ -32,7 +32,7 @@ def emoti_audio(text: str, voice=""):
         Path | None: None if unsuccessful
     """
     if not voice:
-        voice = "6097"
+        voice = "9017"
 
     outPath = ttsDir / f"[{voice}]{text}.mp3"
     if outPath.exists():
@@ -91,7 +91,7 @@ def gtts_audio(text: str):
     if not is_gtts_avaible:
         return
 
-    tts = gTTS(text, lang="zh")
+    tts = gTTS(text, lang="zh-CN")
     try:
         tts.save(str(outPath))
         print(f"gtts saved to {outPath}")

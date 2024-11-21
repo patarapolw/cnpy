@@ -25,6 +25,7 @@ export function speak(s) {
   };
 
   elAudio.src = `/api/tts/${s}.mp3`;
+  elAudio.currentTime = 0;
   elAudio.play();
 }
 
