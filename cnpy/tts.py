@@ -1,4 +1,4 @@
-from gtts import gTTS, gTTSError
+from gtts import gTTS
 
 import requests
 import json
@@ -6,7 +6,7 @@ import json
 from .dir import tmp_root
 
 is_emoti_available = True
-is_gtts_avaible = True
+is_gtts_available = True
 
 
 ttsDir = tmp_root / "tts"
@@ -43,28 +43,31 @@ def emoti_audio(text: str, voice=""):
     if not is_emoti_available:
         return
 
-    headers = {"Content-Type": "application/json"}
-    url = "http://localhost:8000/v1/audio/speech"
-    query = {
-        "model": "emoti-voice",
-        "input": text,  # 使用传入的文本参数
-        "voice": voice,
-        "response_format": "mp3",
-        "speed": 1,
-    }
-    response = requests.post(url=url, data=json.dumps(query), headers=headers)
+    try:
+        headers = {"Content-Type": "application/json"}
+        url = "http://localhost:8000/v1/audio/speech"
+        query = {
+            "model": "emoti-voice",
+            "input": text,  # 使用传入的文本参数
+            "voice": voice,
+            "response_format": "mp3",
+            "speed": 1,
+        }
+        response = requests.post(url=url, data=json.dumps(query), headers=headers)
 
-    # 检查请求是否成功
-    if response.status_code == 200:
-        # 保存文件
-        with open(outPath, "wb") as f:
-            f.write(response.content)
-        print(f"emoti-voice saved to {outPath}")
+        # 检查请求是否成功
+        if response.status_code == 200:
+            # 保存文件
+            with open(outPath, "wb") as f:
+                f.write(response.content)
+            print(f"emoti-voice saved to {outPath}")
 
-        return outPath
+            return outPath
 
-    print(f"Failed to get audio. Status code: {response.status_code}")
-    print(f"Response: {response.text}")
+        print(f"Failed to get audio. Status code: {response.status_code}")
+        print(f"Response: {response.text}")
+    except Exception as e:
+        print(e)
 
     is_emoti_available = False
 
@@ -87,15 +90,17 @@ def gtts_audio(text: str):
     if outPath.exists():
         return outPath
 
-    global is_gtts_avaible
-    if not is_gtts_avaible:
+    global is_gtts_available
+    if not is_gtts_available:
         return
 
-    tts = gTTS(text, lang="zh-CN")
     try:
+        tts = gTTS(text, lang="zh-CN")
         tts.save(str(outPath))
         print(f"gtts saved to {outPath}")
 
         return outPath
-    except gTTSError as e:
+    except Exception as e:
         print(e)
+
+    is_gtts_available = False
