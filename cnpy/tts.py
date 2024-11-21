@@ -1,12 +1,23 @@
+from gtts import gTTS, gTTSError
+
 import requests
 import json
 
 from .dir import web_root
 
-is_api_available = True
+is_emoti_available = True
+is_gtts_avaible = True
+
+
+ttsDir = web_root / "tts"
+ttsDir.mkdir(exist_ok=True)
 
 
 def tts_audio(text: str, voice=""):
+    return gtts_audio(text) or emoti_audio(text, voice)
+
+
+def emoti_audio(text: str, voice=""):
     """
     ```
     docker run -dp 127.0.0.1:8501:8501 -p 127.0.0.1:8000:8000 syq163/emoti-voice:latest
@@ -20,20 +31,17 @@ def tts_audio(text: str, voice=""):
     Returns:
         Path | None: None is unsuccessful
     """
-    global is_api_available
-
-    if not is_api_available:
-        return
-
     if not voice:
         voice = "6097"
-
-    ttsDir = web_root / "tts"
-    ttsDir.mkdir(exist_ok=True)
 
     outPath = ttsDir / f"[{voice}]{text}.mp3"
     if outPath.exists():
         return outPath
+
+    global is_emoti_available
+
+    if not is_emoti_available:
+        return
 
     headers = {"Content-Type": "application/json"}
     url = "http://localhost:8000/v1/audio/speech"
@@ -51,17 +59,31 @@ def tts_audio(text: str, voice=""):
         # 保存文件
         with open(outPath, "wb") as f:
             f.write(response.content)
-        print(f"Audio saved to {outPath}")
+        print(f"emoti-voice saved to {outPath}")
 
         return outPath
 
     print(f"Failed to get audio. Status code: {response.status_code}")
     print(f"Response: {response.text}")
 
-    is_api_available = False
+    is_emoti_available = False
 
 
-# 主程序调用部分
-if __name__ == "__main__":
-    text = "调试成功，调用TTS成功"
-    tts_audio(text)
+def gtts_audio(text: str):
+    voice = "gtts"
+    outPath = ttsDir / f"[{voice}]{text}.mp3"
+    if outPath.exists():
+        return outPath
+
+    global is_gtts_avaible
+    if not is_gtts_avaible:
+        return
+
+    tts = gTTS(text, lang="zh")
+    try:
+        tts.save(str(outPath))
+        print(f"gtts saved to {outPath}")
+
+        return outPath
+    except gTTSError as e:
+        print(e)

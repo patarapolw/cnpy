@@ -11,6 +11,7 @@ wordfreq = "*"
 jieba = "*"
 pyinstaller = "*"
 bottle = "*"
+gtts = "*"
 requests = "*"
 
 [dev-packages]
