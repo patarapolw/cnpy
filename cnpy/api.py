@@ -11,11 +11,13 @@ from typing import Callable, Any, TypedDict, Optional
 from cnpy import quiz, cedict, sentence
 from cnpy.db import db
 from cnpy.stats import make_stats
+from cnpy.tts import tts_audio
 from cnpy.dir import assets_root, user_root, web_root
 
 
 class UserSettings(TypedDict):
     levels: list[int]
+    voice: Optional[str]
 
 
 class ServerGlobal:
@@ -25,7 +27,7 @@ class ServerGlobal:
     web_window: Callable[[str, str, Optional[dict]], Any]
 
     settings_path = user_root / "settings.json"
-    settings = UserSettings(levels=[])
+    settings = UserSettings(levels=[], voice="")
 
     levels: dict[str, list[str]] = {}
     v_quiz: Any = None
@@ -98,6 +100,13 @@ with server:
     @bottle.get("/favicon.ico")
     def favicon():
         return None
+
+    @bottle.get("/api/tts/<s>.mp3")
+    def tts(s: str):
+        g.settings = json.loads(g.settings_path.read_text("utf-8"))
+        p = tts_audio(s, g.settings.get("voice"))
+        if p:
+            return bottle.static_file(p.name, root=p.parent)
 
     @bottle.get("/<filepath:path>")
     def serve_static(filepath):

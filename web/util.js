@@ -10,8 +10,23 @@ utterance.lang = "zh-CN";
  * @param {string} s
  */
 export function speak(s) {
-  utterance.text = s;
-  speechSynthesis.speak(utterance);
+  let elAudio = Array.from(document.querySelectorAll("audio")).find((el) =>
+    el.hasAttribute("data-tts")
+  );
+  if (!elAudio) {
+    elAudio = document.createElement("audio");
+    elAudio.setAttribute("data-tts", "true");
+    elAudio.style.display = "none";
+  }
+
+  elAudio.onerror = () => {
+    utterance.text = s;
+    speechSynthesis.speak(utterance);
+  };
+
+  elAudio.src = `/api/tts/${s}.mp3`;
+  elAudio.currentTime = 0;
+  elAudio.play();
 }
 
 /**
