@@ -67,7 +67,8 @@ def emoti_audio(text: str, voice=""):
         print(f"Failed to get audio. Status code: {response.status_code}")
         print(f"Response: {response.text}")
     except Exception as e:
-        print(e)
+        # print(e)
+        pass
 
     is_emoti_available = False
 
