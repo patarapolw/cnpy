@@ -155,6 +155,19 @@ export const api = {
   async update_dict() {
     return fetchAPI("/api/update_dict");
   },
+  /**
+   *
+   * @param {{ pinyin?: string, voc?: string }} obj
+   * @returns {Promise<{
+   *  result: {
+   *    v: string;
+   *    pinyin: string;
+   *  }[];
+   * }>}
+   */
+  async search(obj) {
+    return fetchAPI("/api/search", obj).then((r) => r.json());
+  },
 };
 
 /**

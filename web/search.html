@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Search</title>
+
+    <link rel="stylesheet" href="./search/search.css" />
+  </head>
+  <body>
+    <form>
+      <input
+        type="text"
+        name="type"
+        id="type"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+      />
+    </form>
+    <div style="overflow: auto">
+      <ol></ol>
+    </div>
+
+    <script src="./_lib/ctxmenu.min.js"></script>
+    <script type="module" src="./search/search.js"></script>
+  </body>
+</html>

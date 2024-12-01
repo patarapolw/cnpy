@@ -1,7 +1,13 @@
 //@ts-check
 
 import { api } from "../api.js";
-import { comp_pinyin, openItem, speak } from "../util.js";
+import {
+  comp_pinyin,
+  openItem,
+  searchPinyin,
+  searchVoc,
+  speak,
+} from "../util.js";
 
 /** @type {State} */
 const state = {
@@ -297,6 +303,10 @@ function doNext(ev) {
                       text: "Open",
                       action: () => openItem(k),
                     },
+                    {
+                      text: "Search",
+                      action: () => searchVoc(k),
+                    },
                   ],
                 };
                 return m;
@@ -315,10 +325,18 @@ function doNext(ev) {
                 text: "Open",
                 action: () => openItem(k),
               },
+              {
+                text: "Search",
+                action: () => searchVoc(k),
+              },
             ],
           };
           return m;
         }),
+        {
+          text: "Similar reading",
+          action: () => searchPinyin(currentItem.v, currentItem.data.pinyin),
+        },
       ],
       { attributes: { lang: "zh-CN" } }
     );

@@ -70,3 +70,34 @@ export async function openItem(v) {
     alert(`Invalid vocab: ${v}`);
   }
 }
+
+/**
+ *
+ * @param {string} v
+ * @param {string[]} ps
+ */
+export async function searchPinyin(v, ps) {
+  const u = new URL(location.href);
+  u.pathname = "/search.html";
+  u.searchParams.set(
+    "q",
+    "(" +
+      ps
+        .map((p) => p.toLocaleLowerCase().replace(/\d/g, "\\d"))
+        .filter((a, i, r) => r.indexOf(a) === i)
+        .join("|") +
+      ")"
+  );
+  api.new_window(u.pathname + u.search, "Similar pinyin to " + v);
+}
+
+/**
+ *
+ * @param {string} v
+ */
+export async function searchVoc(v) {
+  const u = new URL(location.href);
+  u.pathname = "/search.html";
+  u.searchParams.set("q", JSON.stringify({ voc: v }));
+  api.new_window(u.pathname + u.search, "Word containing " + v);
+}

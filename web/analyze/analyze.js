@@ -1,6 +1,7 @@
 //@ts-check
 
 import { api } from "../api.js";
+import { openItem, searchPinyin, speak } from "../util.js";
 
 const elButtonSubmit = /** @type {HTMLButtonElement} */ (
   document.querySelector('button[type="submit"]')
@@ -37,6 +38,32 @@ elButtonSubmit.addEventListener("click", async (ev) => {
     elPinyin.innerText = r.pinyin;
 
     li.append(r.v, elPinyin);
+
+    setTimeout(() => {
+      ctxmenu.update(
+        `[data-v="${r.v}"]`,
+        [
+          {
+            text: "🔊",
+            action: (ev) => {
+              ev.stopImmediatePropagation();
+              speak(r.v);
+            },
+          },
+          {
+            text: "Open",
+            action: () => openItem(r.v),
+          },
+          {
+            text: "Similar reading",
+            action: () => searchPinyin(r.v, r.pinyin.split("; ")),
+          },
+        ],
+        {
+          attributes: { lang: "zh-CN" },
+        }
+      );
+    });
 
     return li;
   };

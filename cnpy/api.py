@@ -116,6 +116,43 @@ with server:
     def get_settings():
         return g.settings
 
+    @bottle.post("/api/search")
+    def search():
+        obj: Any = bottle.request.json
+
+        rs = [
+            dict(r)
+            for r in db.execute(
+                f"""
+            SELECT
+                v,
+                (
+                    SELECT replace(replace(group_concat(DISTINCT pinyin), ',', '; '), 'u:', 'ü')
+                    FROM (
+                        SELECT pinyin
+                        FROM cedict
+                        WHERE simp = v
+                        ORDER BY pinyin DESC, lower(pinyin)
+                    )
+                ) pinyin
+            FROM quiz
+            WHERE v IN (
+                SELECT simp
+                FROM cedict
+                WHERE {'pinyin REGEXP :pinyin' if obj.get('pinyin') else 'TRUE'}
+                AND {"simp != :voc AND simp REGEXP '.*'||:voc||'.*' OR trad REGEXP '.*'||:voc||'.*'" if obj.get('voc') else 'TRUE'}
+            )
+            ORDER BY
+                json_extract(srs, '$.difficulty') DESC,
+                json_extract([data], '$.wordfreq') DESC
+            LIMIT 20
+            """,
+                obj,
+            )
+        ]
+
+        return {"result": rs}
+
     @bottle.post("/api/analyze")
     def analyze():
         json: Any = bottle.request.json

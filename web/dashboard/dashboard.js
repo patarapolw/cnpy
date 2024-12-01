@@ -1,7 +1,7 @@
 //@ts-check
 
 import { api } from "../api.js";
-import { openItem, speak } from "../util.js";
+import { openItem, searchVoc, speak } from "../util.js";
 
 const elDueCount = /** @type {HTMLSpanElement} */ (
   document.getElementById("due-count")
@@ -101,6 +101,10 @@ async function doLoading() {
                 {
                   text: "Open",
                   action: () => openItem(c),
+                },
+                {
+                  text: "Search",
+                  action: () => searchVoc(c),
                 },
               ],
               {
