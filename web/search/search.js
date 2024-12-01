@@ -1,7 +1,7 @@
 //@ts-check
 
 import { api } from "../api.js";
-import { openItem, searchPinyin, searchVoc, speak } from "../util.js";
+import { openItem, searchPinyin, speak } from "../util.js";
 
 const elForm = document.querySelector("form");
 const elInput = elForm.querySelector("input");
@@ -28,7 +28,7 @@ async function parseInput() {
   } catch (e) {}
 
   if (obj.pinyin) {
-    obj.pinyin = obj.pinyin.replace(/([^\d])( [^ ]|$)/gi, "$1\\d$2");
+    obj.pinyin = obj.pinyin.replace(/([a-z:])( [^ ]|$)/gi, "$1\\d$2");
 
     if (obj.voc) {
       obj.pinyin = `(^|.* )${obj.pinyin}( .*|$)`;
@@ -50,9 +50,14 @@ async function parseInput() {
    */
   const makeLI = (r) => {
     const li = document.createElement("li");
+    li.lang = "zh-CN";
     li.setAttribute("data-v", r.v);
 
     li.append(r.v);
+
+    if (!/\p{sc=Han}/u.test(r.v)) {
+      return li;
+    }
 
     setTimeout(() => {
       ctxmenu.update(

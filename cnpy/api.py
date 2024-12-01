@@ -145,11 +145,13 @@ with server:
             ORDER BY
                 json_extract(srs, '$.difficulty') DESC,
                 json_extract([data], '$.wordfreq') DESC
-            LIMIT 20
+            LIMIT 51
             """,
                 obj,
             )
         ]
+        if len(rs) > 50:
+            rs[-1]["v"] = "..."
 
         return {"result": rs}
 

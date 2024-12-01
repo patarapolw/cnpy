@@ -32,6 +32,7 @@ elButtonSubmit.addEventListener("click", async (ev) => {
    */
   const makeLI = (r) => {
     const li = document.createElement("li");
+    li.lang = "zh-CN";
 
     const elPinyin = document.createElement("span");
     elPinyin.className = "pinyin";
