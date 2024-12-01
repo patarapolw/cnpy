@@ -21,14 +21,18 @@ if (q) {
 
 async function parseInput() {
   const q = elInput.value;
-  let obj = { pinyin: q };
+  let obj = { voc: "", pinyin: q };
 
   try {
     obj = JSON.parse(q);
   } catch (e) {}
 
   if (obj.pinyin) {
-    obj.pinyin = obj.pinyin.replace(/( [^ ]|$)/gi, "\\d$1");
+    obj.pinyin = obj.pinyin.replace(/([^\d])( [^ ]|$)/gi, "$1\\d$2");
+
+    if (obj.voc) {
+      obj.pinyin = `(^|.* )${obj.pinyin}( .*|$)`;
+    }
   }
 
   ol.textContent = "";

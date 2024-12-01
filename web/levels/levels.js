@@ -1,6 +1,7 @@
 //@ts-check
 
 import { api } from "../api.js";
+import { openItem, speak } from "../util.js";
 
 const elTableBody = document.querySelector("tbody");
 const elRowTemplate = elTableBody.querySelector("template");
@@ -27,6 +28,30 @@ window.addEventListener("pywebviewready", async () => {
           const el = document.createElement("span");
           el.className = "voc";
           el.innerText = v;
+
+          el.setAttribute("data-v", v);
+          setTimeout(() => {
+            ctxmenu.update(
+              `[data-v="${v}"]`,
+              [
+                {
+                  text: "🔊",
+                  action: (ev) => {
+                    ev.stopImmediatePropagation();
+                    speak(v);
+                  },
+                },
+                {
+                  text: "Open",
+                  action: () => openItem(v),
+                },
+              ],
+              {
+                attributes: { lang: "zh-CN" },
+              }
+            );
+          });
+
           return el;
         };
 

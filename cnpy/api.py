@@ -140,7 +140,7 @@ with server:
                 SELECT simp
                 FROM cedict
                 WHERE {'pinyin REGEXP :pinyin' if obj.get('pinyin') else 'TRUE'}
-                AND {"simp != :voc AND simp REGEXP '.*'||:voc||'.*' OR trad REGEXP '.*'||:voc||'.*'" if obj.get('voc') else 'TRUE'}
+                AND {"simp != :voc AND (simp REGEXP '.*'||:voc||'.*' OR trad REGEXP '.*'||:voc||'.*')" if obj.get('voc') else 'TRUE'}
             )
             ORDER BY
                 json_extract(srs, '$.difficulty') DESC,
