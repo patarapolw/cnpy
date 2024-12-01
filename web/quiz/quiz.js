@@ -279,6 +279,9 @@ function doNext(ev) {
     newVocab();
   } else {
     const currentItem = state.vocabList[state.i];
+    const dictPinyin = state.vocabDetails.cedict
+      .map((v) => v.pinyin)
+      .filter((v, i, a) => a.indexOf(v) === i);
 
     ctxmenu.update(
       "#vocab",
@@ -334,16 +337,12 @@ function doNext(ev) {
           return m;
         }),
         {
-          text: "Similar reading",
-          action: () => searchPinyin(currentItem.v, currentItem.data.pinyin),
+          text: "Similar",
+          action: () => searchPinyin(currentItem.v, dictPinyin),
         },
       ],
       { attributes: { lang: "zh-CN" } }
     );
-
-    const dictPinyin = state.vocabDetails.cedict
-      .map((v) => v.pinyin)
-      .filter((v, i, a) => a.indexOf(v) === i);
 
     let { pinyin, mustPinyin, warnPinyin } = currentItem.data;
     pinyin = pinyin || dictPinyin;

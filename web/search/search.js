@@ -27,9 +27,17 @@ async function parseInput() {
     obj = JSON.parse(q);
   } catch (e) {}
 
+  if (obj.pinyin) {
+    obj.pinyin = obj.pinyin.replace(/( [^ ]|$)/gi, "\\d$1");
+  }
+
+  ol.textContent = "";
+
   const { result } = await api.search(obj);
 
-  ol.textContent = result.length ? "" : "No results";
+  if (!result.length) {
+    ol.textContent = "No results";
+  }
 
   /**
    *
@@ -58,7 +66,7 @@ async function parseInput() {
             action: () => openItem(r.v),
           },
           {
-            text: "Similar reading",
+            text: "Similar",
             action: () => searchPinyin(r.v, r.pinyin.split("; ")),
           },
         ],

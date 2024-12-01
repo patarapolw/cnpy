@@ -79,15 +79,12 @@ export async function openItem(v) {
 export async function searchPinyin(v, ps) {
   const u = new URL(location.href);
   u.pathname = "/search.html";
-  u.searchParams.set(
-    "q",
-    "(" +
-      ps
-        .map((p) => p.toLocaleLowerCase().replace(/\d/g, "\\d"))
-        .filter((a, i, r) => r.indexOf(a) === i)
-        .join("|") +
-      ")"
-  );
+
+  ps = ps
+    .map((p) => p.toLocaleLowerCase().replace(/\d/g, ""))
+    .filter((a, i, r) => r.indexOf(a) === i);
+  u.searchParams.set("q", ps.length > 1 ? `(${ps.join("|")})` : ps[0]);
+
   api.new_window(u.pathname + u.search, "Similar pinyin to " + v);
 }
 

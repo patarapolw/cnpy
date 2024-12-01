@@ -55,7 +55,7 @@ elButtonSubmit.addEventListener("click", async (ev) => {
             action: () => openItem(r.v),
           },
           {
-            text: "Similar reading",
+            text: "Similar",
             action: () => searchPinyin(r.v, r.pinyin.split("; ")),
           },
         ],
