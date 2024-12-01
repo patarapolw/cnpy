@@ -39,7 +39,8 @@ export function normalize_pinyin(s, isFuzzy) {
   s = s
     .replace(/[vü]/g, "u:")
     .replace(/[^a-z1-5:]/gi, "")
-    .toLocaleLowerCase();
+    .toLocaleLowerCase()
+    .replace(/(\d)er5/g, "$1r5");
   if (isFuzzy) {
     s = s.replace(/\d+/g, " ");
   }
