@@ -144,7 +144,7 @@ with server:
 
         rs = []
 
-        if rad or voc:
+        if (rad or voc) and not pinyin:
             for r in db.execute(
                 """
                 SELECT

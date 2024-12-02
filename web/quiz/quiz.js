@@ -5,6 +5,7 @@ import {
   comp_pinyin,
   openItem,
   searchPinyin,
+  searchRad,
   searchVoc,
   speak,
 } from "../util.js";
@@ -279,19 +280,27 @@ function doNext(ev) {
     newVocab();
   } else {
     const currentItem = state.vocabList[state.i];
-    const dictPinyin = state.vocabDetails.cedict
+
+    const { v } = currentItem;
+    const { segments, cedict } = state.vocabDetails;
+
+    const dictPinyin = cedict
       .map((v) => v.pinyin)
       .filter((v, i, a) => a.indexOf(v) === i);
 
-    ctxmenu.update(
-      "#vocab",
-      [
+    /**
+     *
+     * @param {Record<string, string[]>} rad
+     * @returns
+     */
+    const makeCTXDef = (rad = {}) => {
+      return [
         {
           text: "🔊",
-          action: () => speak(currentItem.v),
+          action: () => speak(v),
         },
-        ...(currentItem.v.length > 1
-          ? [...currentItem.v]
+        ...(v.length > 1
+          ? [...v]
               .filter((k, i, a) => a.indexOf(k) === i)
               .map((k) => {
                 /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
@@ -310,12 +319,32 @@ function doNext(ev) {
                       text: "Search",
                       action: () => searchVoc(k),
                     },
+                    ...(rad[k]
+                      ? [
+                          {
+                            text: "Radicals",
+                            subMenu: rad[k].map((r) => ({
+                              text: r,
+                              subMenu: [
+                                {
+                                  text: "Open",
+                                  action: () => openItem(r),
+                                },
+                                {
+                                  text: "Search",
+                                  action: () => searchRad(r),
+                                },
+                              ],
+                            })),
+                          },
+                        ]
+                      : []),
                   ],
                 };
                 return m;
               })
           : []),
-        ...state.vocabDetails.segments.map((k) => {
+        ...segments.map((k) => {
           /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
           const m = {
             text: k,
@@ -338,15 +367,24 @@ function doNext(ev) {
         }),
         {
           text: "Search",
-          action: () => searchVoc(currentItem.v),
+          action: () => searchVoc(v),
         },
         {
           text: "Similar",
-          action: () => searchPinyin(currentItem.v, dictPinyin),
+          action: () => searchPinyin(v, dictPinyin),
         },
-      ],
-      { attributes: { lang: "zh-CN" } }
-    );
+      ];
+    };
+
+    api.get_krad(v).then((r) => {
+      if (state.vocabList[state.i]?.v !== v) return;
+
+      ctxmenu.update("#vocab", makeCTXDef(r));
+    });
+
+    ctxmenu.update("#vocab", makeCTXDef(), {
+      attributes: { lang: "zh-CN" },
+    });
 
     let { pinyin, mustPinyin, warnPinyin } = currentItem.data;
     pinyin = pinyin || dictPinyin;
