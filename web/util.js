@@ -73,17 +73,25 @@ export async function openItem(v) {
 
 /**
  *
+ * @param {string[]} ps
+ * @returns
+ */
+function joinPinyinForRegex(ps) {
+  ps = ps
+    .map((p) => p.toLocaleLowerCase().replace(/\d/g, ""))
+    .filter((a, i, r) => r.indexOf(a) === i);
+  return ps.length > 1 ? `(${ps.join("|")})` : ps[0];
+}
+
+/**
+ *
  * @param {string} v
  * @param {string[]} ps
  */
 export async function searchPinyin(v, ps) {
   const u = new URL(location.href);
   u.pathname = "/search.html";
-
-  ps = ps
-    .map((p) => p.toLocaleLowerCase().replace(/\d/g, ""))
-    .filter((a, i, r) => r.indexOf(a) === i);
-  u.searchParams.set("q", ps.length > 1 ? `(${ps.join("|")})` : ps[0]);
+  u.searchParams.set("q", joinPinyinForRegex(ps));
 
   api.new_window(u.pathname + u.search, "Similar pinyin to " + v);
 }
@@ -102,10 +110,14 @@ export async function searchVoc(v) {
 /**
  *
  * @param {string} c
+ * @param {string[]} [ps]
  */
-export async function searchComponent(c) {
+export async function searchComponent(c, ps) {
   const u = new URL(location.href);
   u.pathname = "/search.html";
-  u.searchParams.set("q", JSON.stringify({ c }));
+  u.searchParams.set(
+    "q",
+    JSON.stringify({ c, p: ps ? joinPinyinForRegex(ps) : undefined })
+  );
   api.new_window(u.pathname + u.search, "Hanzi containing " + c);
 }

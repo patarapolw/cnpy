@@ -284,9 +284,34 @@ function doNext(ev) {
     const { v } = currentItem;
     const { segments, cedict } = state.vocabDetails;
 
+    /** @type {Map<string, Set<string>>} */
+    const hs = new Map();
+
     const dictPinyin = cedict
       .map((v) => v.pinyin)
       .filter((v, i, a) => a.indexOf(v) === i);
+
+    for (const v of cedict) {
+      if (!dictPinyin.includes(v.pinyin)) {
+        dictPinyin.push(v.pinyin);
+      }
+
+      const pinyin = v.pinyin.split(" ");
+
+      Array.from(v.simp).map((c, i) => {
+        const ps = hs.get(c) || new Set();
+        ps.add(pinyin[i]);
+        hs.set(c, ps);
+      });
+
+      if (!v.trad) continue;
+
+      Array.from(v.trad).map((c, i) => {
+        const ps = hs.get(c) || new Set();
+        ps.add(pinyin[i]);
+        hs.set(c, ps);
+      });
+    }
 
     /**
      *
@@ -299,55 +324,80 @@ function doNext(ev) {
           text: "🔊",
           action: () => speak(v),
         },
-        ...(v.length > 1
-          ? [...v]
-              .filter((k, i, a) => a.indexOf(k) === i)
-              .map((k) => {
-                /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
-                const m = {
-                  text: k,
-                  subMenu: [
+        ...(v.length > 1 || cedict.some((v) => v.trad)
+          ? Array.from(hs.entries()).map(([k, pset]) => {
+              const ps = Array.from(pset);
+
+              /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
+              const m = {
+                text: k,
+                subMenu: [
+                  {
+                    text: "🔊",
+                    action: () => speak(k),
+                  },
+                  {
+                    text: "Open",
+                    action: () => openItem(k),
+                  },
+                  {
+                    text: "Search",
+                    action: () => searchVoc(k),
+                  },
+                  {
+                    text: "Build",
+                    action: () => searchComponent(k, ps),
+                  },
+                  ...(rad[k]
+                    ? [
+                        {
+                          text: "Decompose",
+                          subMenu: rad[k].map((r) => ({
+                            text: r,
+                            subMenu: [
+                              {
+                                text: "Open",
+                                action: () => openItem(r),
+                              },
+                              {
+                                text: "Build",
+                                action: () => searchComponent(r, ps),
+                              },
+                            ],
+                          })),
+                        },
+                      ]
+                    : []),
+                ],
+              };
+              return m;
+            })
+          : [
+              {
+                text: "Build",
+                action: () => searchComponent(v, dictPinyin),
+              },
+              ...(rad[v]
+                ? [
                     {
-                      text: "🔊",
-                      action: () => speak(k),
-                    },
-                    {
-                      text: "Open",
-                      action: () => openItem(k),
-                    },
-                    {
-                      text: "Search",
-                      action: () => searchVoc(k),
-                    },
-                    {
-                      text: "Build",
-                      action: () => searchComponent(k),
-                    },
-                    ...(rad[k]
-                      ? [
+                      text: "Decompose",
+                      subMenu: rad[v].map((r) => ({
+                        text: r,
+                        subMenu: [
                           {
-                            text: "Decompose",
-                            subMenu: rad[k].map((r) => ({
-                              text: r,
-                              subMenu: [
-                                {
-                                  text: "Open",
-                                  action: () => openItem(r),
-                                },
-                                {
-                                  text: "Build",
-                                  action: () => searchComponent(r),
-                                },
-                              ],
-                            })),
+                            text: "Open",
+                            action: () => openItem(r),
                           },
-                        ]
-                      : []),
-                  ],
-                };
-                return m;
-              })
-          : []),
+                          {
+                            text: "Build",
+                            action: () => searchComponent(r, dictPinyin),
+                          },
+                        ],
+                      })),
+                    },
+                  ]
+                : []),
+            ]),
         ...segments.map((k) => {
           /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
           const m = {
@@ -380,7 +430,7 @@ function doNext(ev) {
       ];
     };
 
-    api.decompose([...v]).then((r) => {
+    api.decompose(Array.from(hs.keys())).then((r) => {
       if (state.vocabList[state.i]?.v !== v) return;
 
       ctxmenu.update("#vocab", makeCTXDef(r));

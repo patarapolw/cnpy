@@ -129,7 +129,7 @@ with server:
 
         rs = []
 
-        if (component or voc) and not pinyin:
+        if voc and not pinyin:
             for r in db.execute(
                 """
                 SELECT
@@ -147,7 +147,7 @@ with server:
                 WHERE v = ?
                 LIMIT 1
                 """,
-                (component or voc,),
+                (voc,),
             ):
                 rs.append(dict(r))
 
@@ -162,10 +162,12 @@ with server:
 
             if sup:
                 voc = f'[{"".join(set(sup))}]'
+            else:
+                return {"result": []}
         elif voc:
             voc = f".*{voc}.*"
 
-        obj["voc"] = voc
+        obj["v"] = voc
 
         for r in db.execute(
             f"""
@@ -184,16 +186,19 @@ with server:
             WHERE v IN (
                 SELECT simp
                 FROM cedict
-                WHERE {'pinyin REGEXP :pinyin' if pinyin else 'TRUE'}
-                AND {"(simp REGEXP :voc OR trad REGEXP :voc)" if voc else 'TRUE'}
+                WHERE {'pinyin REGEXP :p' if pinyin else 'TRUE'}
+                AND {"(simp REGEXP :v OR trad REGEXP :v)" if voc else 'TRUE'}
             )
             ORDER BY
                 json_extract(srs, '$.difficulty') DESC,
                 json_extract([data], '$.wordfreq') DESC
-            LIMIT 51
+            LIMIT 55
             """,
             obj,
         ):
+            if r["v"] == voc:
+                continue
+
             rs.append(dict(r))
 
         if len(rs) > 50:
@@ -440,11 +445,17 @@ with server:
     def set_vocab_for_quiz(v: str):
         g.v_quiz = None
 
-        for r in db.execute("SELECT * FROM quiz WHERE v = ?", (v,)):
+        for r in db.execute("SELECT * FROM quiz WHERE v = ? LIMIT 1", (v,)):
             g.v_quiz = quiz.load_db_entry(r)
-            break
+            return {"ok": r["v"]}
 
-        return {"ok": bool(g.v_quiz)}
+        for r in db.execute(
+            "SELECT * FROM quiz WHERE v IN (SELECT simp FROM cedict WHERE trad = ?) LIMIT 1",
+            (v,),
+        ):
+            return {"ok": r["v"]}
+
+        return {"ok": None}
 
     @bottle.post("/api/new_vocab_list")
     def new_vocab_list():
