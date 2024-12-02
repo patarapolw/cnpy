@@ -360,6 +360,10 @@ function doNext(ev) {
                                 action: () => openItem(r),
                               },
                               {
+                                text: "Search",
+                                action: () => searchVoc(r),
+                              },
+                              {
                                 text: "Build",
                                 action: () => searchComponent(r, ps),
                               },
@@ -387,6 +391,10 @@ function doNext(ev) {
                           {
                             text: "Open",
                             action: () => openItem(r),
+                          },
+                          {
+                            text: "Search",
+                            action: () => searchVoc(r),
                           },
                           {
                             text: "Build",

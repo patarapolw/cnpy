@@ -692,7 +692,8 @@ with server:
             "SELECT entry, sub FROM radical WHERE entry GLOB '['||?||']'",
             ("".join(ks),),
         ):
-            if r["sub"]:
-                result[r["entry"]] = list(r["sub"])
+            sub = Regex("[?]").sub("", r["sub"])
+            if sub:
+                result[r["entry"]] = list(sub)
 
         return result
