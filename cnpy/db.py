@@ -1,6 +1,6 @@
 import sqlite3
 
-from regex import Regex
+from regex import Regex, IGNORECASE
 
 from cnpy.dir import exe_root
 
@@ -14,7 +14,7 @@ db.row_factory = sqlite3.Row
 
 def re(y, x):
     if x:
-        return bool(Regex(y).fullmatch(x))
+        return bool(Regex(y, IGNORECASE).fullmatch(x))
     return False
 
 

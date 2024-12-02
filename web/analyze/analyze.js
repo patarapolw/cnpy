@@ -1,7 +1,7 @@
 //@ts-check
 
 import { api } from "../api.js";
-import { openItem, searchPinyin, speak } from "../util.js";
+import { openItem, searchPinyin, searchVoc, speak } from "../util.js";
 
 const elButtonSubmit = /** @type {HTMLButtonElement} */ (
   document.querySelector('button[type="submit"]')
@@ -54,6 +54,10 @@ elButtonSubmit.addEventListener("click", async (ev) => {
           {
             text: "Open",
             action: () => openItem(r.v),
+          },
+          {
+            text: "Search",
+            action: () => searchVoc(r.v),
           },
           {
             text: "Similar",

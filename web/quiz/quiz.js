@@ -337,6 +337,10 @@ function doNext(ev) {
           return m;
         }),
         {
+          text: "Search",
+          action: () => searchVoc(currentItem.v),
+        },
+        {
           text: "Similar",
           action: () => searchPinyin(currentItem.v, dictPinyin),
         },
@@ -623,6 +627,10 @@ async function newVocab() {
               {
                 text: "Open",
                 action: () => openItem(s.v),
+              },
+              {
+                text: "Search",
+                action: () => searchVoc(s.v),
               },
             ],
           };

@@ -1,7 +1,7 @@
 //@ts-check
 
 import { api } from "../api.js";
-import { openItem, speak } from "../util.js";
+import { openItem, searchVoc, speak } from "../util.js";
 
 const elTableBody = document.querySelector("tbody");
 const elRowTemplate = elTableBody.querySelector("template");
@@ -44,6 +44,10 @@ window.addEventListener("pywebviewready", async () => {
                 {
                   text: "Open",
                   action: () => openItem(v),
+                },
+                {
+                  text: "Search",
+                  action: () => searchVoc(v),
                 },
               ],
               {

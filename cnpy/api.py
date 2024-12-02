@@ -120,10 +120,38 @@ with server:
     def search():
         obj: Any = bottle.request.json
 
-        rs = [
-            dict(r)
+        voc = obj.get("voc")
+        pinyin = obj.get("pinyin")
+
+        if not voc and not pinyin:
+            return {"result": []}
+
+        rs = []
+
+        if voc:
             for r in db.execute(
-                f"""
+                """
+                SELECT
+                    v,
+                    (
+                        SELECT replace(replace(group_concat(DISTINCT pinyin), ',', '; '), 'u:', 'ü')
+                        FROM (
+                            SELECT pinyin
+                            FROM cedict
+                            WHERE simp = v
+                            ORDER BY pinyin DESC, lower(pinyin)
+                        )
+                    ) pinyin
+                FROM quiz
+                WHERE v = ?
+                LIMIT 1
+                """,
+                (voc,),
+            ):
+                rs.append(dict(r))
+
+        for r in db.execute(
+            f"""
             SELECT
                 v,
                 (
@@ -139,19 +167,21 @@ with server:
             WHERE v IN (
                 SELECT simp
                 FROM cedict
-                WHERE {'pinyin REGEXP :pinyin' if obj.get('pinyin') else 'TRUE'}
-                AND {"simp != :voc AND (simp REGEXP '.*'||:voc||'.*' OR trad REGEXP '.*'||:voc||'.*')" if obj.get('voc') else 'TRUE'}
+                WHERE {'pinyin REGEXP :pinyin' if pinyin else 'TRUE'}
+                AND {"simp != :voc AND (simp REGEXP '.*'||:voc||'.*' OR trad REGEXP '.*'||:voc||'.*')" if voc else 'TRUE'}
             )
             ORDER BY
                 json_extract(srs, '$.difficulty') DESC,
                 json_extract([data], '$.wordfreq') DESC
             LIMIT 51
             """,
-                obj,
-            )
-        ]
+            obj,
+        ):
+            rs.append(dict(r))
+
         if len(rs) > 50:
-            rs[-1]["v"] = "..."
+            rs = rs[:50]
+            rs.append({"v": "..."})
 
         return {"result": rs}
 

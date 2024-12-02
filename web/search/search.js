@@ -1,7 +1,7 @@
 //@ts-check
 
 import { api } from "../api.js";
-import { openItem, searchPinyin, speak } from "../util.js";
+import { openItem, searchPinyin, searchVoc, speak } from "../util.js";
 
 const elForm = document.querySelector("form");
 const elInput = elForm.querySelector("input");
@@ -21,11 +21,19 @@ if (q) {
 
 async function parseInput() {
   const q = elInput.value;
-  let obj = { voc: "", pinyin: q };
+  let obj = { voc: "", pinyin: "" };
 
   try {
     obj = JSON.parse(q);
   } catch (e) {}
+
+  if (!obj.voc && !obj.pinyin) {
+    if (/\p{sc=Han}/u.test(q)) {
+      obj.voc = q;
+    } else {
+      obj.pinyin = q;
+    }
+  }
 
   if (obj.pinyin) {
     obj.pinyin = obj.pinyin.replace(/([a-z:])( [^ ]|$)/gi, "$1\\d$2");
@@ -73,6 +81,10 @@ async function parseInput() {
           {
             text: "Open",
             action: () => openItem(r.v),
+          },
+          {
+            text: "Search",
+            action: () => searchVoc(r.v),
           },
           {
             text: "Similar",
