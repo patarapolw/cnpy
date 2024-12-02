@@ -1,7 +1,7 @@
 //@ts-check
 
 import { api } from "../api.js";
-import { openItem, searchVoc, speak } from "../util.js";
+import { openItem, searchRad, searchVoc, speak } from "../util.js";
 
 const elDueCount = /** @type {HTMLSpanElement} */ (
   document.getElementById("due-count")
@@ -123,6 +123,44 @@ async function doLoading() {
         `生词: ${r.good}` +
           (r.accuracy ? ` (${(r.accuracy * 100).toFixed(0)}%)` : ""),
       ].join(", ");
+
+      api.get_krad(Array.from(hanziSet).join("")).then((result) => {
+        Object.entries(result).map(([c, rs]) => {
+          ctxmenu.update(`[data-hanzi="${c}"]`, [
+            {
+              text: "🔊",
+              action: (ev) => {
+                ev.stopImmediatePropagation();
+                speak(c);
+              },
+            },
+            {
+              text: "Open",
+              action: () => openItem(c),
+            },
+            {
+              text: "Search",
+              action: () => searchVoc(c),
+            },
+            {
+              text: "Radicals",
+              subMenu: rs.map((r) => ({
+                text: r,
+                subMenu: [
+                  {
+                    text: "Open",
+                    action: () => openItem(r),
+                  },
+                  {
+                    text: "Search",
+                    action: () => searchRad(r),
+                  },
+                ],
+              })),
+            },
+          ]);
+        });
+      });
     }),
   ]);
 

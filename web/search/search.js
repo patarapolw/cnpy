@@ -21,7 +21,7 @@ if (q) {
 
 async function parseInput() {
   const q = elInput.value;
-  let obj = { voc: "", pinyin: "" };
+  let obj = { voc: "", rad: "", pinyin: "" };
 
   try {
     obj = JSON.parse(q);
@@ -38,7 +38,7 @@ async function parseInput() {
   if (obj.pinyin) {
     obj.pinyin = obj.pinyin.replace(/([a-z:])( [^ ]|$)/gi, "$1\\d$2");
 
-    if (obj.voc) {
+    if (obj.voc || obj.rad) {
       obj.pinyin = `(^|.* )${obj.pinyin}( .*|$)`;
     }
   }

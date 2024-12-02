@@ -10,7 +10,7 @@ import tarfile
 import bz2
 import json
 
-from cnpy.dir import tmp_root
+from cnpy.dir import tmp_root, assets_root
 
 db = sqlite3.connect("assets/assets.db")
 
@@ -26,7 +26,7 @@ def dump_wordfreq():
     )
 
     filename = "cedict_ts.u8"
-    cedict = tmp_root / filename
+    cedict = assets_root / filename
 
     if not cedict.exists():
         zipPath = tmp_root / "cedict.zip"
@@ -218,8 +218,8 @@ def dump_krad_radk():
     krad_zip = tmp_root / "kradfile.zip"
     radk_zip = tmp_root / "radkfile.zip"
 
-    krad_json = tmp_root / "kradfile.json"
-    radk_json = tmp_root / "radkfile.json"
+    krad_json = assets_root / "kradfile.json"
+    radk_json = assets_root / "radkfile.json"
 
     for asset in r["assets"]:
         name: str = asset["name"]
@@ -254,8 +254,8 @@ def dump_krad_radk():
 
 
 if __name__ == "__main__":
-    # dump_wordfreq()
-    # dump_tatoeba()
+    dump_wordfreq()
+    dump_tatoeba()
     dump_krad_radk()
 
     db.commit()

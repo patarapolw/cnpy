@@ -76,3 +76,7 @@ body {
 .button a {
   text-decoration: none;
 }
+
+ul.ctxmenu {
+  overflow: visible;
+}

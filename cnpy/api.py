@@ -6,7 +6,7 @@ import bottle
 import json
 import datetime
 import random
-from typing import Callable, Any, TypedDict, Optional
+from typing import Callable, TypedDict, Optional, Literal, Any
 
 from cnpy import quiz, cedict, sentence
 from cnpy.db import db
@@ -33,6 +33,9 @@ class ServerGlobal:
     v_quiz: Any = None
 
     latest_stats = make_stats()
+
+    krad: dict[str, list[str]]
+    radk: dict[str, dict[Literal["kanji"], list[str]]]
 
 
 def start():
@@ -75,6 +78,18 @@ def fn_save_settings():
             indent=2,
         )
     )
+
+
+def fn_load_krad():
+    if not getattr(g, "krad", None):
+        with (assets_root / "kradfile.json").open(encoding="utf-8") as f:
+            g.krad = json.load(f)["kanji"]
+
+
+def fn_load_radk():
+    if not getattr(g, "radk", None):
+        with (assets_root / "radkfile.json").open(encoding="utf-8") as f:
+            g.radk = json.load(f)["radicals"]
 
 
 srs = fsrs.FSRS()
@@ -120,15 +135,16 @@ with server:
     def search():
         obj: Any = bottle.request.json
 
-        voc = obj.get("voc")
-        pinyin = obj.get("pinyin")
+        rad: str = obj.get("rad")
+        voc: str = obj.get("voc")
+        pinyin: str = obj.get("pinyin")
 
-        if not voc and not pinyin:
+        if not (voc or rad) and not pinyin:
             return {"result": []}
 
         rs = []
 
-        if voc:
+        if rad or voc:
             for r in db.execute(
                 """
                 SELECT
@@ -146,9 +162,19 @@ with server:
                 WHERE v = ?
                 LIMIT 1
                 """,
-                (voc,),
+                (rad or voc,),
             ):
                 rs.append(dict(r))
+
+        if rad:
+            fn_load_radk()
+            r = g.radk.get(rad)
+            if r:
+                voc = f'[{"".join(r["kanji"])}]'
+        elif voc:
+            voc = f".*{voc}.*"
+
+        obj["voc"] = voc
 
         for r in db.execute(
             f"""
@@ -168,7 +194,7 @@ with server:
                 SELECT simp
                 FROM cedict
                 WHERE {'pinyin REGEXP :pinyin' if pinyin else 'TRUE'}
-                AND {"simp != :voc AND (simp REGEXP '.*'||:voc||'.*' OR trad REGEXP '.*'||:voc||'.*')" if voc else 'TRUE'}
+                AND {"(simp REGEXP :voc OR trad REGEXP :voc)" if voc else 'TRUE'}
             )
             ORDER BY
                 json_extract(srs, '$.difficulty') DESC,
@@ -652,3 +678,19 @@ with server:
         g.settings["levels"] = lv_list
 
         fn_save_settings()
+
+    @bottle.post("/api/krad")
+    def get_krad():
+        obj: Any = bottle.request.json
+        ks: list[str] = obj["ks"]
+
+        fn_load_krad()
+
+        result = {}
+
+        for k in ks:
+            rads = g.krad.get(k)
+            if rads:
+                result[k] = rads
+
+        return result
