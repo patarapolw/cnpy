@@ -90,22 +90,22 @@ export async function searchPinyin(v, ps) {
 
 /**
  *
- * @param {string} voc
+ * @param {string} v
  */
-export async function searchVoc(voc) {
+export async function searchVoc(v) {
   const u = new URL(location.href);
   u.pathname = "/search.html";
-  u.searchParams.set("q", JSON.stringify({ voc }));
-  api.new_window(u.pathname + u.search, "Word containing " + voc);
+  u.searchParams.set("q", JSON.stringify({ v }));
+  api.new_window(u.pathname + u.search, "Word containing " + v);
 }
 
 /**
  *
- * @param {string} rad
+ * @param {string} c
  */
-export async function searchRad(rad) {
+export async function searchComponent(c) {
   const u = new URL(location.href);
   u.pathname = "/search.html";
-  u.searchParams.set("q", JSON.stringify({ rad }));
-  api.new_window(u.pathname + u.search, "Hanzi containing " + rad);
+  u.searchParams.set("q", JSON.stringify({ c }));
+  api.new_window(u.pathname + u.search, "Hanzi containing " + c);
 }

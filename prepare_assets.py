@@ -1,7 +1,6 @@
 from wordfreq import zipf_frequency
 from regex import Regex
 import jieba
-import requests
 
 import sqlite3
 from urllib.request import urlretrieve
@@ -210,52 +209,8 @@ def _download_tatoeba_links():
             z.extract(filename, tmp_root)
 
 
-def dump_krad_radk():
-    r = requests.get(
-        "https://api.github.com/repos/scriptin/jmdict-simplified/releases/latest"
-    ).json()
-
-    krad_zip = tmp_root / "kradfile.zip"
-    radk_zip = tmp_root / "radkfile.zip"
-
-    krad_json = assets_root / "kradfile.json"
-    radk_json = assets_root / "radkfile.json"
-
-    for asset in r["assets"]:
-        name: str = asset["name"]
-        if not name.endswith(".zip"):
-            continue
-
-        download_url: str = asset["browser_download_url"]
-
-        if not krad_zip.exists() and name.startswith("kradfile"):
-            urlretrieve(download_url, krad_zip)
-            krad_json.unlink(True)
-
-        if not radk_zip.exists() and name.startswith("radkfile"):
-            urlretrieve(download_url, radk_zip)
-            radk_json.unlink(True)
-
-    if krad_zip.exists():
-        with ZipFile(krad_zip) as z:
-            for f in z.filelist:
-                if Regex(r"krad.+\.json").fullmatch(f.filename):
-                    z.extract(f, tmp_root)
-                    (tmp_root / f.filename).rename(krad_json)
-                    break
-
-    if radk_zip.exists():
-        with ZipFile(radk_zip) as z:
-            for f in z.filelist:
-                if Regex(r"radk.+\.json").fullmatch(f.filename):
-                    z.extract(f, tmp_root)
-                    (tmp_root / f.filename).rename(radk_json)
-                    break
-
-
 if __name__ == "__main__":
     dump_wordfreq()
     dump_tatoeba()
-    dump_krad_radk()
 
     db.commit()

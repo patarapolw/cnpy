@@ -1,7 +1,7 @@
 //@ts-check
 
 import { api } from "../api.js";
-import { openItem, searchRad, searchVoc, speak } from "../util.js";
+import { openItem, searchComponent, searchVoc, speak } from "../util.js";
 
 const elDueCount = /** @type {HTMLSpanElement} */ (
   document.getElementById("due-count")
@@ -124,7 +124,7 @@ async function doLoading() {
           (r.accuracy ? ` (${(r.accuracy * 100).toFixed(0)}%)` : ""),
       ].join(", ");
 
-      api.get_krad(Array.from(hanziSet).join("")).then((result) => {
+      api.decompose(Array.from(hanziSet)).then((result) => {
         Object.entries(result).map(([c, rs]) => {
           ctxmenu.update(`[data-hanzi="${c}"]`, [
             {
@@ -143,7 +143,11 @@ async function doLoading() {
               action: () => searchVoc(c),
             },
             {
-              text: "Radicals",
+              text: "Build",
+              action: () => searchComponent(c),
+            },
+            {
+              text: "Decompose",
               subMenu: rs.map((r) => ({
                 text: r,
                 subMenu: [
@@ -152,8 +156,8 @@ async function doLoading() {
                     action: () => openItem(r),
                   },
                   {
-                    text: "Search",
-                    action: () => searchRad(r),
+                    text: "Build",
+                    action: () => searchComponent(r),
                   },
                 ],
               })),

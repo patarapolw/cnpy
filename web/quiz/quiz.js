@@ -5,7 +5,7 @@ import {
   comp_pinyin,
   openItem,
   searchPinyin,
-  searchRad,
+  searchComponent,
   searchVoc,
   speak,
 } from "../util.js";
@@ -319,10 +319,14 @@ function doNext(ev) {
                       text: "Search",
                       action: () => searchVoc(k),
                     },
+                    {
+                      text: "Build",
+                      action: () => searchComponent(k),
+                    },
                     ...(rad[k]
                       ? [
                           {
-                            text: "Radicals",
+                            text: "Decompose",
                             subMenu: rad[k].map((r) => ({
                               text: r,
                               subMenu: [
@@ -331,8 +335,8 @@ function doNext(ev) {
                                   action: () => openItem(r),
                                 },
                                 {
-                                  text: "Search",
-                                  action: () => searchRad(r),
+                                  text: "Build",
+                                  action: () => searchComponent(r),
                                 },
                               ],
                             })),
@@ -376,7 +380,7 @@ function doNext(ev) {
       ];
     };
 
-    api.get_krad(v).then((r) => {
+    api.decompose([...v]).then((r) => {
       if (state.vocabList[state.i]?.v !== v) return;
 
       ctxmenu.update("#vocab", makeCTXDef(r));

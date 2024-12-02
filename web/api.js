@@ -10,7 +10,7 @@ export const api = {
   },
   /**
    *
-   * @param {{ pinyin?: string, voc?: string }} obj
+   * @param {{ c?: string, v?: string, p?: string }} obj
    * @returns {Promise<{
    *  result: {
    *    v: string;
@@ -170,11 +170,11 @@ export const api = {
   },
   /**
    *
-   * @param {string} ks
+   * @param {string[]} ks
    * @returns {Promise<Record<string, string[]>>}
    */
-  async get_krad(ks) {
-    return fetchAPI(`/api/krad`, { ks }).then((r) => r.json());
+  async decompose(ks) {
+    return fetchAPI(`/api/decompose`, { ks }).then((r) => r.json());
   },
 };
 

@@ -2,13 +2,10 @@ import sqlite3
 
 from regex import Regex, IGNORECASE
 
-from cnpy.dir import exe_root
+from cnpy.dir import user_root, assets_root
 
 
-db_path = exe_root / "user/main.db"
-db_path.parent.mkdir(exist_ok=True)
-
-db = sqlite3.connect(db_path, check_same_thread=False)
+db = sqlite3.connect(user_root / "main.db", check_same_thread=False)
 db.row_factory = sqlite3.Row
 
 
@@ -20,5 +17,8 @@ def re(y, x):
 
 db.create_function("REGEXP", 2, re)
 
-assets_db = sqlite3.connect(exe_root / "assets/assets.db", check_same_thread=False)
+assets_db = sqlite3.connect(assets_root / "assets.db", check_same_thread=False)
 assets_db.row_factory = sqlite3.Row
+
+radical_db = sqlite3.connect(assets_root / "radical.db", check_same_thread=False)
+radical_db.row_factory = sqlite3.Row

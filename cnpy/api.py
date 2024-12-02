@@ -9,7 +9,7 @@ import random
 from typing import Callable, TypedDict, Optional, Literal, Any
 
 from cnpy import quiz, cedict, sentence
-from cnpy.db import db
+from cnpy.db import db, radical_db
 from cnpy.stats import make_stats
 from cnpy.tts import tts_audio
 from cnpy.dir import assets_root, user_root, web_root
@@ -33,9 +33,6 @@ class ServerGlobal:
     v_quiz: Any = None
 
     latest_stats = make_stats()
-
-    krad: dict[str, list[str]]
-    radk: dict[str, dict[Literal["kanji"], list[str]]]
 
 
 def start():
@@ -78,18 +75,6 @@ def fn_save_settings():
             indent=2,
         )
     )
-
-
-def fn_load_krad():
-    if not getattr(g, "krad", None):
-        with (assets_root / "kradfile.json").open(encoding="utf-8") as f:
-            g.krad = json.load(f)["kanji"]
-
-
-def fn_load_radk():
-    if not getattr(g, "radk", None):
-        with (assets_root / "radkfile.json").open(encoding="utf-8") as f:
-            g.radk = json.load(f)["radicals"]
 
 
 srs = fsrs.FSRS()
@@ -135,16 +120,16 @@ with server:
     def search():
         obj: Any = bottle.request.json
 
-        rad: str = obj.get("rad")
-        voc: str = obj.get("voc")
-        pinyin: str = obj.get("pinyin")
+        component: str = obj.get("c")
+        voc: str = obj.get("v")
+        pinyin: str = obj.get("p")
 
-        if not (voc or rad) and not pinyin:
+        if not (voc or component) and not pinyin:
             return {"result": []}
 
         rs = []
 
-        if (rad or voc) and not pinyin:
+        if (component or voc) and not pinyin:
             for r in db.execute(
                 """
                 SELECT
@@ -162,15 +147,21 @@ with server:
                 WHERE v = ?
                 LIMIT 1
                 """,
-                (rad or voc,),
+                (component or voc,),
             ):
                 rs.append(dict(r))
 
-        if rad:
-            fn_load_radk()
-            r = g.radk.get(rad)
-            if r:
-                voc = f'[{"".join(r["kanji"])}]'
+        if component:
+            sup = ""
+
+            for r in radical_db.execute(
+                "SELECT sup FROM radical WHERE entry = :rad", {"rad": component}
+            ):
+                if r["sup"]:
+                    sup += r["sup"]
+
+            if sup:
+                voc = f'[{"".join(set(sup))}]'
         elif voc:
             voc = f".*{voc}.*"
 
@@ -679,18 +670,18 @@ with server:
 
         fn_save_settings()
 
-    @bottle.post("/api/krad")
-    def get_krad():
+    @bottle.post("/api/decompose")
+    def decompose():
         obj: Any = bottle.request.json
         ks: list[str] = obj["ks"]
 
-        fn_load_krad()
-
         result = {}
 
-        for k in ks:
-            rads = g.krad.get(k)
-            if rads:
-                result[k] = rads
+        for r in radical_db.execute(
+            "SELECT entry, sub FROM radical WHERE entry GLOB '['||?||']'",
+            ("".join(ks),),
+        ):
+            if r["sub"]:
+                result[r["entry"]] = list(r["sub"])
 
         return result

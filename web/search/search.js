@@ -21,25 +21,25 @@ if (q) {
 
 async function parseInput() {
   const q = elInput.value;
-  let obj = { voc: "", rad: "", pinyin: "" };
+  let obj = { v: "", c: "", p: "" };
 
   try {
     obj = JSON.parse(q);
   } catch (e) {}
 
-  if (!obj.voc && !obj.pinyin) {
+  if (!obj.v && !obj.p) {
     if (/\p{sc=Han}/u.test(q)) {
-      obj.voc = q;
+      obj.v = q;
     } else {
-      obj.pinyin = q;
+      obj.p = q;
     }
   }
 
-  if (obj.pinyin) {
-    obj.pinyin = obj.pinyin.replace(/([a-z:])( [^ ]|$)/gi, "$1\\d$2");
+  if (obj.p) {
+    obj.p = obj.p.replace(/([a-z:])( [^ ]|$)/gi, "$1\\d$2");
 
-    if (obj.voc || obj.rad) {
-      obj.pinyin = `(^|.* )${obj.pinyin}( .*|$)`;
+    if (obj.v || obj.c) {
+      obj.p = `(^|.* )${obj.p}( .*|$)`;
     }
   }
 
