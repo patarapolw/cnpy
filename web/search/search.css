@@ -28,6 +28,10 @@ input {
   cursor: default;
 }
 
+.pinyin:not(:hover) {
+  opacity: 0.2;
+}
+
 .pinyin::before {
   content: "\09";
 }

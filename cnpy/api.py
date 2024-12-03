@@ -128,11 +128,12 @@ with server:
             return {"result": []}
 
         rs = []
+        vs = set()
 
-        if voc and not pinyin:
+        if (voc or component) and not pinyin:
             for r in db.execute(
                 """
-                SELECT
+                SELECT DISTINCT
                     v,
                     (
                         SELECT replace(replace(group_concat(DISTINCT pinyin), ',', '; '), 'u:', 'ü')
@@ -144,15 +145,15 @@ with server:
                         )
                     ) pinyin
                 FROM quiz
-                WHERE v = ?
-                LIMIT 1
+                WHERE v IN (SELECT simp FROM cedict WHERE simp IN (:v,:c) OR trad IN (:v,:c))
                 """,
-                (voc,),
+                {"c": component, "v": voc},
             ):
+                vs.add(r["v"])
                 rs.append(dict(r))
 
         if component:
-            sup = ""
+            sup = component
 
             for r in radical_db.execute(
                 "SELECT sup FROM radical WHERE entry = :rad", {"rad": component}
@@ -160,10 +161,7 @@ with server:
                 if r["sup"]:
                     sup += r["sup"]
 
-            if sup:
-                voc = f'[{"".join(set(sup))}]'
-            else:
-                return {"result": []}
+            voc = f'[{"".join(set(sup))}]'
         elif voc:
             voc = f".*{voc}.*"
 
@@ -171,7 +169,7 @@ with server:
 
         for r in db.execute(
             f"""
-            SELECT
+            SELECT DISTINCT
                 v,
                 (
                     SELECT replace(replace(group_concat(DISTINCT pinyin), ',', '; '), 'u:', 'ü')
@@ -196,7 +194,7 @@ with server:
             """,
             obj,
         ):
-            if r["v"] == voc:
+            if r["v"] in vs:
                 continue
 
             rs.append(dict(r))
@@ -692,7 +690,7 @@ with server:
             "SELECT entry, sub FROM radical WHERE entry GLOB '['||?||']'",
             ("".join(ks),),
         ):
-            sub = Regex("[?]").sub("", r["sub"])
+            sub = Regex(r"[^\p{L}]").sub("", r["sub"])
             if sub:
                 result[r["entry"]] = list(sub)
 

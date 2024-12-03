@@ -78,7 +78,7 @@ export async function openItem(v) {
  */
 function joinPinyinForRegex(ps) {
   ps = ps
-    .map((p) => p.toLocaleLowerCase().replace(/\d/g, ""))
+    .map((p) => p.toLocaleLowerCase().replace(/\d/g, "[1-5]"))
     .filter((a, i, r) => r.indexOf(a) === i);
   return ps.length > 1 ? `(${ps.join("|")})` : ps[0];
 }

@@ -36,8 +36,6 @@ async function parseInput() {
   }
 
   if (obj.p) {
-    obj.p = obj.p.replace(/([a-z:])( [^ ]|$)/gi, "$1\\d$2");
-
     if (obj.v || obj.c) {
       obj.p = `(^|.* )${obj.p}( .*|$)`;
     }
@@ -61,7 +59,11 @@ async function parseInput() {
     li.lang = "zh-CN";
     li.setAttribute("data-v", r.v);
 
-    li.append(r.v);
+    const elPinyin = document.createElement("span");
+    elPinyin.className = "pinyin";
+    elPinyin.innerText = r.pinyin || "";
+
+    li.append(r.v, elPinyin);
 
     if (!/\p{sc=Han}/u.test(r.v)) {
       return li;
