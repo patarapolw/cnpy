@@ -372,6 +372,10 @@ function doNext(ev) {
                         },
                       ]
                     : []),
+                  {
+                    text: "Similar",
+                    action: () => searchPinyin(k, ps),
+                  },
                 ],
               };
               return m;
