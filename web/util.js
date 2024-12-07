@@ -99,11 +99,15 @@ export async function searchPinyin(v, ps) {
 /**
  *
  * @param {string} v
+ * @param {string[]} [ps]
  */
-export async function searchVoc(v) {
+export async function searchVoc(v, ps) {
   const u = new URL(location.href);
   u.pathname = "/search.html";
-  u.searchParams.set("q", JSON.stringify({ v }));
+  u.searchParams.set(
+    "q",
+    JSON.stringify({ v, p: ps ? joinPinyinForRegex(ps) : undefined })
+  );
   api.new_window(u.pathname + u.search, "Word containing " + v);
 }
 

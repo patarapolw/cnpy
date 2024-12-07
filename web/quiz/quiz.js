@@ -342,7 +342,7 @@ function doNext(ev) {
                   },
                   {
                     text: "Search",
-                    action: () => searchVoc(k),
+                    action: () => searchVoc(k, ps),
                   },
                   {
                     text: "Build",
@@ -361,7 +361,7 @@ function doNext(ev) {
                               },
                               {
                                 text: "Search",
-                                action: () => searchVoc(r),
+                                action: () => searchVoc(r, ps),
                               },
                               {
                                 text: "Build",
@@ -398,7 +398,7 @@ function doNext(ev) {
                           },
                           {
                             text: "Search",
-                            action: () => searchVoc(r),
+                            action: () => searchVoc(r, dictPinyin),
                           },
                           {
                             text: "Build",
