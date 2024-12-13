@@ -28,9 +28,9 @@ The quiz can be right-click to check for similar Hanzi and vocabularies.
 
 ![Right click](_README/contextmenu.png)
 
-<img title="Hanzi containing" src="_README/sup.png" width=500 />
+<img title="Hanzi containing" src="_README/sup.png" width=600 />
 
-<img title="Word containing" src="_README/in.png" width=500 />
+<img title="Word containing" src="_README/in.png" width=600 />
 
 ## Vocab lists
 
