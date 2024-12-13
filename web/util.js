@@ -39,7 +39,8 @@ export function normalize_pinyin(s, isFuzzy) {
   s = s
     .replace(/[vü]/g, "u:")
     .replace(/[^a-z1-5:]/gi, "")
-    .toLocaleLowerCase();
+    .toLocaleLowerCase()
+    .replace(/(\d)er5/g, "$1r5");
   if (isFuzzy) {
     s = s.replace(/\d+/g, " ");
   }
@@ -68,4 +69,59 @@ export async function openItem(v) {
   } else {
     alert(`Invalid vocab: ${v}`);
   }
+}
+
+/**
+ *
+ * @param {string[]} ps
+ * @returns
+ */
+function joinPinyinForRegex(ps) {
+  ps = ps
+    .map((p) => p.toLocaleLowerCase().replace(/\d/g, "[1-5]"))
+    .filter((a, i, r) => r.indexOf(a) === i);
+  return ps.length > 1 ? `(${ps.join("|")})` : ps[0];
+}
+
+/**
+ *
+ * @param {string} v
+ * @param {string[]} ps
+ */
+export async function searchPinyin(v, ps) {
+  const u = new URL(location.href);
+  u.pathname = "/search.html";
+  u.searchParams.set("q", joinPinyinForRegex(ps));
+
+  api.new_window(u.pathname + u.search, "Similar pinyin to " + v);
+}
+
+/**
+ *
+ * @param {string} v
+ * @param {string[]} [ps]
+ */
+export async function searchVoc(v, ps) {
+  const u = new URL(location.href);
+  u.pathname = "/search.html";
+  u.searchParams.set(
+    "q",
+    JSON.stringify({ v, p: ps ? joinPinyinForRegex(ps) : undefined })
+  );
+  api.new_window(u.pathname + u.search, "Word containing " + v);
+}
+
+/**
+ *
+ * @param {string} c
+ * @param {string[]} [ps]
+ */
+export async function searchComponent(c, ps) {
+  const u = new URL(location.href);
+  u.pathname = "/search.html";
+  u.searchParams.set(
+    "q",
+    JSON.stringify({ c, p: ps ? joinPinyinForRegex(ps) : undefined })
+  );
+  api.new_window(u.pathname + u.search, "Hanzi containing " + c);
 }

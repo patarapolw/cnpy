@@ -9,7 +9,7 @@ import tarfile
 import bz2
 import json
 
-from cnpy.dir import tmp_root
+from cnpy.dir import tmp_root, assets_root
 
 db = sqlite3.connect("assets/assets.db")
 
@@ -25,7 +25,7 @@ def dump_wordfreq():
     )
 
     filename = "cedict_ts.u8"
-    cedict = tmp_root / filename
+    cedict = assets_root / filename
 
     if not cedict.exists():
         zipPath = tmp_root / "cedict.zip"

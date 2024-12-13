@@ -14,8 +14,6 @@ No typo checking. However, there is a middle-way button, "Not Sure".
 
 ![Due Quiz](_README/due.png)
 
-![Dictionaries](_README/image.png)
-
 ![Dictionaries](_README/right.png)
 
 ![Select reading](_README/select.png)
@@ -25,6 +23,12 @@ No typo checking. However, there is a middle-way button, "Not Sure".
 Note taking is powered bidirectionally by markdown ([showdown.js](https://showdownjs.com/)). The content may be copy+pasted from websites in Dictionary links.
 
 ![Notes](_README/notes.png)
+
+The quiz can be right-click to check for similar Hanzi and vocabularies.
+
+![Right click](_README/contextmenu.png)
+
+![Hanzi containing](_README/sup.png)
 
 ## Vocab lists
 

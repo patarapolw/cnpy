@@ -10,27 +10,45 @@ export const api = {
   },
   /**
    *
-   * @param {string} v
-   * @param {string} t
+   * @param {{ c?: string, v?: string, p?: string }} obj
+   * @returns {Promise<{
+   *  result: {
+   *    v: string;
+   *    pinyin: string;
+   *  }[];
+   * }>}
    */
-  async mark(v, t) {
-    return fetchAPI(`/api/mark/${v}/${t}`);
+  async search(obj) {
+    return fetchAPI("/api/search", obj).then((r) => r.json());
   },
   /**
    *
-   * @param {string} v
-   * @param {string} notes
+   * @param {string} txt
+   * @returns {Promise<{
+   *  result: {
+   *    v: string;
+   *    pinyin: string;
+   *  }[];
+   * }>}
    */
-  async save_notes(v, notes) {
-    return fetchAPI(`/api/save_notes/${v}`, { notes });
+  async analyze(txt) {
+    return fetchAPI("/api/analyze", { txt }).then((r) => r.json());
+  },
+  async update_custom_lists() {
+    return fetchAPI("/api/update_custom_lists");
   },
   /**
    *
-   * @param {string} v
-   * @returns {Promise<IQuizEntry>}
+   * @returns {Promise<{
+   *  lone: string;
+   *  h3: string;
+   *  h5: string;
+   *  good: number;
+   *  accuracy: number;
+   * }>}
    */
-  async get_vocab(v) {
-    return fetchAPI(`/api/get_vocab/${v}`).then((r) => r.json());
+  async get_stats() {
+    return fetchAPI("/api/get_stats").then((r) => r.json());
   },
   /**
    *
@@ -40,18 +58,6 @@ export const api = {
    */
   async set_pinyin(v, pinyin, t = "pinyin") {
     return fetchAPI(`/api/set_pinyin/${v}/${t}`, { pinyin });
-  },
-  /**
-   *
-   * @param {string} v
-   * @returns {Promise<{
-   *  cedict: ICedict[];
-   *  sentences: ISentence[];
-   *  segments: string[];
-   * }>}
-   */
-  async vocab_details(v) {
-    return fetchAPI(`/api/vocab_details/${v}`).then((r) => r.json());
   },
   /**
    *
@@ -71,7 +77,15 @@ export const api = {
   /**
    *
    * @param {string} v
-   * @returns {Promise<{ ok: boolean }>}
+   * @returns {Promise<IQuizEntry>}
+   */
+  async get_vocab(v) {
+    return fetchAPI(`/api/get_vocab/${v}`).then((r) => r.json());
+  },
+  /**
+   *
+   * @param {string} v
+   * @returns {Promise<{ ok: string | null }>}
    */
   async set_vocab_for_quiz(v) {
     return fetchAPI(`/api/set_vocab_for_quiz/${v}`).then((r) => r.json());
@@ -85,16 +99,34 @@ export const api = {
   },
   /**
    *
+   * @param {string} v
    * @returns {Promise<{
-   *  lone: string;
-   *  h3: string;
-   *  h5: string;
-   *  good: number;
-   *  accuracy: number;
+   *  cedict: ICedict[];
+   *  sentences: ISentence[];
+   *  segments: string[];
    * }>}
    */
-  async get_stats() {
-    return fetchAPI("/api/get_stats").then((r) => r.json());
+  async vocab_details(v) {
+    return fetchAPI(`/api/vocab_details/${v}`).then((r) => r.json());
+  },
+  async update_dict() {
+    return fetchAPI("/api/update_dict");
+  },
+  /**
+   *
+   * @param {string} v
+   * @param {string} t
+   */
+  async mark(v, t) {
+    return fetchAPI(`/api/mark/${v}/${t}`);
+  },
+  /**
+   *
+   * @param {string} v
+   * @param {string} notes
+   */
+  async save_notes(v, notes) {
+    return fetchAPI(`/api/save_notes/${v}`, { notes });
   },
   /**
    *
@@ -121,9 +153,6 @@ export const api = {
   async save_file(f, txt) {
     return fetchAPI(`/api/save_file/${f}`, { txt });
   },
-  async update_custom_lists() {
-    return fetchAPI("/api/update_custom_lists");
-  },
   /**
    *
    * @returns {Promise<Record<string, string[]>>}
@@ -141,19 +170,11 @@ export const api = {
   },
   /**
    *
-   * @param {string} txt
-   * @returns {Promise<{
-   *  result: {
-   *    v: string;
-   *    pinyin: string;
-   *  }[];
-   * }>}
+   * @param {string[]} ks
+   * @returns {Promise<Record<string, string[]>>}
    */
-  async analyze(txt) {
-    return fetchAPI("/api/analyze", { txt }).then((r) => r.json());
-  },
-  async update_dict() {
-    return fetchAPI("/api/update_dict");
+  async decompose(ks) {
+    return fetchAPI(`/api/decompose`, { ks }).then((r) => r.json());
   },
 };
 

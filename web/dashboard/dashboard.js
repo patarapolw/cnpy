@@ -1,7 +1,7 @@
 //@ts-check
 
 import { api } from "../api.js";
-import { openItem, speak } from "../util.js";
+import { openItem, searchComponent, searchVoc, speak } from "../util.js";
 
 const elDueCount = /** @type {HTMLSpanElement} */ (
   document.getElementById("due-count")
@@ -102,6 +102,10 @@ async function doLoading() {
                   text: "Open",
                   action: () => openItem(c),
                 },
+                {
+                  text: "Search",
+                  action: () => searchVoc(c),
+                },
               ],
               {
                 onShow: () => el.classList.add("hover"),
@@ -119,6 +123,48 @@ async function doLoading() {
         `生词: ${r.good}` +
           (r.accuracy ? ` (${(r.accuracy * 100).toFixed(0)}%)` : ""),
       ].join(", ");
+
+      api.decompose(Array.from(hanziSet)).then((result) => {
+        Object.entries(result).map(([c, rs]) => {
+          ctxmenu.update(`[data-hanzi="${c}"]`, [
+            {
+              text: "🔊",
+              action: (ev) => {
+                ev.stopImmediatePropagation();
+                speak(c);
+              },
+            },
+            {
+              text: "Open",
+              action: () => openItem(c),
+            },
+            {
+              text: "Search",
+              action: () => searchVoc(c),
+            },
+            {
+              text: "Build",
+              action: () => searchComponent(c),
+            },
+            {
+              text: "Decompose",
+              subMenu: rs.map((r) => ({
+                text: r,
+                subMenu: [
+                  {
+                    text: "Open",
+                    action: () => openItem(r),
+                  },
+                  {
+                    text: "Build",
+                    action: () => searchComponent(r),
+                  },
+                ],
+              })),
+            },
+          ]);
+        });
+      });
     }),
   ]);
 

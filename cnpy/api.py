@@ -6,10 +6,10 @@ import bottle
 import json
 import datetime
 import random
-from typing import Callable, Any, TypedDict, Optional
+from typing import Callable, TypedDict, Optional, Literal, Any
 
 from cnpy import quiz, cedict, sentence
-from cnpy.db import db
+from cnpy.db import db, radical_db
 from cnpy.stats import make_stats
 from cnpy.tts import tts_audio
 from cnpy.dir import assets_root, user_root, web_root
@@ -115,6 +115,95 @@ with server:
     @bottle.post("/api/get_settings")
     def get_settings():
         return g.settings
+
+    @bottle.post("/api/search")
+    def search():
+        obj: Any = bottle.request.json
+
+        component: str = obj.get("c")
+        voc: str = obj.get("v")
+        pinyin: str = obj.get("p")
+
+        if not (voc or component) and not pinyin:
+            return {"result": []}
+
+        rs = []
+        vs = set()
+
+        if (voc or component) and not pinyin:
+            for r in db.execute(
+                """
+                SELECT DISTINCT
+                    v,
+                    (
+                        SELECT replace(replace(group_concat(DISTINCT pinyin), ',', '; '), 'u:', 'ü')
+                        FROM (
+                            SELECT pinyin
+                            FROM cedict
+                            WHERE simp = v
+                            ORDER BY pinyin DESC, lower(pinyin)
+                        )
+                    ) pinyin
+                FROM quiz
+                WHERE v IN (SELECT simp FROM cedict WHERE simp IN (:v,:c) OR trad IN (:v,:c))
+                """,
+                {"c": component, "v": voc},
+            ):
+                vs.add(r["v"])
+                rs.append(dict(r))
+
+        if component:
+            sup = component
+
+            for r in radical_db.execute(
+                "SELECT sup FROM radical WHERE entry = :rad", {"rad": component}
+            ):
+                if r["sup"]:
+                    sup += r["sup"]
+
+            voc = f'[{"".join(set(sup))}]'
+        elif voc:
+            voc = f".*{voc}.*"
+
+        obj["v"] = voc
+
+        for r in db.execute(
+            f"""
+            SELECT DISTINCT
+                v,
+                (
+                    SELECT replace(replace(group_concat(DISTINCT pinyin), ',', '; '), 'u:', 'ü')
+                    FROM (
+                        SELECT pinyin
+                        FROM cedict
+                        WHERE simp = v
+                        ORDER BY pinyin DESC, lower(pinyin)
+                    )
+                ) pinyin
+            FROM quiz
+            WHERE v IN (
+                SELECT simp
+                FROM cedict
+                WHERE {'pinyin REGEXP :p' if pinyin else 'TRUE'}
+                AND {"(simp REGEXP :v OR trad REGEXP :v)" if voc else 'TRUE'}
+            )
+            ORDER BY
+                json_extract(srs, '$.difficulty') DESC,
+                json_extract([data], '$.wordfreq') DESC
+            LIMIT 55
+            """,
+            obj,
+        ):
+            if r["v"] in vs:
+                continue
+
+            rs.append(dict(r))
+
+        if len(rs) > 50:
+            rs = rs[:50]
+            rs.append({"v": "..."})
+
+        return {"result": rs}
 
     @bottle.post("/api/analyze")
     def analyze():
@@ -354,11 +443,17 @@ with server:
     def set_vocab_for_quiz(v: str):
         g.v_quiz = None
 
-        for r in db.execute("SELECT * FROM quiz WHERE v = ?", (v,)):
+        for r in db.execute("SELECT * FROM quiz WHERE v = ? LIMIT 1", (v,)):
             g.v_quiz = quiz.load_db_entry(r)
-            break
+            return {"ok": r["v"]}
 
-        return {"ok": bool(g.v_quiz)}
+        for r in db.execute(
+            "SELECT * FROM quiz WHERE v IN (SELECT simp FROM cedict WHERE trad = ?) LIMIT 1",
+            (v,),
+        ):
+            return {"ok": r["v"]}
+
+        return {"ok": None}
 
     @bottle.post("/api/new_vocab_list")
     def new_vocab_list():
@@ -583,3 +678,20 @@ with server:
         g.settings["levels"] = lv_list
 
         fn_save_settings()
+
+    @bottle.post("/api/decompose")
+    def decompose():
+        obj: Any = bottle.request.json
+        ks: list[str] = obj["ks"]
+
+        result = {}
+
+        for r in radical_db.execute(
+            "SELECT entry, sub FROM radical WHERE entry GLOB '['||?||']'",
+            ("".join(ks),),
+        ):
+            sub = Regex(r"[^\p{L}]").sub("", r["sub"])
+            if sub:
+                result[r["entry"]] = list(sub)
+
+        return result
