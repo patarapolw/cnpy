@@ -133,8 +133,9 @@ with server:
         if (voc or component) and not pinyin:
             for r in db.execute(
                 """
-                SELECT DISTINCT
+                SELECT
                     v,
+                    (CASE WHEN unixepoch(json_extract(srs,'$.due')) < unixepoch() + 60*60 THEN '' ELSE
                     (
                         SELECT replace(replace(group_concat(DISTINCT pinyin), ',', '; '), 'u:', 'ü')
                         FROM (
@@ -143,12 +144,15 @@ with server:
                             WHERE simp = v
                             ORDER BY pinyin DESC, lower(pinyin)
                         )
-                    ) pinyin
+                    ) END) pinyin
                 FROM quiz
                 WHERE v IN (SELECT simp FROM cedict WHERE simp IN (:v,:c) OR trad IN (:v,:c))
                 """,
                 {"c": component, "v": voc},
             ):
+                if r["v"] in vs:
+                    continue
+
                 vs.add(r["v"])
                 rs.append(dict(r))
 
@@ -169,8 +173,9 @@ with server:
 
         for r in db.execute(
             f"""
-            SELECT DISTINCT
+            SELECT
                 v,
+                (CASE WHEN unixepoch(json_extract(srs,'$.due')) < unixepoch() + 60*60 THEN '' ELSE
                 (
                     SELECT replace(replace(group_concat(DISTINCT pinyin), ',', '; '), 'u:', 'ü')
                     FROM (
@@ -179,7 +184,7 @@ with server:
                         WHERE simp = v
                         ORDER BY pinyin DESC, lower(pinyin)
                     )
-                ) pinyin
+                ) END) pinyin
             FROM quiz
             WHERE v IN (
                 SELECT simp
