@@ -135,7 +135,7 @@ with server:
                 """
                 SELECT
                     v,
-                    (CASE WHEN unixepoch(json_extract(srs,'$.due')) < unixepoch() + 60*60 THEN '' ELSE
+                    CASE WHEN unixepoch(json_extract(srs,'$.due')) < unixepoch() + 60*60 THEN '' ELSE
                     (
                         SELECT replace(replace(group_concat(DISTINCT pinyin), ',', '; '), 'u:', 'ü')
                         FROM (
@@ -144,7 +144,7 @@ with server:
                             WHERE simp = v
                             ORDER BY pinyin DESC, lower(pinyin)
                         )
-                    ) END) pinyin
+                    ) END pinyin
                 FROM quiz
                 WHERE v IN (SELECT simp FROM cedict WHERE simp IN (:v,:c) OR trad IN (:v,:c))
                 """,
@@ -175,7 +175,7 @@ with server:
             f"""
             SELECT
                 v,
-                (CASE WHEN unixepoch(json_extract(srs,'$.due')) < unixepoch() + 60*60 THEN '' ELSE
+                CASE WHEN unixepoch(json_extract(srs,'$.due')) < unixepoch() + 60*60 THEN '' ELSE
                 (
                     SELECT replace(replace(group_concat(DISTINCT pinyin), ',', '; '), 'u:', 'ü')
                     FROM (
@@ -184,7 +184,7 @@ with server:
                         WHERE simp = v
                         ORDER BY pinyin DESC, lower(pinyin)
                     )
-                ) END) pinyin
+                ) END pinyin
             FROM quiz
             WHERE v IN (
                 SELECT simp
