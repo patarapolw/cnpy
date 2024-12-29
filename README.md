@@ -46,11 +46,11 @@ The quiz can be right-click to check for similar Hanzi and vocabularies.
 
 ## Dictionaries
 
-Vocabularies are from [CC-CEDICT](https://www.mdbg.net/chinese/dictionary?page=cc-cedict) at <https://www.mdbg.net/chinese/dictionary>.
+Vocabularies are from [CC-CEDICT](https://www.mdbg.net/chinese/dictionary?page=cc-cedict) at [MDBG Chinese Dictionary](https://www.mdbg.net/chinese/dictionary).
 
 Sentences are from [Tatoeba project](https://tatoeba.org).
 
-Hanzi decomposition data are from <https://github.com/cjkvi/cjkvi-ids>.
+Hanzi decomposition data are from [CJKV (Chinese Japanese Korean Vietnamese) Ideograph Database](https://github.com/cjkvi/cjkvi-ids).
 
 ## Text analysis
 
