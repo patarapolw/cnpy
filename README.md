@@ -44,9 +44,17 @@ The quiz can be right-click to check for similar Hanzi and vocabularies.
 
 ![Levels](_README/levels.png)
 
+## Dictionaries
+
+Vocabularies are from [CC-CEDICT](https://www.mdbg.net/chinese/dictionary?page=cc-cedict) at <https://www.mdbg.net/chinese/dictionary>.
+
+Sentences are from [Tatoeba project](https://tatoeba.org).
+
+Hanzi decomposition data are from <https://github.com/cjkvi/cjkvi-ids>.
+
 ## Text analysis
 
-Native Chinese articles can be parsed and added to new vocab list. By default, vocab will appear in New more often, rather than added to Due queue.
+Native Chinese articles can be parsed and optionally added to new vocab list. Quizzed vocabularies are excluded for brevity.
 
 ![Parsed vocab](_README/text.png)
 
