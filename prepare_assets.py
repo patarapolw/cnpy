@@ -14,7 +14,7 @@ from cnpy.dir import tmp_root, assets_root
 db = sqlite3.connect("assets/assets.db")
 
 
-def dump_wordfreq():
+def dump_cedict_and_wordfreq(forced=False):
     db.executescript(
         """
         CREATE TABLE IF NOT EXISTS wordfreq (
@@ -27,7 +27,7 @@ def dump_wordfreq():
     filename = "cedict_ts.u8"
     cedict = assets_root / filename
 
-    if not cedict.exists():
+    if forced or not cedict.exists():
         zipPath = tmp_root / "cedict.zip"
 
         url = "https://www.mdbg.net/chinese/export/cedict/cedict_1_0_ts_utf-8_mdbg.zip"
@@ -210,7 +210,7 @@ def _download_tatoeba_links():
 
 
 if __name__ == "__main__":
-    dump_wordfreq()
+    dump_cedict_and_wordfreq()
     dump_tatoeba()
 
     db.commit()
