@@ -44,14 +44,6 @@ The quiz can be right-click to check for similar Hanzi and vocabularies.
 
 ![Levels](_README/levels.png)
 
-## Dictionaries
-
-Vocabularies are from [CC-CEDICT](https://www.mdbg.net/chinese/dictionary?page=cc-cedict) at [MDBG Chinese Dictionary](https://www.mdbg.net/chinese/dictionary).
-
-Sentences are from [Tatoeba project](https://tatoeba.org).
-
-Hanzi decomposition data are from [CJKV (Chinese Japanese Korean Vietnamese) Ideograph Database](https://github.com/cjkvi/cjkvi-ids).
-
 ## Text analysis
 
 Native Chinese articles can be parsed and optionally added to new vocab list. Quizzed vocabularies are excluded for brevity.
@@ -69,3 +61,11 @@ Hanzi learned is calculated from
 1. Used in at least 5 vocabularies
 2. Learned as a vocabulary with lone or single repeated Hanzi
 3. Used in at least 3 vocabularies
+
+## Dictionaries
+
+Vocabularies are from [CC-CEDICT](https://www.mdbg.net/chinese/dictionary?page=cc-cedict) at [MDBG Chinese Dictionary](https://www.mdbg.net/chinese/dictionary).
+
+Sentences are from [Tatoeba project](https://tatoeba.org).
+
+Hanzi decomposition data are from [CJKV (Chinese Japanese Korean Vietnamese) Ideograph Database](https://github.com/cjkvi/cjkvi-ids).
