@@ -1,16 +1,16 @@
-Start with a batch of 20. Will make a new batch if the previous has been surpassed.
+Start with a batch of 20. Then, a new batch if the previous has been surpassed.
 
 After every rounds of not-Right's, there will be unlimited repeat drills until you get everything Right. Additionally, if too many wrongs (10), the repeat drill will start earlier.
 
-No typo checking. However, there is a middle-way button, "Not Sure".
+No typo checking. No turning to Wrong or Right. However, there is a middle-way button, "Not Sure".
 
-- `v` is also accepted for `u:` or `ü` (for IME practice).
-- `ESC` for Not Sure / Skip
-- `Ctrl+Z` for undo and redo later (move to the end of the queue)
-- `F1` or `F5` to end the current session, and start the repeat drill or a new session.
-- Mulitple answers if applicable, separated by `;`. Uncommon Pinyin readings can be temporarily disabled.
+- `v` is accepted for `u:` or `ü` (for IME practice)
+- `ESC` for Not sure / Skip
+- `Ctrl+Z` for Undo and redo later (move to the end of the queue)
+- `F1` or `F5` to End the current batch, and start the wrong drill or make a new batch.
+- Mulitple answers if applicable, separated by `;` (whitespaces are ignored). Important readings can be forced to require. Uncommon readings can be disabled and made wrong.
 - [Custom vocabularies](/user/vocab/) can be added, and will be put to the end of Due queue (if the entries exist in [the dictionary](https://www.mdbg.net/chinese/dictionary))
-- Chosen vocabularies can be added to [Skip](/user/skip/). For example, if some vocab are accidentally added to the SRS or practically uncommon.
+- Some vocabularies can be [Skipped](/user/skip/) if added accidentally or practically uncommon (e.g. to be restarted as other related words).
 
 ![Due Quiz](_README/due.png)
 
@@ -20,11 +20,11 @@ No typo checking. However, there is a middle-way button, "Not Sure".
 
 ![Repeat Quiz](_README/repeat.png)
 
-Note taking is powered bidirectionally by markdown ([showdown.js](https://showdownjs.com/)). The content may be copy+pasted from websites in Dictionary links.
+Note taking is powered bidirectionally by markdown (via [showdown.js](https://showdownjs.com/)). The content may be copy+pasted from websites in Dictionary links.
 
 ![Notes](_README/notes.png)
 
-The quiz can be right-click to check for similar Hanzi and vocabularies.
+Right-click context menu to check for similar Hanzi and vocabularies. The context-menu is also for extra menu and updating CC-CEDICT.
 
 ![Right click](_README/contextmenu.png)
 
