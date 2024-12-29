@@ -220,25 +220,6 @@ with server:
         if not raw_vs:
             return {"result": []}
 
-        r = db.execute(
-            """
-            UPDATE quiz SET
-                [data] = json_set(
-                    IFNULL([data], '{}'),
-                    '$.count',
-                    IFNULL(json_extract([data], '$.count'), 0) + 1
-                )
-            WHERE
-                v IN ('{}') AND
-                json_extract([data], '$.wordfreq') < 6
-            """.format(
-                "{}",
-                "','".join(raw_vs),
-            )
-        )
-        db.commit()
-        print(f"{r.rowcount} vocab counts updated")
-
         rs = [
             dict(r)
             for r in db.execute(
