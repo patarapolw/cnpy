@@ -51,7 +51,12 @@ interface State {
   lastQuizTime: Date | null;
   isRepeat: boolean;
 
-  mode?: string;
+  mode:
+    | "old-display"
+    | "new-display"
+    | "unanswered"
+    | "pinyin-answered"
+    | "all-answered";
 }
 
 declare const ctxmenu: import("../node_modules/ctxmenu/index").CTXMenuSingleton;

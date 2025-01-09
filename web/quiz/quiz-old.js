@@ -26,13 +26,19 @@ const state = {
   lastIsFuzzy: false,
   lastQuizTime: null,
   isRepeat: false,
-  mode: "unanswered",
+  mode: "new-display",
 };
 
 const elRoot = document.getElementById("quiz");
 const elStatus = document.getElementById("status");
 const elVocab = /** @type {HTMLDivElement} */ (
   document.getElementById("vocab")
+);
+const elInput = /** @type {HTMLDivElement} */ (
+  document.getElementById("type-input")
+);
+const elCompare = /** @type {HTMLAnchorElement} */ (
+  document.getElementById("type-compare")
 );
 const elNotes = /** @type {HTMLDivElement} */ (
   document.getElementById("notes")
@@ -41,69 +47,52 @@ const elNotesTextarea = /** @type {HTMLTextAreaElement} */ (
   elNotes.querySelector("textarea")
 );
 
-const DATA_TYPE_INPUT_GROUP = "data-type-input-group";
-document.querySelectorAll(`[${DATA_TYPE_INPUT_GROUP}]`).forEach((el) => {
-  const attr = /** @type {'pinyin' | 'meaning'} */ (
-    el.getAttribute(DATA_TYPE_INPUT_GROUP)
-  );
-
-  /** @type {HTMLDivElement} */
-  const elDivInput = document.querySelector("[contenteditable]");
-  /** @type {HTMLAnchorElement} */
-  const elAnswer = document.querySelector('a[target="new_window"]');
-
-  if (attr === "pinyin") {
-    elDivInput.focus();
+elInput.addEventListener("keypress", (ev) => {
+  switch (ev.key) {
+    case "Enter":
+      if (elInput.innerText) {
+        doNext();
+      }
+      ev.preventDefault();
   }
+});
+elInput.addEventListener("paste", (ev) => {
+  const { clipboardData } = ev;
+  if (!clipboardData) return;
 
-  elDivInput.addEventListener("keypress", (ev) => {
-    switch (ev.key) {
-      case "Enter":
-        if (elDivInput.innerText) {
-          doNext();
-        }
+  if (clipboardData.getData("text/html")) {
+    setTimeout(() => {
+      const { innerText } = elInput;
+      elInput.textContent = "";
+      elInput.innerText = innerText;
+    });
+  }
+});
+elInput.focus();
+
+elInput.addEventListener("keydown", (ev) => {
+  switch (ev.key) {
+    case "Enter":
+      break;
+    default:
+      if (typeof state.lastIsRight === "boolean") {
         ev.preventDefault();
-    }
-  });
-  elDivInput.addEventListener("paste", (ev) => {
-    const { clipboardData } = ev;
-    if (!clipboardData) return;
 
-    if (clipboardData.getData("text/html")) {
-      setTimeout(() => {
-        const { innerText } = elDivInput;
-        elDivInput.textContent = "";
-        elDivInput.innerText = innerText;
-      });
-    }
-  });
-
-  elDivInput.addEventListener("keydown", (ev) => {
-    switch (ev.key) {
-      case "Enter":
-        break;
-      default:
-        if (typeof state.lastIsRight === "boolean") {
-          ev.preventDefault();
-
-          if (ev.ctrlKey && ev.key === "z") {
-            state.vocabList.push(...state.vocabList.splice(state.i, 1));
-            state.i--;
-            newVocab();
-          }
+        if (ev.ctrlKey && ev.key === "z") {
+          state.vocabList.push(...state.vocabList.splice(state.i, 1));
+          state.i--;
+          newVocab();
         }
-    }
-  });
+      }
+  }
 });
 
 let isDialog = false;
 
 document.addEventListener("keydown", (ev) => {
-  if (state.mode === "display") return;
-
   switch (ev.key) {
     case "Escape":
-      if (state.mode === "unanswered") return;
+      if (state.mode === "old-display") return;
       if (state.isRepeat) {
         if (state.lastIsRight === true) {
           mark("repeat");
@@ -126,7 +115,7 @@ document.addEventListener("keydown", (ev) => {
       break;
     case "F5":
     case "F1":
-      if (state.mode === "all-answered") return;
+      if (state.mode === "old-display") return;
       if (!state.isRepeat) {
         state.review_counter -= state.max - state.i;
         newVocabList();
@@ -135,7 +124,7 @@ document.addEventListener("keydown", (ev) => {
 });
 
 window.addEventListener("focus", async () => {
-  if (isDialog && state.mode === "all-answered") {
+  if (isDialog && elCompare.innerText) {
     isDialog = false;
 
     const { v } = state.vocabList[state.i];
@@ -283,29 +272,14 @@ function doNext(ev) {
     ev.preventDefault();
   }
 
-  let isDone = false;
-
-  document.querySelectorAll(`[${DATA_TYPE_INPUT_GROUP}]`).forEach((el) => {
-    const attr = /** @type {'pinyin' | 'meaning'} */ (
-      el.getAttribute(DATA_TYPE_INPUT_GROUP)
-    );
-
-    /** @type {HTMLDivElement} */
-    const elDivInput = document.querySelector("[contenteditable]");
-    /** @type {HTMLAnchorElement} */
-    const elAnswer = document.querySelector('a[target="new_window"]');
-  });
-
-  if (isDone) {
-    if (state.mode === "show") return;
+  if (elCompare.innerText) {
+    if (state.mode === "old-display") return;
     if (typeof state.lastIsRight === "boolean") {
       mark();
     }
 
     newVocab();
-  }
-
-  {
+  } else {
     const currentItem = state.vocabList[state.i];
 
     const { v } = currentItem;
@@ -834,10 +808,10 @@ async function newVocabList() {
     state.new = r.new;
     state.review_counter += r.result.length;
 
-    if (!state.mode) {
+    if (!elRoot.getAttribute("data-type")) {
       customItemSRS = r.customItemSRS;
 
-      state.mode = customItemSRS === undefined ? "standard" : "show";
+      state.mode = customItemSRS === undefined ? "new-display" : "old-display";
       elRoot.setAttribute("data-type", state.mode);
     }
 
