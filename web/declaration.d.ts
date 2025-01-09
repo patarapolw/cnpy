@@ -28,6 +28,14 @@ interface IQuizEntry {
   };
 }
 
+type Mode =
+  | "old-display"
+  | "soon-display"
+  | "new-display"
+  | "unanswered"
+  | "pinyin-answered"
+  | "all-answered";
+
 interface State {
   vocabList: IQuizEntry[];
   pendingList: IQuizEntry[];
@@ -51,12 +59,7 @@ interface State {
   lastQuizTime: Date | null;
   isRepeat: boolean;
 
-  mode:
-    | "old-display"
-    | "new-display"
-    | "unanswered"
-    | "pinyin-answered"
-    | "all-answered";
+  mode: Mode;
 }
 
 declare const ctxmenu: import("../node_modules/ctxmenu/index").CTXMenuSingleton;

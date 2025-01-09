@@ -10,7 +10,7 @@ import {
   speak,
 } from "../util.js";
 
-/** @type {State} */
+/** @type {Omit<State, 'mode'>} */
 const state = {
   vocabList: [],
   i: 0,
@@ -26,7 +26,6 @@ const state = {
   lastIsFuzzy: false,
   lastQuizTime: null,
   isRepeat: false,
-  mode: "unanswered",
 };
 
 const elRoot = document.getElementById("quiz");
@@ -40,6 +39,10 @@ const elNotes = /** @type {HTMLDivElement} */ (
 const elNotesTextarea = /** @type {HTMLTextAreaElement} */ (
   elNotes.querySelector("textarea")
 );
+
+const getMode = () => /** @type {Mode} */ (elRoot.getAttribute("data-type"));
+/** @param m {Mode} */
+const setMode = (m) => elRoot.setAttribute("data-type", m);
 
 const DATA_TYPE_INPUT_GROUP = "data-type-input-group";
 document.querySelectorAll(`[${DATA_TYPE_INPUT_GROUP}]`).forEach((el) => {
@@ -99,11 +102,12 @@ document.querySelectorAll(`[${DATA_TYPE_INPUT_GROUP}]`).forEach((el) => {
 let isDialog = false;
 
 document.addEventListener("keydown", (ev) => {
-  if (state.mode === "display") return;
+  const mode = getMode();
+  if (mode.endsWith("display")) return;
 
   switch (ev.key) {
     case "Escape":
-      if (state.mode === "unanswered") return;
+      if (mode === "unanswered") return;
       if (state.isRepeat) {
         if (state.lastIsRight === true) {
           mark("repeat");
@@ -126,7 +130,7 @@ document.addEventListener("keydown", (ev) => {
       break;
     case "F5":
     case "F1":
-      if (state.mode === "all-answered") return;
+      if (mode === "all-answered") return;
       if (!state.isRepeat) {
         state.review_counter -= state.max - state.i;
         newVocabList();
@@ -135,7 +139,7 @@ document.addEventListener("keydown", (ev) => {
 });
 
 window.addEventListener("focus", async () => {
-  if (isDialog && state.mode === "all-answered") {
+  if (isDialog && getMode() === "all-answered") {
     isDialog = false;
 
     const { v } = state.vocabList[state.i];
@@ -283,62 +287,180 @@ function doNext(ev) {
     ev.preventDefault();
   }
 
-  let isDone = false;
+  const mode = getMode();
 
-  document.querySelectorAll(`[${DATA_TYPE_INPUT_GROUP}]`).forEach((el) => {
-    const attr = /** @type {'pinyin' | 'meaning'} */ (
-      el.getAttribute(DATA_TYPE_INPUT_GROUP)
+  if (mode === "all-answered") {
+    newVocab();
+    return;
+  }
+
+  if (typeof state.lastIsRight === "boolean") {
+    mark();
+    newVocab();
+    return;
+  }
+
+  const {
+    v,
+    data: {
+      warnPinyin = [],
+      mustPinyin = [],
+      important_meanings = [],
+      optional_meanings = [],
+    },
+  } = state.vocabList[state.i];
+  let {
+    data: { pinyin },
+  } = state.vocabList[state.i];
+  const { segments, cedict } = state.vocabDetails;
+
+  /** @type {Map<string, Set<string>>} */
+  const pSetMap = new Map();
+
+  const dictPinyin = cedict
+    .map((v) => v.pinyin)
+    .filter((v, i, a) => a.indexOf(v) === i);
+
+  for (const v of cedict) {
+    if (!dictPinyin.includes(v.pinyin)) {
+      dictPinyin.push(v.pinyin);
+    }
+
+    const pSplit = v.pinyin.split(" ");
+
+    Array.from(v.simp).map((c, i) => {
+      const pSet = pSetMap.get(c) || new Set();
+      pSet.add(pSplit[i]);
+      pSetMap.set(c, pSet);
+    });
+
+    if (!v.trad) continue;
+
+    Array.from(v.trad).map((c, i) => {
+      const pSet = pSetMap.get(c) || new Set();
+      pSet.add(pSplit[i]);
+      pSetMap.set(c, pSet);
+    });
+  }
+
+  if (mode === "unanswered") {
+    const elInputGroup = document.querySelector(
+      `[${DATA_TYPE_INPUT_GROUP}="pinyin"]`
     );
 
     /** @type {HTMLDivElement} */
-    const elDivInput = document.querySelector("[contenteditable]");
+    const elDivInput = elInputGroup.querySelector("[contenteditable]");
     /** @type {HTMLAnchorElement} */
-    const elAnswer = document.querySelector('a[target="new_window"]');
-  });
+    const elComparator = elInputGroup.querySelector('a[target="new_window"]');
 
-  if (isDone) {
-    if (state.mode === "show") return;
-    if (typeof state.lastIsRight === "boolean") {
-      mark();
+    pinyin = pinyin || dictPinyin;
+    const inputPinyin = elDivInput.innerText.split(";").map((v) => v.trim());
+
+    if (warnPinyin?.length) {
+      if (inputPinyin.some((v) => warnPinyin.some((p) => comp_pinyin(p, v)))) {
+        const txt = elDivInput.innerText;
+
+        if (typeof state.lastIsRight === "boolean") {
+          state.i--;
+          newVocab();
+        }
+
+        elDivInput.innerText = txt;
+        const attrName = "data-checked";
+        elDivInput.setAttribute(attrName, "warn");
+        setTimeout(() => {
+          if (elDivInput.getAttribute(attrName) === "warn") {
+            elDivInput.setAttribute(attrName, "");
+          }
+        }, 1000);
+
+        return;
+      }
     }
 
-    newVocab();
+    elComparator.setAttribute(
+      "data-pinyin-count",
+      (
+        new Set(dictPinyin.map((p) => p.toLocaleLowerCase())).size +
+        (mustPinyin?.length || 0) +
+        (warnPinyin?.length || 0)
+      ).toString()
+    );
+    elComparator.href = `./pinyin-select.html?v=${v}`;
+    elComparator.onclick = (ev) => {
+      ev.preventDefault();
+      const a = elComparator;
+      if (!a.href) return;
+      isDialog = true;
+      api.new_window(a.href, a.title || a.innerText, {
+        width: 300,
+        height: 300,
+      });
+    };
+
+    elComparator.textContent = "";
+
+    if (mustPinyin?.length) {
+      const b = document.createElement("b");
+      b.innerText = mustPinyin.join("; ").replace(/u:/g, "ü");
+      elComparator.append(b);
+
+      const remaining = pinyin
+        .filter((p) => !mustPinyin.some((s) => comp_pinyin(s, p)))
+        .join("; ")
+        .replace(/u:/g, "ü");
+      if (remaining) {
+        elComparator.append("; " + remaining);
+      }
+    } else {
+      elComparator.innerText = pinyin.join("; ").replace(/u:/g, "ü");
+    }
+
+    state.lastIsFuzzy = false;
+    state.lastIsRight = inputPinyin.every((v) =>
+      pinyin.some((p) => comp_pinyin(p, v))
+    );
+
+    if (mustPinyin?.length) {
+      state.lastIsRight =
+        state.lastIsRight &&
+        mustPinyin.every((v) => inputPinyin.some((p) => comp_pinyin(p, v)));
+    }
+
+    if (!state.lastIsRight) {
+      if (
+        elDivInput.innerText
+          .split(";")
+          .every((v) => pinyin.some((p) => comp_pinyin(p, v.trim(), true)))
+      ) {
+        state.lastIsFuzzy = true;
+      }
+    }
+
+    document.querySelectorAll("[data-checked]").forEach((el) => {
+      el.setAttribute("data-checked", state.lastIsRight ? "right" : "wrong");
+    });
+
+    elDivInput.innerText = elDivInput.innerText
+      .replace(/u:/g, "v")
+      .replace(/v/g, "ü");
+    elDivInput.oninput = (ev) => {
+      ev.preventDefault();
+      return false;
+    };
+
+    if (important_meanings.length || optional_meanings.length) {
+      setMode("pinyin-answered");
+      return;
+    } else {
+      setMode("all-answered");
+    }
   }
 
+  if (mode === "soon-display") return;
+
   {
-    const currentItem = state.vocabList[state.i];
-
-    const { v } = currentItem;
-    const { segments, cedict } = state.vocabDetails;
-
-    /** @type {Map<string, Set<string>>} */
-    const hs = new Map();
-
-    const dictPinyin = cedict
-      .map((v) => v.pinyin)
-      .filter((v, i, a) => a.indexOf(v) === i);
-
-    for (const v of cedict) {
-      if (!dictPinyin.includes(v.pinyin)) {
-        dictPinyin.push(v.pinyin);
-      }
-
-      const pinyin = v.pinyin.split(" ");
-
-      Array.from(v.simp).map((c, i) => {
-        const ps = hs.get(c) || new Set();
-        ps.add(pinyin[i]);
-        hs.set(c, ps);
-      });
-
-      if (!v.trad) continue;
-
-      Array.from(v.trad).map((c, i) => {
-        const ps = hs.get(c) || new Set();
-        ps.add(pinyin[i]);
-        hs.set(c, ps);
-      });
-    }
+    setMode("all-answered");
 
     /**
      *
@@ -352,8 +474,8 @@ function doNext(ev) {
           action: () => speak(v),
         },
         ...(v.length > 1 || cedict.some((v) => v.trad)
-          ? Array.from(hs.entries()).map(([k, pset]) => {
-              const ps = Array.from(pset);
+          ? Array.from(pSetMap.entries()).map(([k, pSet]) => {
+              const ps = Array.from(pSet);
 
               /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
               const m = {
@@ -469,7 +591,7 @@ function doNext(ev) {
       ];
     };
 
-    api.decompose(Array.from(hs.keys())).then((r) => {
+    api.decompose(Array.from(pSetMap.keys())).then((r) => {
       if (state.vocabList[state.i]?.v !== v) return;
 
       ctxmenu.update("#vocab", makeCTXDef(r));
@@ -478,70 +600,6 @@ function doNext(ev) {
     ctxmenu.update("#vocab", makeCTXDef(), {
       attributes: { lang: "zh-CN" },
     });
-
-    let { pinyin, mustPinyin, warnPinyin } = currentItem.data;
-    pinyin = pinyin || dictPinyin;
-    const inputPinyin = elInput.innerText.split(";").map((v) => v.trim());
-
-    if (warnPinyin?.length) {
-      if (inputPinyin.some((v) => warnPinyin.some((p) => comp_pinyin(p, v)))) {
-        const txt = elInput.innerText;
-
-        if (typeof state.lastIsRight === "boolean") {
-          state.i--;
-          newVocab();
-        }
-
-        elInput.innerText = txt;
-        const attrName = "data-checked";
-        elInput.setAttribute(attrName, "warn");
-        setTimeout(() => {
-          if (elInput.getAttribute(attrName) === "warn") {
-            elInput.setAttribute(attrName, "");
-          }
-        }, 1000);
-
-        return;
-      }
-    }
-
-    elCompare.setAttribute(
-      "data-pinyin-count",
-      (
-        new Set(dictPinyin.map((p) => p.toLocaleLowerCase())).size +
-        (mustPinyin?.length || 0) +
-        (warnPinyin?.length || 0)
-      ).toString()
-    );
-    elCompare.href = `./pinyin-select.html?v=${currentItem.v}`;
-    elCompare.onclick = (ev) => {
-      ev.preventDefault();
-      const a = elCompare;
-      if (!a.href) return;
-      isDialog = true;
-      api.new_window(a.href, a.title || a.innerText, {
-        width: 300,
-        height: 300,
-      });
-    };
-
-    elCompare.textContent = "";
-
-    if (mustPinyin?.length) {
-      const b = document.createElement("b");
-      b.innerText = mustPinyin.join("; ").replace(/u:/g, "ü");
-      elCompare.append(b);
-
-      const remaining = pinyin
-        .filter((p) => !mustPinyin.some((s) => comp_pinyin(s, p)))
-        .join("; ")
-        .replace(/u:/g, "ü");
-      if (remaining) {
-        elCompare.append("; " + remaining);
-      }
-    } else {
-      elCompare.innerText = pinyin.join("; ").replace(/u:/g, "ü");
-    }
 
     const elDictEntries = /** @type {HTMLDivElement} */ (
       document.getElementById("dictionary-entries")
@@ -635,39 +693,6 @@ function doNext(ev) {
         elDictEntries.open = true;
       }
     }
-
-    state.lastIsFuzzy = false;
-    state.lastIsRight = inputPinyin.every((v) =>
-      pinyin.some((p) => comp_pinyin(p, v))
-    );
-
-    if (mustPinyin?.length) {
-      state.lastIsRight =
-        state.lastIsRight &&
-        mustPinyin.every((v) => inputPinyin.some((p) => comp_pinyin(p, v)));
-    }
-
-    if (!state.lastIsRight) {
-      if (
-        elInput.innerText
-          .split(";")
-          .every((v) => pinyin.some((p) => comp_pinyin(p, v.trim(), true)))
-      ) {
-        state.lastIsFuzzy = true;
-      }
-    }
-
-    document.querySelectorAll("[data-checked]").forEach((el) => {
-      el.setAttribute("data-checked", state.lastIsRight ? "right" : "wrong");
-    });
-
-    elInput.innerText = elInput.innerText
-      .replace(/u:/g, "v")
-      .replace(/v/g, "ü");
-    elInput.oninput = (ev) => {
-      ev.preventDefault();
-      return false;
-    };
   }
 
   return false;
@@ -718,17 +743,30 @@ function mark(type) {
 function softCleanup() {
   elVocab.onclick = null;
 
-  elCompare.innerText = "";
-  elCompare.href = "";
-  elCompare.onclick = () => false;
+  document.querySelectorAll(`[${DATA_TYPE_INPUT_GROUP}]`).forEach((el) => {
+    const a = el.querySelector("a");
+
+    a.innerText = "";
+    a.href = "";
+    a.onclick = () => false;
+  });
 
   document.querySelectorAll(".if-checked-details").forEach((el) => el.remove());
 }
 
 async function newVocab() {
-  elInput.innerText = "";
-  elInput.oninput = null;
-  elInput.focus();
+  document.querySelectorAll(`[${DATA_TYPE_INPUT_GROUP}]`).forEach((el) => {
+    const div = /** @type {HTMLDivElement} */ (
+      el.querySelector("[contenteditable]")
+    );
+
+    div.innerText = "";
+    div.oninput = null;
+
+    if (el.getAttribute(DATA_TYPE_INPUT_GROUP) === "pinyin") {
+      div.focus();
+    }
+  });
 
   softCleanup();
 
@@ -834,11 +872,10 @@ async function newVocabList() {
     state.new = r.new;
     state.review_counter += r.result.length;
 
-    if (!state.mode) {
+    if (!getMode()) {
       customItemSRS = r.customItemSRS;
 
-      state.mode = customItemSRS === undefined ? "standard" : "show";
-      elRoot.setAttribute("data-type", state.mode);
+      setMode(customItemSRS === undefined ? "unanswered" : "old-display");
     }
 
     if (r.count < 5 && state.lastQuizTime) {

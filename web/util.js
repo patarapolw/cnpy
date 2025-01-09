@@ -10,6 +10,25 @@ utterance.lang = "zh-CN";
  * @param {string} s
  */
 export function speak(s) {
+  speakOffline(s);
+  // speakOnline(s, speakOffline);
+}
+
+/**
+ *
+ * @param {string} s
+ */
+export function speakOffline(s) {
+  utterance.text = s;
+  speechSynthesis.speak(utterance);
+}
+
+/**
+ *
+ * @param {string} s
+ * @param {HTMLAudioElement['onerror']} onerror
+ */
+export function speakOnline(s, onerror) {
   let elAudio = Array.from(document.querySelectorAll("audio")).find((el) =>
     el.hasAttribute("data-tts")
   );
@@ -19,10 +38,7 @@ export function speak(s) {
     elAudio.style.display = "none";
   }
 
-  elAudio.onerror = () => {
-    utterance.text = s;
-    speechSynthesis.speak(utterance);
-  };
+  elAudio.onerror = onerror;
 
   elAudio.src = `/api/tts/${s}.mp3`;
   elAudio.currentTime = 0;
