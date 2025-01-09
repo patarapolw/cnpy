@@ -45,22 +45,45 @@
 
       <div id="status"></div>
 
+      <div class="hide-showcase" data-type-input-group="pinyin">
+        <div
+          contenteditable=""
+          id="type-input"
+          class="type-input"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          data-checked=""
+        ></div>
+        <a
+          id="type-compare"
+          class="internal-link type-compare"
+          target="new_window"
+          title="Specify valid Pinyin"
+        ></a>
+      </div>
       <div
-        contenteditable=""
-        id="type-input"
         class="hide-showcase"
-        autocomplete="off"
-        autocorrect="off"
-        autocapitalize="off"
-        spellcheck="false"
-        data-checked=""
-      ></div>
-      <a
-        id="type-compare"
-        class="internal-link"
-        target="new_window"
-        title="Specify valid Pinyin"
-      ></a>
+        data-type-input-group="meaning"
+        style="display: none"
+      >
+        <div
+          contenteditable=""
+          class="type-input"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          data-checked=""
+        ></div>
+        <a
+          class="internal-link type-compare"
+          target="new_window"
+          title="Specify valid meanings"
+        ></a>
+      </div>
+
       <div
         id="check-buttons-area"
         class="buttons if-checked hide-showcase"
