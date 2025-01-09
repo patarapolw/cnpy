@@ -3,15 +3,13 @@
 import { api } from "../api.js";
 
 const elPinyinSelect = document.getElementById("pinyin-select");
-const elWarnings = document.getElementById("warnings");
-const elWarningItems = document.getElementById("warning-items");
 
 window.addEventListener("pywebviewready", async () => {
   const v = new URL(location.href, location.origin).searchParams.get("v");
   if (!v) return;
 
   let {
-    data: { pinyin: _chosenPinyin, mustPinyin = [], warnPinyin = [] },
+    data: { pinyin: _chosenPinyin, mustPinyin = [], ...objSelect },
   } = await api.get_vocab(v);
 
   const r = await api.vocab_details(v);
@@ -57,7 +55,7 @@ window.addEventListener("pywebviewready", async () => {
           chosenPinyinSet.size.toString()
         );
 
-        api.set_pinyin(
+        api.set_quiz_select(
           v,
           chosenPinyinSet.size < allPinyin.length
             ? allPinyin.filter((p) => chosenPinyinSet.has(p))
@@ -77,7 +75,7 @@ window.addEventListener("pywebviewready", async () => {
         } else {
           mustPinyin = mustPinyin.filter((s) => s !== p);
         }
-        api.set_pinyin(v, mustPinyin, "mustPinyin");
+        api.set_quiz_select(v, mustPinyin, "mustPinyin");
       };
 
       elImportant.oninput = parseElImportant;
@@ -94,21 +92,61 @@ window.addEventListener("pywebviewready", async () => {
     })
   );
 
-  elWarningItems.innerText = warnPinyin.join("; ");
+  const DATA_QUIZ_SELECT = "data-quiz-select";
+  /** @type {HTMLDivElement} */
+  const elOptionalMeanings = document.querySelector(
+    `[${DATA_QUIZ_SELECT}="optional_meanings"]`
+  );
 
-  elWarnings.onclick = () => {
-    const p = prompt(
-      "Pinyin to warn, separated by ; (comma)",
-      warnPinyin.join("; ")
-    );
-    if (typeof p === "string") {
-      warnPinyin = p
-        .split(";")
-        .map((s) => s.trim().replace(/[vü]/g, "u:").replace(/ +/g, " "))
-        .filter((s) => /^([a-z:]+[1-5]($| ))+$/.test(s));
+  document.querySelectorAll(`[${DATA_QUIZ_SELECT}]`).forEach((el) => {
+    const type =
+      /** @type {'warnPinyin' | 'important_meanings' | 'optional_meanings'} */ (
+        el.getAttribute(DATA_QUIZ_SELECT)
+      );
 
-      elWarningItems.innerText = warnPinyin.join("; ");
-      api.set_pinyin(v, warnPinyin, "warnPinyin");
-    }
-  };
+    const elBtn = el.querySelector("button");
+    const elItems = el.querySelector("small");
+
+    let selections = objSelect[type] || [];
+
+    const updateItemDisplay = () => {
+      objSelect[type] = selections;
+      elOptionalMeanings.style.display =
+        objSelect.important_meanings?.length ||
+        objSelect.optional_meanings?.length
+          ? "block"
+          : "none";
+
+      elItems.innerText = selections.join("; ");
+    };
+    updateItemDisplay();
+
+    elBtn.onclick = () => {
+      const p = prompt(
+        `${
+          type === "warnPinyin"
+            ? "Pinyin to warn"
+            : (type[0].toLocaleUpperCase() + type.substring(1)).replace(
+                "_",
+                " "
+              )
+        }, separated by ; (comma)`,
+        selections.join("; ")
+      );
+      if (typeof p === "string") {
+        selections = p.split(";").map((s) => s.trim());
+
+        if (type === "warnPinyin") {
+          selections = selections
+            .map((s) => s.replace(/[vü]/g, "u:").replace(/ +/g, " "))
+            .filter((s) => /^([a-z:]+[1-5]($| ))+$/.test(s));
+        }
+
+        selections = selections.filter((s) => s);
+
+        updateItemDisplay();
+        api.set_quiz_select(v, selections, type);
+      }
+    };
+  });
 });

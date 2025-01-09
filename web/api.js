@@ -53,11 +53,11 @@ export const api = {
   /**
    *
    * @param {string} v
-   * @param {string[] | null} pinyin
+   * @param {string[] | null} data
    * @param {string} t
    */
-  async set_pinyin(v, pinyin, t = "pinyin") {
-    return fetchAPI(`/api/set_pinyin/${v}/${t}`, { pinyin });
+  async set_quiz_select(v, data, t = "pinyin") {
+    return fetchAPI(`/api/set_quiz_select/${v}/${t}`, { data });
   },
   /**
    *

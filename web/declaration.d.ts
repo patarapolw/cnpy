@@ -23,6 +23,8 @@ interface IQuizEntry {
     pinyin?: string[];
     mustPinyin?: string[];
     warnPinyin?: string[];
+    important_meanings?: string[];
+    optional_meanings?: string[];
   };
 }
 

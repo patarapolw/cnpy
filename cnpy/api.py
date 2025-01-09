@@ -330,10 +330,10 @@ with server:
         g.latest_stats = make_stats()
         return g.latest_stats
 
-    @bottle.post("/api/set_pinyin/<v>/<t>")
-    def set_pinyin(v: str, t):
+    @bottle.post("/api/set_quiz_select/<v>/<t>")
+    def set_quiz_select(v: str, t):
         obj: Any = bottle.request.json
-        pinyin = obj["pinyin"]
+        ls = obj["data"]
 
         db.execute(
             """
@@ -341,7 +341,7 @@ with server:
                 [data] = json_set(IFNULL([data], '{}'), '$.'||?, json(?))
             WHERE v = ?
             """,
-            (t, json.dumps(pinyin), v),
+            (t, json.dumps(ls), v),
         )
 
     @bottle.post("/api/due_vocab_list/<review_counter:int>")

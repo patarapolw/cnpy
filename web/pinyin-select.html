@@ -8,8 +8,19 @@
   </head>
   <body style="font-family: sans-serif">
     <div id="pinyin-select"></div>
-    <button type="button" id="warnings">Warning list...</button>
-    <div><small id="warning-items"></small></div>
+    <div data-quiz-select="warningPinyin">
+      <button type="button" id="warnings">Warning list...</button>
+      <div><small id="warning-items"></small></div>
+    </div>
+    <br />
+    <div data-quiz-select="important_meanings">
+      <button type="button">Meaning list...</button>
+      <div><small></small></div>
+    </div>
+    <div data-quiz-select="optional_meanings" style="display: none">
+      <button type="button">Optional meanings...</button>
+      <div><small></small></div>
+    </div>
   </body>
 
   <script type="module" src="./pinyin-select/pinyin-select.js"></script>
