@@ -58,8 +58,6 @@ interface State {
   lastIsFuzzy: boolean;
   lastQuizTime: Date | null;
   isRepeat: boolean;
-
-  mode: Mode;
 }
 
 declare const ctxmenu: import("../node_modules/ctxmenu/index").CTXMenuSingleton;

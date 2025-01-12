@@ -21,9 +21,9 @@ body,
   margin-bottom: 10px;
 }
 
-#quiz:not([data-type="new-display"]) #counter,
-#quiz:not([data-type="new-display"]) #check-buttons-area,
-#quiz[data-type="old-display"] .hide-showcase {
+#quiz:not([data-type$="answered"]) .hide-showcase,
+#quiz:not([data-type$="answered"]):not([data-type="soon-display"])
+  [contenteditable] {
   display: none;
 }
 

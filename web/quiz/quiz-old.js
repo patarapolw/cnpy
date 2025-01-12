@@ -26,7 +26,6 @@ const state = {
   lastIsFuzzy: false,
   lastQuizTime: null,
   isRepeat: false,
-  mode: "new-display",
 };
 
 const elRoot = document.getElementById("quiz");
@@ -46,6 +45,12 @@ const elNotes = /** @type {HTMLDivElement} */ (
 const elNotesTextarea = /** @type {HTMLTextAreaElement} */ (
   elNotes.querySelector("textarea")
 );
+
+const ATTR_DATA_TYPE = "data-type";
+
+/** @param m {Mode} */
+const setMode = (m) => elRoot.setAttribute(ATTR_DATA_TYPE, m);
+const getMode = () => /** @type {Mode} */ (elRoot.getAttribute(ATTR_DATA_TYPE));
 
 elInput.addEventListener("keypress", (ev) => {
   switch (ev.key) {
@@ -90,9 +95,11 @@ elInput.addEventListener("keydown", (ev) => {
 let isDialog = false;
 
 document.addEventListener("keydown", (ev) => {
+  const mode = getMode();
+  if (mode.endsWith("display")) return;
+
   switch (ev.key) {
     case "Escape":
-      if (state.mode === "old-display") return;
       if (state.isRepeat) {
         if (state.lastIsRight === true) {
           mark("repeat");
@@ -115,7 +122,6 @@ document.addEventListener("keydown", (ev) => {
       break;
     case "F5":
     case "F1":
-      if (state.mode === "old-display") return;
       if (!state.isRepeat) {
         state.review_counter -= state.max - state.i;
         newVocabList();
@@ -272,8 +278,10 @@ function doNext(ev) {
     ev.preventDefault();
   }
 
+  const mode = getMode();
+
   if (elCompare.innerText) {
-    if (state.mode === "old-display") return;
+    if (mode.endsWith("display")) return;
     if (typeof state.lastIsRight === "boolean") {
       mark();
     }
@@ -811,8 +819,16 @@ async function newVocabList() {
     if (!elRoot.getAttribute("data-type")) {
       customItemSRS = r.customItemSRS;
 
-      state.mode = customItemSRS === undefined ? "new-display" : "old-display";
-      elRoot.setAttribute("data-type", state.mode);
+      switch (customItemSRS) {
+        case undefined:
+          setMode("unanswered");
+          break;
+        case null:
+          setMode("new-display");
+          break;
+        default:
+          setMode("old-display");
+      }
     }
 
     if (r.count < 5 && state.lastQuizTime) {
@@ -930,7 +946,7 @@ async function newVocabList() {
       state.isRepeat = true;
       mark("repeat");
     } else {
-      elRoot.setAttribute("data-type", "due");
+      setMode("soon-display");
     }
 
     elStatus.append(i);
