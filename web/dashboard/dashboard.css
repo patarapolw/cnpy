@@ -2,6 +2,17 @@
   font-family: sans-serif;
 }
 
+/* Hide the scrollbar for Chrome, Safari and Opera */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide the scrollbar for Internet Explorer, Edge and Firefox */
+* {
+  -ms-overflow-style: none; /* Internet Explorer and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
 body {
   margin: 25px;
 }
@@ -54,16 +65,25 @@ body {
   z-index: 1;
 }
 
-.tier-0 {
+[data-tier="0"] {
   color: black;
 }
 
-.tier-1 {
+[data-tier="1"] {
   color: peru;
 }
 
-.tier-2 {
+[data-tier="2"] {
   color: skyblue;
+}
+
+[data-tier="3"] {
+  color: #eee;
+}
+
+[data-tier="3"]:hover,
+[data-tier="3"].hover {
+  color: #ccc;
 }
 
 .button {

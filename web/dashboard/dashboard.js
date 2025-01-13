@@ -70,18 +70,17 @@ async function doLoading() {
 
       const hanziSet = new Set();
 
-      [r.h5, r.lone, r.h3].forEach((s, i) => {
+      [r.h5, r.lone, r.h3, r.all].forEach((s, i) => {
         if (!s) return;
-        const className = `hanzi tier-${i}`;
-
         for (const c of s) {
           if (!hanziSet.has(c)) {
             hanziSet.add(c);
 
             const el = document.createElement("span");
             el.innerText = c;
-            el.className = className;
+            el.className = "hanzi";
             el.setAttribute("data-hanzi", c);
+            el.setAttribute("data-tier", i.toString());
             el.addEventListener("mouseenter", () => {
               ctxmenu.hide();
             });

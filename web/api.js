@@ -43,6 +43,7 @@ export const api = {
    *  lone: string;
    *  h3: string;
    *  h5: string;
+   *  all: string;
    *  good: number;
    *  accuracy: number;
    * }>}
