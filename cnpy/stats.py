@@ -1,6 +1,6 @@
 import json
 from collections import Counter
-from typing import TypedDict
+from typing import TypedDict, Literal
 
 
 from cnpy.db import db
@@ -27,6 +27,7 @@ Stats = TypedDict(
         "h3.count": int,
         "accuracy": float,
         "hanzi.count": int,
+        "all": str,
     },
     total=False,
 )
@@ -56,12 +57,19 @@ def make_stats():
         )
     ]
 
-    good = [r for r in studied if r["srs"]["difficulty"] < max_difficulty]
-
     stats = Stats()
 
-    if good:
-        for r in good:
+    good = []
+    # as for python 3.7+, the dict is ordered by definition
+    all_han: dict[str, Literal[True]] = {}
+
+    for r in studied:
+        for c in r["v"]:
+            all_han[c] = True
+
+        if r["srs"]["difficulty"] < max_difficulty:
+            good.append(r)
+
             f = r["data"]["wordfreq"] or 0
 
             if f >= 6:
@@ -103,9 +111,14 @@ def make_stats():
                 else:
                     stats[k] = 1
 
-        def p(arr: list, f: float):
-            return arr[int(len(arr) * f)]["data"]["wordfreq"]
+    stats["studied"] = len(studied)
+    stats["good"] = len(good)
+    stats["all"] = "".join(all_han.keys())
 
+    def p(arr: list, f: float):
+        return arr[int(len(arr) * f)]["data"]["wordfreq"]
+
+    if good:
         stats["p75"] = p(good, 0.75)
         stats["p99"] = p(good, 0.99)
 
@@ -136,8 +149,6 @@ def make_stats():
                 stats["h5"] = stats.get("h5", "") + c
                 stats["h5.count"] = i
 
-        stats["studied"] = len(studied)
-        stats["good"] = len(good)
         stats["accuracy"] = stats["good"] / stats["studied"]
 
         # lone+h3.count remove duplicate
@@ -151,8 +162,5 @@ def make_stats():
         else:
             if "lone" in stats:
                 stats["hanzi.count"] = len(stats["lone"])
-    else:
-        stats["studied"] = len(studied)
-        stats["good"] = len(good)
 
     return stats

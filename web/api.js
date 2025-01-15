@@ -45,6 +45,7 @@ export const api = {
    *  h5: string;
    *  good: number;
    *  accuracy: number;
+   *  all: string;
    * }>}
    */
   async get_stats() {

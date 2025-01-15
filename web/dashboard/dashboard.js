@@ -70,7 +70,7 @@ async function doLoading() {
 
       const hanziSet = new Set();
 
-      [r.h5, r.lone, r.h3].forEach((s, i) => {
+      [r.h5, r.lone, r.h3, r.all].forEach((s, i) => {
         if (!s) return;
         const className = `hanzi tier-${i}`;
 
