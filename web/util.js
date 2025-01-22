@@ -2,14 +2,34 @@
 
 import { api } from "./api.js";
 
-const utterance = new SpeechSynthesisUtterance();
-utterance.lang = "zh-CN";
+/** @type {SpeechSynthesisUtterance} */
+let utterance;
+
+try {
+  if (speechSynthesis.speak) {
+    utterance = new SpeechSynthesisUtterance();
+    utterance.lang = "zh-CN";
+  }
+} finally {
+}
 
 /**
  *
  * @param {string} s
  */
-export function speak(s) {
+export async function speak(s, web = true) {
+  if (utterance && web) {
+    return speakWeb(s);
+  }
+
+  return speakBackend(s).catch(() => speakWeb(s));
+}
+
+/**
+ *
+ * @param {string} s
+ */
+export async function speakBackend(s) {
   let elAudio = Array.from(document.querySelectorAll("audio")).find((el) =>
     el.hasAttribute("data-tts")
   );
@@ -19,14 +39,29 @@ export function speak(s) {
     elAudio.style.display = "none";
   }
 
-  elAudio.onerror = () => {
-    utterance.text = s;
-    speechSynthesis.speak(utterance);
-  };
-
   elAudio.src = `/api/tts/${s}.mp3`;
   elAudio.currentTime = 0;
-  elAudio.play();
+
+  return new Promise((resolve, reject) => {
+    elAudio.onerror = reject;
+    elAudio.play().then(() => {
+      resolve(elAudio);
+    });
+  });
+}
+
+/**
+ *
+ * @param {string} s
+ */
+export async function speakWeb(s) {
+  utterance.text = s;
+  speechSynthesis.speak(utterance);
+
+  return new Promise((resolve, reject) => {
+    utterance.onerror = reject;
+    utterance.onend = resolve;
+  });
 }
 
 /**
