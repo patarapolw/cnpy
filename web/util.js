@@ -39,11 +39,12 @@ export async function speakBackend(s) {
     elAudio.style.display = "none";
   }
 
-  elAudio.src = `/api/tts/${s}.mp3`;
-  elAudio.currentTime = 0;
-
   return new Promise((resolve, reject) => {
     elAudio.onerror = reject;
+
+    elAudio.src = `/api/tts/${s}.mp3`;
+    elAudio.currentTime = 0;
+
     elAudio.play().then(() => {
       resolve(elAudio);
     });
