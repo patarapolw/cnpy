@@ -16,7 +16,7 @@ No typo checking. No turning to Wrong or Right. However, there is a middle-way b
 
 ![Dictionaries](_README/right.png)
 
-![Select reading](_README/select.png)
+![Select reading](_README/select2.png)
 
 ![Repeat Quiz](_README/repeat.png)
 
