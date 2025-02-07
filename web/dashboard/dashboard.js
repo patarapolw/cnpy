@@ -68,6 +68,7 @@ async function doLoading() {
     api.get_stats().then((r) => {
       elHanziList.textContent = "";
 
+      const goodHanziSet = new Set();
       const hanziSet = new Set();
 
       [r.h5, r.lone, r.h3, r.all].forEach((s, i) => {
@@ -77,6 +78,7 @@ async function doLoading() {
         for (const c of s) {
           if (!hanziSet.has(c)) {
             hanziSet.add(c);
+            if (i < 3) goodHanziSet.add(c);
 
             const el = document.createElement("span");
             el.innerText = c;
@@ -119,7 +121,7 @@ async function doLoading() {
 
       elLearnedCount.lang = "zh-CN";
       elLearnedCount.innerText = [
-        `汉字: ${hanziSet.size}`,
+        `汉字: ${goodHanziSet.size}`,
         `生词: ${r.good}` +
           (r.accuracy ? ` (${(r.accuracy * 100).toFixed(0)}%)` : ""),
       ].join(", ");

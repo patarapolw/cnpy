@@ -1,9 +1,11 @@
 {
+    "editor.tabSize": 2,
     "[python]": {
         "diffEditor.ignoreTrimWhitespace": false,
         "editor.formatOnType": true,
         "editor.wordBasedSuggestions": "off",
         "editor.formatOnSave": true,
+        "editor.tabSize": 4,
     },
     "python.analysis.typeCheckingMode": "standard",
     "python.analysis.ignore": ["*.spec"],
@@ -30,6 +32,9 @@
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "esbenp.prettier-vscode",
     },
+    "[vue]": {
+        "editor.tabSize": 2,
+    },
     "files.associations": {
         "*.spec": "python",
     },
@@ -46,4 +51,5 @@
         "python": "$pythonPath $fullFileName",
     },
     "code-runner.runInTerminal": true,
+    "vue3snippets.enable-compile-vue-file-on-did-save-code": true,
 }
