@@ -1,6 +1,6 @@
 {
   "name": "cnpy",
-  "version": "1.7.1-fix",
+  "version": "1.7.2-preview",
   "description": "Pinyin SRS that repeats until everything right",
   "main": "index.js",
   "scripts": {

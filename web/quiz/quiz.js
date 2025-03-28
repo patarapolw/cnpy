@@ -164,6 +164,8 @@ ctxmenu.attach("#counter .right", [
 
 const converter = new showdown.Converter({
   parseImgDimensions: true,
+  tables: true,
+  strikethrough: true,
   // openLinksInNewWindow: true,
   emoji: true,
 });
