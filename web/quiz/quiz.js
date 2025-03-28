@@ -28,6 +28,9 @@ const state = {
   isRepeat: false,
 };
 
+/** @type {import("../../node_modules/ctxmenu/index").CTXMItem[][]} */
+const oldVocabList = [];
+
 const elRoot = document.getElementById("quiz");
 const elStatus = document.getElementById("status");
 const elVocab = /** @type {HTMLDivElement} */ (
@@ -755,6 +758,12 @@ async function newVocab() {
           openItem(v);
         },
       },
+      ...oldVocabList
+        .map((ls, i) => ({
+          text: `${oldVocabList.length - i}`,
+          subMenu: ls,
+        }))
+        .reverse(),
     ],
     { attributes: { lang: "zh-CN" } }
   );
@@ -792,16 +801,44 @@ async function newVocab() {
 }
 
 async function newVocabList() {
+  if (!state.isRepeat && state.vocabList.length > 0) {
+    oldVocabList.push(
+      state.vocabList
+        .slice(0, state.i)
+        .reverse()
+        .map((s) => {
+          /** @type {import("../../node_modules/ctxmenu/index").CTXMItem} */
+          const m = {
+            text: s.v,
+            subMenu: [
+              {
+                text: "🔊",
+                action: () => speak(s.v),
+              },
+              {
+                text: "Open",
+                action: () => openItem(s.v),
+              },
+              {
+                text: "Search",
+                action: () => searchVoc(s.v),
+              },
+            ],
+          };
+          return m;
+        })
+    );
+  }
+
   state.i = -1;
   state.skip = 0;
-
-  state.isRepeat = false;
+  state.isRepeat = state.pendingList.length > 0;
 
   let customItemSRS;
 
-  if (state.pendingList.length > 0) {
+  if (state.isRepeat) {
     state.vocabList = state.pendingList;
-    state.isRepeat = true;
+    state.pendingList = [];
   } else if (state.due) {
     const r = await api.due_vocab_list(state.review_counter);
     state.vocabList = r.result;
