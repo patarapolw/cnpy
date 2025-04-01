@@ -91,6 +91,15 @@ elInput.addEventListener("keydown", (ev) => {
 
 let isDialog = false;
 
+document.querySelectorAll("#check-buttons-area button[name]").forEach((b) => {
+  /** @type {HTMLButtonElement} */ (b).onclick = (ev) => {
+    ev.preventDefault();
+    const name = b.getAttribute("name");
+    if (!name) return;
+    mark(name);
+  };
+});
+
 document.addEventListener("keydown", (ev) => {
   switch (ev.key) {
     case "Escape":
@@ -346,7 +355,7 @@ function doNext(ev) {
                     action: () => openItem(k),
                   },
                   {
-                    text: "Search",
+                    text: `*${k}*`,
                     action: () => searchVoc(k, ps),
                   },
                   {
@@ -365,7 +374,7 @@ function doNext(ev) {
                                 action: () => openItem(r),
                               },
                               {
-                                text: "Search",
+                                text: `*${r}*`,
                                 action: () => searchVoc(r, ps),
                               },
                               {
@@ -402,7 +411,7 @@ function doNext(ev) {
                             action: () => openItem(r),
                           },
                           {
-                            text: "Search",
+                            text: `*${r}*`,
                             action: () => searchVoc(r, dictPinyin),
                           },
                           {
@@ -429,7 +438,7 @@ function doNext(ev) {
                 action: () => openItem(k),
               },
               {
-                text: "Search",
+                text: `*${k}*`,
                 action: () => searchVoc(k),
               },
             ],
@@ -437,7 +446,7 @@ function doNext(ev) {
           return m;
         }),
         {
-          text: "Search",
+          text: `*${v}*`,
           action: () => searchVoc(v),
         },
         {
@@ -738,7 +747,7 @@ async function newVocab() {
                 action: () => openItem(s.v),
               },
               {
-                text: "Search",
+                text: `*${s.v}*`,
                 action: () => searchVoc(s.v),
               },
             ],
@@ -760,7 +769,7 @@ async function newVocab() {
       },
       ...oldVocabList
         .map((ls, i) => ({
-          text: `${oldVocabList.length - i}`,
+          text: `${i + 1}`,
           subMenu: ls,
         }))
         .reverse(),
@@ -820,7 +829,7 @@ async function newVocabList() {
                 action: () => openItem(s.v),
               },
               {
-                text: "Search",
+                text: `*${s.v}*`,
                 action: () => searchVoc(s.v),
               },
             ],
