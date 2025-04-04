@@ -6,7 +6,7 @@ import bottle
 import json
 import datetime
 import random
-from typing import Callable, TypedDict, Optional, Literal, Any
+from typing import Callable, TypedDict, Optional, Any
 
 from cnpy import quiz, cedict, sentence
 from cnpy.db import db, radical_db
@@ -77,7 +77,7 @@ def fn_save_settings():
     )
 
 
-srs = fsrs.FSRS()
+srs = fsrs.Scheduler()
 g = ServerGlobal()
 server = bottle.Bottle()
 
