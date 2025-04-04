@@ -14,7 +14,7 @@ def local_ai_translation(v: str) -> str | None:
 
         response = chat(
             model="starling-lm",
-            messages=[{"role": "user", "content": f'"${v}"是'}],
+            messages=[{"role": "user", "content": f'"{v}"是'}],
         )
 
         print("AI response:", response)
@@ -36,12 +36,12 @@ def online_ai_translation(v: str) -> str | None:
         if not client:
             client = OpenAI(
                 base_url="https://api.deepseek.com",
-                # api_key="",  # Replace with your actual API key
+                # api_key="",  # Replace with your actual API key or use environment variable OPENAI_API_KEY
             )
 
         response = client.chat.completions.create(
             model="deepseek-chat",
-            messages=[{"role": "user", "content": f'"${v}"是'}],
+            messages=[{"role": "user", "content": f'"{v}"是'}],
             temperature=1.3,
             stream=False,
         )
@@ -67,8 +67,14 @@ def ai_translation(v: str) -> str:
     for r in db.execute("SELECT t FROM vlist_ai WHERE v = ? LIMIT 1", (v,)):
         return r[0]
 
+    # If not found in the database, insert a placeholder
+    # to avoid repeated queries
+    db.execute("INSERT OR REPLACE INTO vlist_ai (v, t) VALUES (?, ?)", (v, ""))
+    db.commit()
+
     global can_online_ai_translation, can_local_ai_translation
 
+    # Try online AI translation first
     if can_online_ai_translation:
         t = online_ai_translation(v)
         if t:
@@ -77,8 +83,8 @@ def ai_translation(v: str) -> str:
             return t
 
         can_online_ai_translation = False
-    # If online translation fails, fall back to local translation
 
+    # If online translation fails, fall back to local translation
     if can_local_ai_translation:
         t = local_ai_translation(v)
         if t:
@@ -88,15 +94,13 @@ def ai_translation(v: str) -> str:
 
         can_local_ai_translation = False
 
+    # If both online and local translation fail, return an empty string
+    # and mark the entry as failed
     return ""
 
 
 def load_db():
-    """
-    Load the database.
-    :return: None
-    """
-
+    # Create the database if it doesn't exist
     db.execute(
         """
         CREATE TABLE IF NOT EXISTS vlist_ai (
@@ -110,10 +114,9 @@ def load_db():
 
 
 if __name__ == "__main__":
-    # Test the function"
-
+    # Test the speed of the AI translation
     for r in db.execute("SELECT v FROM vlist ORDER BY RANDOM() LIMIT 5"):
         v = r[0]
         print(">", v)
-        translation = online_ai_translation(v)
+        translation = ai_translation(v)
         print(translation)
