@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "b0001a7b20227d687d2d04d7edf6e0b4e7a81b39852ff2b5d99de0a1d109f933"
+            "sha256": "ff9c679ca8d0d7f7c511d9ea67439d56072f1e4485611a677359d7f03bfb0327"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -260,12 +260,12 @@
         },
         "fsrs": {
             "hashes": [
-                "sha256:242616570261d79318b3a9af22de93e97806b9813cc7194c2a0d844959d36726",
-                "sha256:cfbf178ace3adee7d45b4a755bef17df9c0161b8aea249e86506492123d5dbb7"
+                "sha256:3106a03f9abf4c76ad9482d237d0539ff701010d18e2cafd8dbb8d49e7fd1044",
+                "sha256:88c0043f79356b6267bb7f6b80eaa86137aae86ab4f370d963453c638957ddad"
             ],
             "index": "pypi",
-            "markers": "python_version >= '3.10'",
-            "version": "==5.1.3"
+            "markers": "python_version >= '3.9'",
+            "version": "==3.1.0"
         },
         "ftfy": {
             "hashes": [

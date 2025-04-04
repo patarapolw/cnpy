@@ -80,7 +80,7 @@ def fn_save_settings():
     )
 
 
-srs = fsrs.Scheduler()
+srs = fsrs.FSRS()
 g = ServerGlobal()
 server = bottle.Bottle()
 
