@@ -13,6 +13,9 @@ pyinstaller = "*"
 bottle = "*"
 gtts = "*"
 requests = "*"
+ollama = "*"
+openai = "*"
+python-dotenv = "*"
 
 [dev-packages]
 

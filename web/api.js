@@ -177,6 +177,14 @@ export const api = {
   async decompose(ks) {
     return fetchAPI(`/api/decompose`, { ks }).then((r) => r.json());
   },
+  /**
+   *
+   * @param {string} v
+   * @returns {Promise<{result: string}>}
+   */
+  async ai_translation(v) {
+    return fetchAPI(`/api/ai_translation/${v}`).then((r) => r.json());
+  },
 };
 
 /**

@@ -6,9 +6,9 @@ import bottle
 import json
 import datetime
 import random
-from typing import Callable, TypedDict, Optional, Literal, Any
+from typing import Callable, TypedDict, Optional, Any
 
-from cnpy import quiz, cedict, sentence
+from cnpy import quiz, cedict, sentence, ai
 from cnpy.db import db, radical_db
 from cnpy.stats import make_stats
 from cnpy.tts import tts_audio
@@ -34,11 +34,14 @@ class ServerGlobal:
 
     latest_stats = make_stats()
 
+    is_ai_translation_available = True
+
 
 def start():
     quiz.load_db()
     cedict.load_db(g.web_log)
     sentence.load_db(g.web_log)
+    ai.load_db()
 
     g.web_ready()
 
@@ -77,7 +80,7 @@ def fn_save_settings():
     )
 
 
-srs = fsrs.FSRS()
+srs = fsrs.Scheduler()
 g = ServerGlobal()
 server = bottle.Bottle()
 
@@ -115,6 +118,17 @@ with server:
     @bottle.post("/api/get_settings")
     def get_settings():
         return g.settings
+
+    @bottle.post("/api/ai_translation/<v>")
+    def ai_translation(v: str):
+        if g.is_ai_translation_available:
+            t = ai.ai_translation(v)
+            if t:
+                return {"result": t}
+            print("AI translation failed")
+
+        g.is_ai_translation_available = False
+        return {"result": None}
 
     @bottle.post("/api/search")
     def search():
