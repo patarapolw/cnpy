@@ -788,22 +788,6 @@ async function newVocab() {
   } = state.vocabList[state.i];
   // pywebview.api.log({ v, wordfreq });
 
-  const AI_TRANSLATION_STRING = "<!-- AI translation -->";
-
-  if (!notes) {
-    api.ai_translation(v).then((r) => {
-      let notes = elNotesTextarea.value;
-      if (r.result && !notes.includes(AI_TRANSLATION_STRING)) {
-        if (notes) {
-          notes += "\n\n";
-        }
-
-        elNotesTextarea.value = notes + AI_TRANSLATION_STRING + "\n" + r.result;
-        makeNotes();
-      }
-    });
-  }
-
   state.vocabDetails = await api.vocab_details(v);
   elVocab.innerText = v;
   elVocab.onclick = null;
@@ -823,6 +807,27 @@ async function newVocab() {
     }
     a.href = href.replace("__voc__", v);
   });
+
+  const AI_TRANSLATION_STRING = "<!-- AI translation -->";
+
+  if (!notes) {
+    api.ai_translation(v).then((r) => {
+      console.log(state.vocabList[state.i]?.v, v, r);
+      if (state.vocabList[state.i]?.v !== v) return;
+
+      let notes = elNotesTextarea.value;
+      if (r.result && !notes.includes(AI_TRANSLATION_STRING)) {
+        if (notes) {
+          notes += "\n\n";
+        }
+
+        elNotesTextarea.value = notes + AI_TRANSLATION_STRING + "\n" + r.result;
+        makeNotes();
+
+        elNotes.setAttribute("data-has-notes", "1");
+      }
+    });
+  }
 }
 
 async function newVocabList() {
