@@ -17,7 +17,7 @@ def local_ai_translation(v: str) -> str | None:
             messages=[{"role": "user", "content": f'"{v}"是'}],
         )
 
-        print("AI response:", response)
+        print(f"local AI response for {v}:", response)
         return response.message.content
     except Exception as e:
         print(f"Error in ai_translation: {e}")
@@ -46,7 +46,7 @@ def online_ai_translation(v: str) -> str | None:
             stream=False,
         )
 
-        print("AI response:", response)
+        print(f"online AI response for {v}:", response)
         return response.choices[0].message.content
     except Exception as e:
         print(f"Error in ai_translation: {e}")
@@ -64,12 +64,12 @@ def ai_translation(v: str) -> str:
     :param v: The string to translate.
     :return: The translated string or None if an error occurs.
     """
-    for r in db.execute("SELECT t FROM vlist_ai WHERE v = ? LIMIT 1", (v,)):
+    for r in db.execute("SELECT t FROM ai_dict WHERE v = ? LIMIT 1", (v,)):
         return r[0]
 
     # If not found in the database, insert a placeholder
     # to avoid repeated queries
-    db.execute("INSERT OR REPLACE INTO vlist_ai (v, t) VALUES (?, ?)", (v, ""))
+    db.execute("INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, ""))
     db.commit()
 
     global can_online_ai_translation, can_local_ai_translation
@@ -78,7 +78,7 @@ def ai_translation(v: str) -> str:
     if can_online_ai_translation:
         t = online_ai_translation(v)
         if t:
-            db.execute("INSERT OR REPLACE INTO vlist_ai (v, t) VALUES (?, ?)", (v, t))
+            db.execute("INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, t))
             db.commit()
             return t
 
@@ -88,7 +88,7 @@ def ai_translation(v: str) -> str:
     if can_local_ai_translation:
         t = local_ai_translation(v)
         if t:
-            db.execute("INSERT OR REPLACE INTO vlist_ai (v, t) VALUES (?, ?)", (v, t))
+            db.execute("INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, t))
             db.commit()
             return t
 
@@ -103,13 +103,15 @@ def load_db():
     # Create the database if it doesn't exist
     db.execute(
         """
-        CREATE TABLE IF NOT EXISTS vlist_ai (
+        CREATE TABLE IF NOT EXISTS ai_dict (
             v TEXT NOT NULL,
             t TEXT NOT NULL,
             PRIMARY KEY (v)
         );
         """
     )
+
+    db.execute("DELETE FROM ai_dict WHERE t = ''")
     db.commit()
 
 
