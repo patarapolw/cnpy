@@ -220,10 +220,16 @@ summary {
 
 #notes fieldset {
   display: none;
-  height: 150px;
+  min-height: 150px;
+  max-height: 80vh;
   width: 100%;
   margin-top: 5px;
   grid-template-rows: 1fr auto;
+}
+
+#notes fieldset > :first-child {
+  height: 100%;
+  min-height: 120px;
 }
 
 #notes[data-has-notes=""] fieldset {
