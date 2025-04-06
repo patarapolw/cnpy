@@ -11,6 +11,8 @@ import json
 
 from cnpy.dir import tmp_root, assets_root
 
+jieba.set_dictionary(assets_root / "dict.txt.big")
+
 db = sqlite3.connect("assets/assets.db")
 
 
