@@ -125,9 +125,8 @@ with server:
             t = ai.ai_translation(v)
             if t:
                 return {"result": t}
-            print("AI translation failed")
+            print("empty AI translation")
 
-        g.is_ai_translation_available = False
         return {"result": None}
 
     @bottle.post("/api/search")

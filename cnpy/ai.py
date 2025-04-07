@@ -82,7 +82,7 @@ def ai_translation(v: str) -> str:
             db.commit()
             return t
 
-        can_online_ai_translation = False
+        # can_online_ai_translation = False
 
     # If online translation fails, fall back to local translation
     if can_local_ai_translation:
