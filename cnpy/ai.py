@@ -17,7 +17,7 @@ def local_ai_translation(v: str) -> str | None:
             messages=[{"role": "user", "content": f'"{v}"是'}],
         )
 
-        print(f"local AI response for {v}:", response)
+        print(f"{v} completed local AI response")
         return response.message.content
     except Exception as e:
         print(f"Error in ai_translation: {e}")
@@ -46,7 +46,7 @@ def online_ai_translation(v: str) -> str | None:
             stream=False,
         )
 
-        print(f"online AI response for {v}:", response)
+        print(f"{v} completed online AI response")
         return response.choices[0].message.content
     except Exception as e:
         print(f"Error in ai_translation: {e}")
