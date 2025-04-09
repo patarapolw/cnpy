@@ -59,7 +59,7 @@ window.addEventListener("focus", () => {
     reloadQueue = doLoading();
   }
 });
-window.addEventListener("pywebviewready", () => {
+document.addEventListener("DOMContentLoaded", () => {
   reloadQueue = doLoading();
 });
 

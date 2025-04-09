@@ -74,48 +74,51 @@ export function openInModal(url, title) {
   tab.className = "tab";
 
   const tabTitle = document.createElement("span");
+  tabTitle.lang = "zh-CN";
   tabTitle.innerText = title;
-
-  const closeTabButton = document.createElement("button");
-  closeTabButton.className = "tab-close-button";
-  closeTabButton.innerText = "×";
-  closeTabButton.addEventListener("click", () => {
-    let nextActiveTab = null;
-
-    if (tab.classList.contains("active")) {
-      // Find the previous tab
-      const tabs = Array.from(tabBar.children);
-      const index = tabs.indexOf(tab);
-      nextActiveTab = tabs[index - 1] || tabs[index + 1];
-    }
-
-    if (!nextActiveTab) {
-      nextActiveTab = Array.from(tabBar.children).find((t) =>
-        t.classList.contains("active")
-      );
-    }
-
-    if (nextActiveTab) {
-      setTimeout(() => {
-        nextActiveTab.clickTab();
-      });
-    }
-
-    // Remove the tab and its corresponding iframe
-    tabBar.removeChild(tab);
-    iframeContainer.removeChild(iframe);
-
-    // If no tabs are left, remove the modal and overlay
-    if (tabBar.children.length === 0) {
-      document.body.removeChild(modalContainer);
-      document.body.removeChild(overlay);
-      modalContainer = null;
-      overlay = null;
-    }
-  });
-
   tab.appendChild(tabTitle);
-  tab.appendChild(closeTabButton);
+
+  if (tabBar.children.length > 0) {
+    const closeTabButton = document.createElement("button");
+    closeTabButton.className = "tab-close-button";
+    closeTabButton.innerText = "×";
+    closeTabButton.addEventListener("click", () => {
+      let nextActiveTab = null;
+
+      if (tab.classList.contains("active")) {
+        // Find the previous tab
+        const tabs = Array.from(tabBar.children);
+        const index = tabs.indexOf(tab);
+        nextActiveTab = tabs[index - 1] || tabs[index + 1];
+      }
+
+      if (!nextActiveTab) {
+        nextActiveTab = Array.from(tabBar.children).find((t) =>
+          t.classList.contains("active")
+        );
+      }
+
+      if (nextActiveTab) {
+        setTimeout(() => {
+          nextActiveTab.clickTab();
+        });
+      }
+
+      // Remove the tab and its corresponding iframe
+      tabBar.removeChild(tab);
+      iframeContainer.removeChild(iframe);
+
+      // If no tabs are left, remove the modal and overlay
+      if (tabBar.children.length === 0) {
+        document.body.removeChild(modalContainer);
+        document.body.removeChild(overlay);
+        modalContainer = null;
+        overlay = null;
+      }
+    });
+
+    tab.appendChild(closeTabButton);
+  }
 
   // Create a new iframe
   const iframe = document.createElement("iframe");
