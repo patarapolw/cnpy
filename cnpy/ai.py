@@ -14,12 +14,21 @@ def local_ai_translation(v: str) -> str | None:
     """
     Translate a string using local AI.
 
-    :note: This function requires the Ollama library to be installed and configured.
-    :see: https://ollama.com for installation instructions.
-    :note: The model "starling-lm" should be available locally.
-    :see: https://ollama.com/library/starling-lm for model details.
-    :param v: The string to translate.
-    :return: The translated string or None if fails.
+    Notes:
+        - This function requires the Ollama library to be installed and configured.
+        - The model "starling-lm" should be available locally.
+        - If the function fails (e.g., model not found or Ollama not installed),
+          local AI translation will be disabled for subsequent calls.
+
+    See Also:
+        - https://ollama.com for installation instructions.
+        - https://ollama.com/library/starling-lm for model details.
+
+    Args:
+        v (str): The string to translate.
+
+    Returns:
+        str | None: The translated string, or None if the translation fails.
     """
     from ollama import chat
 
@@ -53,10 +62,20 @@ def online_ai_translation(v: str) -> str | None:
     """
     Translate a string using online AI.
 
-    :note: This function requires DeepSeek's OpenAI API to be configured.
-    :see: https://api-docs.deepseek.com for API documentation.
-    :param v: The string to translate.
-    :return: The translated string or None if fails.
+    Notes:
+        - This function requires DeepSeek's OpenAI API to be configured.
+        - If the function fails due to network issues, authentication errors,
+          or lack of subscription, online AI translation will be disabled for subsequent calls.
+        - Other errors (e.g., rate limits or server errors) will not disable online translation.
+
+    See Also:
+        - https://api-docs.deepseek.com for API documentation.
+
+    Args:
+        v (str): The string to translate.
+
+    Returns:
+        str | None: The translated string, or None if the translation fails.
     """
     try:
         print("Using online AI translation for:", v)
@@ -95,8 +114,15 @@ def online_ai_translation(v: str) -> str | None:
 def ai_translation(v: str) -> str | None:
     """
     Translate a string using AI.
-    :param v: The string to translate.
-    :return: The translated string or None if fails.
+
+    The function first checks the local database for a translation. If not found, it attempts
+    online AI translation, followed by local AI translation as a fallback.
+
+    Args:
+        v (str): The string to translate.
+
+    Returns:
+        str | None: The translated string, or None if all translation methods fail.
     """
     for r in db.execute("SELECT t FROM ai_dict WHERE v = ? LIMIT 1", (v,)):
         return r[0]
@@ -127,7 +153,12 @@ def ai_translation(v: str) -> str | None:
 
 
 def load_db():
-    # Create the database if it doesn't exist
+    """
+    Initialize the database.
+
+    This function creates the `ai_dict` table if it does not exist and removes
+    placeholder entries from the table.
+    """
     db.execute(
         """
         CREATE TABLE IF NOT EXISTS ai_dict (
