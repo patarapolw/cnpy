@@ -1,9 +1,12 @@
 from openai import OpenAI
 from dotenv import load_dotenv
 
+from cnpy.db import db
+
 load_dotenv()
 
-from cnpy.db import db
+can_local_ai_translation = True
+can_online_ai_translation = True
 
 
 def local_ai_translation(v: str) -> str | None:
@@ -21,6 +24,11 @@ def local_ai_translation(v: str) -> str | None:
         return response.message.content
     except Exception as e:
         print(f"Error in ai_translation: {e}")
+
+        global can_local_ai_translation
+        can_local_ai_translation = False
+
+        print("Disabled local AI translation")
 
     return None
 
@@ -51,11 +59,14 @@ def online_ai_translation(v: str) -> str | None:
     except Exception as e:
         print(f"Error in ai_translation: {e}")
 
+        msg = str(e).lower()
+        if "api_key" in msg or "authentication" in msg or "connection" in msg:
+            global can_online_ai_translation
+            can_online_ai_translation = False
+
+            print("Disabled online AI translation")
+
     return None
-
-
-can_online_ai_translation = True
-can_local_ai_translation = True
 
 
 def ai_translation(v: str) -> str:
@@ -72,8 +83,6 @@ def ai_translation(v: str) -> str:
     db.execute("INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, ""))
     db.commit()
 
-    global can_online_ai_translation, can_local_ai_translation
-
     # Try online AI translation first
     if can_online_ai_translation:
         t = online_ai_translation(v)
@@ -82,8 +91,6 @@ def ai_translation(v: str) -> str:
             db.commit()
             return t
 
-        # can_online_ai_translation = False
-
     # If online translation fails, fall back to local translation
     if can_local_ai_translation:
         t = local_ai_translation(v)
@@ -91,8 +98,6 @@ def ai_translation(v: str) -> str:
             db.execute("INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, t))
             db.commit()
             return t
-
-        can_local_ai_translation = False
 
     # If both online and local translation fail, return an empty string
     # and mark the entry as failed
