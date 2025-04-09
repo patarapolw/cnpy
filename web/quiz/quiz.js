@@ -1033,13 +1033,21 @@ function makeNotes(skipSave) {
   );
   const item = state.vocabList[state.i];
 
+  const AI_TRANSLATION_STRING = "<!-- AI translation -->";
+
   // Use a flag to prevent repeated AI translation calls for the same item
-  if (!makeNotes.aiTranslationTriggeredSet.has(item.v) && !notesText.trim()) {
+  if (
+    !makeNotes.aiTranslationTriggeredSet.has(item.v) &&
+    (!notesText.trim() || notesText.endsWith(AI_TRANSLATION_STRING))
+  ) {
     makeNotes.aiTranslationTriggeredSet.add(item.v); // Add the item to the set
 
-    const AI_TRANSLATION_STRING = "<!-- AI translation -->";
     api.ai_translation(item.v).then((r) => {
       let notes = item.data.notes || "";
+      if (notes.endsWith(AI_TRANSLATION_STRING)) {
+        notes = notes.slice(0, notes.length - AI_TRANSLATION_STRING.length);
+      }
+
       if (r.result && !notes.includes(AI_TRANSLATION_STRING)) {
         if (notes) {
           notes += "\n\n";
