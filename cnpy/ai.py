@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 
 from cnpy.db import db
 
+# Load environment variables from .env file
 load_dotenv()
 
 can_local_ai_translation = True
@@ -10,13 +11,23 @@ can_online_ai_translation = True
 
 
 def local_ai_translation(v: str) -> str | None:
+    """
+    Translate a string using local AI.
+
+    :note: This function requires the Ollama library to be installed and configured.
+    :see: https://ollama.com for installation instructions.
+    :note: The model "starling-lm" should be available locally.
+    :see: https://ollama.com/library/starling-lm for model details.
+    :param v: The string to translate.
+    :return: The translated string or None if fails.
+    """
     from ollama import chat
 
     try:
         print("Using local AI translation for:", v)
 
         response = chat(
-            model="starling-lm",
+            model="starling-lm",  # Replace with other models if needed
             messages=[{"role": "user", "content": f'"{v}"是'}],
         )
 
@@ -25,6 +36,8 @@ def local_ai_translation(v: str) -> str | None:
     except Exception as e:
         print(f"Error in ai_translation: {e}")
 
+        # Disable local AI translation if it fails
+        # such as model not found or ollama not installed
         global can_local_ai_translation
         can_local_ai_translation = False
 
@@ -37,20 +50,28 @@ client: OpenAI | None = None
 
 
 def online_ai_translation(v: str) -> str | None:
+    """
+    Translate a string using online AI.
+
+    :note: This function requires DeepSeek's OpenAI API to be configured.
+    :see: https://api-docs.deepseek.com for API documentation.
+    :param v: The string to translate.
+    :return: The translated string or None if fails.
+    """
     try:
         print("Using online AI translation for:", v)
 
         global client
         if not client:
             client = OpenAI(
-                base_url="https://api.deepseek.com",
+                base_url="https://api.deepseek.com",  # Replace with other providers if needed
                 # api_key="",  # Replace with your actual API key or use environment variable OPENAI_API_KEY
             )
 
         response = client.chat.completions.create(
-            model="deepseek-chat",
+            model="deepseek-chat",  # Replace with other models if needed
             messages=[{"role": "user", "content": f'"{v}"是'}],
-            temperature=1.3,
+            temperature=1.3,  # Adjust temperature according to documentation
             stream=False,
         )
 
@@ -59,6 +80,8 @@ def online_ai_translation(v: str) -> str | None:
     except Exception as e:
         print(f"Error in ai_translation: {e}")
 
+        # Check for authentication or connection errors
+        # and disable online AI translation if necessary
         msg = str(e).lower()
         if "api_key" in msg or "authentication" in msg or "connection" in msg:
             global can_online_ai_translation
@@ -69,11 +92,11 @@ def online_ai_translation(v: str) -> str | None:
     return None
 
 
-def ai_translation(v: str) -> str:
+def ai_translation(v: str) -> str | None:
     """
     Translate a string using AI.
     :param v: The string to translate.
-    :return: The translated string or None if an error occurs.
+    :return: The translated string or None if fails.
     """
     for r in db.execute("SELECT t FROM ai_dict WHERE v = ? LIMIT 1", (v,)):
         return r[0]
@@ -99,9 +122,8 @@ def ai_translation(v: str) -> str:
             db.commit()
             return t
 
-    # If both online and local translation fail, return an empty string
-    # and mark the entry as failed
-    return ""
+    # If both online and local translation fail, return None
+    return None
 
 
 def load_db():
@@ -116,6 +138,7 @@ def load_db():
         """
     )
 
+    # Delete placeholder entries
     db.execute("DELETE FROM ai_dict WHERE t = ''")
     db.commit()
 
