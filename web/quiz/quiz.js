@@ -807,27 +807,6 @@ async function newVocab() {
     }
     a.href = href.replace("__voc__", v);
   });
-
-  const AI_TRANSLATION_STRING = "<!-- AI translation -->";
-
-  if (!notes) {
-    api.ai_translation(v).then((r) => {
-      console.log(state.vocabList[state.i]?.v, v, r);
-      if (state.vocabList[state.i]?.v !== v) return;
-
-      let notes = elNotesTextarea.value;
-      if (r.result && !notes.includes(AI_TRANSLATION_STRING)) {
-        if (notes) {
-          notes += "\n\n";
-        }
-
-        elNotesTextarea.value = notes + AI_TRANSLATION_STRING + "\n" + r.result;
-        makeNotes();
-
-        elNotes.setAttribute("data-has-notes", "1");
-      }
-    });
-  }
 }
 
 async function newVocabList() {
@@ -1015,10 +994,35 @@ function makeNotes(skipSave) {
   const elDisplay = /** @type {HTMLDivElement} */ (
     elNotes.querySelector("#notes-show .notes-display")
   );
+  const item = state.vocabList[state.i];
 
-  if (!notesText.trim() && !elDisplay.innerHTML.trim()) return;
+  // Use a flag to prevent repeated AI translation calls for the same item
+  if (!makeNotes.aiTranslationTriggeredSet.has(item.v) && !notesText.trim()) {
+    makeNotes.aiTranslationTriggeredSet.add(item.v); // Add the item to the set
 
-  const newHTML = converter.makeHtml(notesText);
+    const AI_TRANSLATION_STRING = "<!-- AI translation -->";
+    api.ai_translation(item.v).then((r) => {
+      let notes = item.data.notes || "";
+      if (r.result && !notes.includes(AI_TRANSLATION_STRING)) {
+        if (notes) {
+          notes += "\n\n";
+        }
+
+        notes += AI_TRANSLATION_STRING + "\n" + r.result;
+        item.data.notes = notes;
+
+        // Check if the item is still the same
+        if (state.vocabList[state.i]?.v !== item.v) return;
+
+        elNotesTextarea.value = notes;
+        makeNotes(true); // Update the notes display
+        elNotes.setAttribute("data-has-notes", "1");
+      }
+      makeNotes.aiTranslationTriggeredSet.delete(item.v); // Remove the item from the set
+    });
+  }
+
+  const newHTML = notesText.trim() ? converter.makeHtml(notesText) : "";
   if (newHTML === elDisplay.innerHTML) return;
 
   elDisplay.innerHTML = newHTML;
@@ -1029,7 +1033,6 @@ function makeNotes(skipSave) {
   });
 
   if (!skipSave) {
-    const item = state.vocabList[state.i];
     item.data = item.data || {
       wordfreq: 0,
       notes: "",
@@ -1038,3 +1041,6 @@ function makeNotes(skipSave) {
     api.save_notes(item.v, notesText);
   }
 }
+
+// Initialize the flag for AI translation
+makeNotes.aiTranslationTriggeredSet = /** @type {Set<string>} */ (new Set());

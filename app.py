@@ -20,6 +20,7 @@ if __name__ == "__main__":
         server,  # type: ignore
         text_select=True,
         confirm_close=True,
+        maximized=True,
     )
     log_win = None
 
