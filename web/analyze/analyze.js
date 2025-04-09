@@ -57,7 +57,7 @@ elButtonSubmit.addEventListener("click", async (ev) => {
             action: () => openItem(r.v),
           },
           {
-            text: "Search",
+            text: `*${r.v}*`,
             action: () => searchVoc(r.v),
           },
           {

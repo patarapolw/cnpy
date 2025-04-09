@@ -62,7 +62,6 @@ if __name__ == "__main__":
     g.web_log = web_log
     g.web_close_log = web_close_log
     g.web_ready = lambda: win.load_url("/dashboard.html")
-    g.web_window = web_window
 
     webview.start(lambda: start(), debug=is_debug)
 

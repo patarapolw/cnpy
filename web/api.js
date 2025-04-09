@@ -131,16 +131,6 @@ export const api = {
   },
   /**
    *
-   * @param {string} url
-   * @param {string} title
-   * @param {{ width: number, height: number} | { maximized: true } | null} [args]
-   */
-  async new_window(url, title, args) {
-    url = new URL(url, location.origin).href;
-    return fetchAPI("/api/new_window", { url, title, args });
-  },
-  /**
-   *
    * @param {string} f
    */
   async load_file(f) {

@@ -1,6 +1,7 @@
 //@ts-check
 
 import { api } from "./api.js";
+import { openInModal } from "./modal.js";
 
 /** @type {SpeechSynthesisUtterance} */
 let utterance;
@@ -101,7 +102,7 @@ export function comp_pinyin(a, b, isFuzzy) {
 export async function openItem(v) {
   const r = await api.set_vocab_for_quiz(v);
   if (r.ok) {
-    api.new_window("./quiz.html", v);
+    openInModal("./quiz.html", v);
   } else {
     alert(`Invalid vocab: ${v}`);
   }
@@ -133,7 +134,7 @@ export async function searchPinyin(v, ps) {
   u.pathname = "/search.html";
   u.searchParams.set("q", joinPinyinForRegex(ps));
 
-  api.new_window(u.pathname + u.search, "Similar pinyin to " + v);
+  openInModal(u.pathname + u.search, `p:${v}`);
 }
 
 /**
@@ -148,7 +149,7 @@ export async function searchVoc(v, ps) {
     "q",
     JSON.stringify({ v, p: ps ? joinPinyinForRegex(ps) : undefined })
   );
-  api.new_window(u.pathname + u.search, "Word containing " + v);
+  openInModal(u.pathname + u.search, `*${v}*`);
 }
 
 /**
@@ -163,5 +164,5 @@ export async function searchComponent(c, ps) {
     "q",
     JSON.stringify({ c, p: ps ? joinPinyinForRegex(ps) : undefined })
   );
-  api.new_window(u.pathname + u.search, "Hanzi containing " + c);
+  openInModal(u.pathname + u.search, `c:${c}`);
 }

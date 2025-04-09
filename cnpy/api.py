@@ -24,7 +24,6 @@ class ServerGlobal:
     web_log: Callable
     web_close_log: Callable
     web_ready: Callable
-    web_window: Callable[[str, str, Optional[dict]], Any]
 
     settings_path = user_root / "settings.json"
     settings = UserSettings(levels=[], voice="")
@@ -634,16 +633,6 @@ with server:
             )
 
         db.commit()
-
-    @bottle.post("/api/new_window")
-    def new_window():
-        obj: Any = bottle.request.json
-
-        g.web_window(
-            obj["url"],
-            obj["title"],
-            obj.get("args"),
-        )
 
     @bottle.post("/api/load_file/<f:path>")
     def load_file(f: str):

@@ -1,6 +1,7 @@
 //@ts-check
 
 import { api } from "../api.js";
+import { openInModal } from "../modal.js";
 import { openItem, searchComponent, searchVoc, speak } from "../util.js";
 
 const elDueCount = /** @type {HTMLSpanElement} */ (
@@ -15,15 +16,55 @@ const elHanziList = /** @type {HTMLDivElement} */ (
   document.getElementById("hanzi-list")
 );
 
-document.querySelectorAll('a[target="new_window"]').forEach((a) => {
+document.querySelectorAll('a[target="modal"]').forEach((a) => {
   if (!(a instanceof HTMLAnchorElement)) return;
   a.onclick = (ev) => {
     ev.preventDefault();
-    api.new_window(
-      a.href,
-      a.innerText,
-      a.href.includes("levels.html") ? { maximized: true } : null
-    );
+
+    if (a.href.includes("levels.html")) {
+      const iframe = document.createElement("iframe");
+      iframe.src = a.href;
+      iframe.style.width = "100%";
+      iframe.style.height = "100%";
+      iframe.style.border = "none";
+
+      const modal = document.createElement("div");
+      modal.style.position = "fixed";
+      modal.style.top = "0";
+      modal.style.left = "0";
+      modal.style.width = "100vw";
+      modal.style.height = "100vh";
+      modal.style.backgroundColor = "white";
+      modal.style.border = "1px solid #ccc";
+      modal.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
+      modal.style.zIndex = "1000";
+      modal.style.display = "flex";
+      modal.style.flexDirection = "column";
+
+      const closeButton = document.createElement("button");
+      closeButton.innerText = "×";
+      closeButton.style.position = "absolute";
+      closeButton.style.top = "10px";
+      closeButton.style.right = "10px";
+      closeButton.style.height = "30px";
+      closeButton.style.width = "30px";
+      closeButton.style.border = "none";
+      closeButton.style.backgroundColor = "#f5f5f5";
+      closeButton.style.cursor = "pointer";
+      closeButton.style.textAlign = "center";
+      closeButton.style.lineHeight = "30px";
+      closeButton.style.borderRadius = "50%";
+      closeButton.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.2)";
+      closeButton.onclick = () => {
+        modal.remove();
+      };
+
+      modal.appendChild(iframe);
+      modal.appendChild(closeButton);
+      document.body.appendChild(modal);
+    } else {
+      openInModal(a.href, a.innerText.split(" ")[0]);
+    }
   };
 });
 
@@ -105,7 +146,7 @@ async function doLoading() {
                   action: () => openItem(c),
                 },
                 {
-                  text: "Search",
+                  text: `*${c}*`,
                   action: () => searchVoc(c),
                 },
               ],
@@ -141,7 +182,7 @@ async function doLoading() {
               action: () => openItem(c),
             },
             {
-              text: "Search",
+              text: `*${c}*`,
               action: () => searchVoc(c),
             },
             {

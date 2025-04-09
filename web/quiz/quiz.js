@@ -1,6 +1,7 @@
 //@ts-check
 
 import { api } from "../api.js";
+import { openInModal } from "../modal.js";
 import {
   comp_pinyin,
   openItem,
@@ -89,8 +90,6 @@ elInput.addEventListener("keydown", (ev) => {
   }
 });
 
-let isDialog = false;
-
 document.querySelectorAll("#check-buttons-area button[name]").forEach((b) => {
   /** @type {HTMLButtonElement} */ (b).onclick = (ev) => {
     ev.preventDefault();
@@ -134,18 +133,6 @@ document.addEventListener("keydown", (ev) => {
   }
 });
 
-window.addEventListener("focus", async () => {
-  if (isDialog && elCompare.innerText) {
-    isDialog = false;
-
-    const { v } = state.vocabList[state.i];
-    state.vocabList[state.i] = await api.get_vocab(v);
-
-    softCleanup();
-    doNext();
-  }
-});
-
 window.addEventListener("click", (ev) => {
   if (ev.target instanceof HTMLElement) {
     if (
@@ -159,12 +146,12 @@ window.addEventListener("click", (ev) => {
 ctxmenu.attach("#counter .right", [
   {
     text: "Add vocab list",
-    action: () => api.new_window("./list.html?f=vocab/vocab.txt", "Add vocab"),
+    action: () => openInModal("./list.html?f=vocab/vocab.txt", "Add"),
     style: "text-align: left",
   },
   {
     text: "Skip vocab list",
-    action: () => api.new_window("./list.html?f=skip/skip.txt", "Skip"),
+    action: () => openInModal("./list.html?f=skip/skip.txt", "Skip"),
     style: "text-align: left",
   },
   {
@@ -272,7 +259,7 @@ elNotes.querySelectorAll("button").forEach((b) => {
   }
 });
 
-window.addEventListener("pywebviewready", () => {
+document.addEventListener("DOMContentLoaded", () => {
   newVocab();
 });
 
@@ -505,11 +492,93 @@ function doNext(ev) {
       ev.preventDefault();
       const a = elCompare;
       if (!a.href) return;
-      isDialog = true;
-      api.new_window(a.href, a.title || a.innerText, {
-        width: 300,
-        height: 300,
+
+      const iframe = document.createElement("iframe");
+      iframe.src = a.href;
+      iframe.style.width = "100%";
+      iframe.style.height = "100%";
+      iframe.style.border = "none";
+
+      const modal = document.createElement("div");
+      modal.style.position = "fixed";
+      modal.style.top = "50%";
+      modal.style.left = "50%";
+      modal.style.width = "300px";
+      modal.style.height = "100px";
+      modal.style.minHeight = modal.style.height;
+      iframe.onload = () => {
+        const updateHeight = () => {
+          const newHeight = `${iframe.contentWindow.document.documentElement.scrollHeight}px`;
+          modal.style.height = newHeight;
+        };
+
+        const observer = new MutationObserver(updateHeight);
+        observer.observe(iframe.contentWindow.document.documentElement, {
+          childList: true,
+          subtree: true,
+        });
+
+        iframe.contentWindow.addEventListener("resize", updateHeight);
+        modal.addEventListener("DOMNodeRemoved", () => observer.disconnect());
+        modal.style.transition = "height 0.3s ease";
+        updateHeight();
+      };
+      modal.style.transform = "translate(-50%, -50%)";
+      modal.style.backgroundColor = "white";
+      modal.style.border = "1px solid #ccc";
+      modal.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
+      modal.style.zIndex = "1000";
+      modal.style.display = "flex";
+      modal.style.flexDirection = "column";
+
+      async function onModalClose() {
+        document.body.removeChild(modal);
+        document.body.removeChild(overlay);
+
+        if (elCompare.innerText) {
+          const { v } = state.vocabList[state.i];
+          state.vocabList[state.i] = await api.get_vocab(v);
+
+          softCleanup();
+          doNext();
+        }
+      }
+
+      const overlay = document.createElement("div");
+      overlay.style.position = "fixed";
+      overlay.style.top = "0";
+      overlay.style.left = "0";
+      overlay.style.width = "100%";
+      overlay.style.height = "100%";
+      overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+      overlay.style.zIndex = "999";
+      overlay.addEventListener("click", () => {
+        onModalClose();
       });
+
+      document.body.appendChild(overlay);
+
+      const closeButton = document.createElement("button");
+      closeButton.innerText = "×";
+      closeButton.style.position = "absolute";
+      closeButton.style.top = "10px";
+      closeButton.style.right = "10px";
+      closeButton.style.height = "30px";
+      closeButton.style.width = "30px";
+      closeButton.style.border = "none";
+      closeButton.style.backgroundColor = "#f5f5f5";
+      closeButton.style.cursor = "pointer";
+      closeButton.style.textAlign = "center";
+      closeButton.style.lineHeight = "30px";
+      closeButton.style.borderRadius = "50%";
+      closeButton.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.2)";
+      closeButton.addEventListener("click", () => {
+        onModalClose();
+      });
+
+      modal.appendChild(iframe);
+      modal.appendChild(closeButton);
+      document.body.appendChild(modal);
     };
 
     elCompare.textContent = "";
