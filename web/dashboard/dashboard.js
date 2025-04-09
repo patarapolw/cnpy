@@ -23,38 +23,15 @@ document.querySelectorAll('a[target="modal"]').forEach((a) => {
 
     if (a.href.includes("levels.html")) {
       const iframe = document.createElement("iframe");
+      iframe.className = "level-iframe";
       iframe.src = a.href;
-      iframe.style.width = "100%";
-      iframe.style.height = "100%";
-      iframe.style.border = "none";
 
       const modal = document.createElement("div");
-      modal.style.position = "fixed";
-      modal.style.top = "0";
-      modal.style.left = "0";
-      modal.style.width = "100vw";
-      modal.style.height = "100vh";
-      modal.style.backgroundColor = "white";
-      modal.style.border = "1px solid #ccc";
-      modal.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
-      modal.style.zIndex = "1000";
-      modal.style.display = "flex";
-      modal.style.flexDirection = "column";
+      modal.className = "level-modal";
 
       const closeButton = document.createElement("button");
+      closeButton.className = "level-close-button";
       closeButton.innerText = "×";
-      closeButton.style.position = "absolute";
-      closeButton.style.top = "10px";
-      closeButton.style.right = "10px";
-      closeButton.style.height = "30px";
-      closeButton.style.width = "30px";
-      closeButton.style.border = "none";
-      closeButton.style.backgroundColor = "#f5f5f5";
-      closeButton.style.cursor = "pointer";
-      closeButton.style.textAlign = "center";
-      closeButton.style.lineHeight = "30px";
-      closeButton.style.borderRadius = "50%";
-      closeButton.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.2)";
       closeButton.onclick = () => {
         modal.remove();
       };

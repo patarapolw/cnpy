@@ -494,18 +494,11 @@ function doNext(ev) {
       if (!a.href) return;
 
       const iframe = document.createElement("iframe");
+      iframe.className = "pinyin-select-iframe";
       iframe.src = a.href;
-      iframe.style.width = "100%";
-      iframe.style.height = "100%";
-      iframe.style.border = "none";
 
       const modal = document.createElement("div");
-      modal.style.position = "fixed";
-      modal.style.top = "50%";
-      modal.style.left = "50%";
-      modal.style.width = "300px";
-      modal.style.height = "100px";
-      modal.style.minHeight = modal.style.height;
+      modal.className = "pinyin-select-modal";
       iframe.onload = () => {
         const updateHeight = () => {
           const newHeight = `${iframe.contentWindow.document.documentElement.scrollHeight}px`;
@@ -520,16 +513,8 @@ function doNext(ev) {
 
         iframe.contentWindow.addEventListener("resize", updateHeight);
         modal.addEventListener("DOMNodeRemoved", () => observer.disconnect());
-        modal.style.transition = "height 0.3s ease";
         updateHeight();
       };
-      modal.style.transform = "translate(-50%, -50%)";
-      modal.style.backgroundColor = "white";
-      modal.style.border = "1px solid #ccc";
-      modal.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
-      modal.style.zIndex = "1000";
-      modal.style.display = "flex";
-      modal.style.flexDirection = "column";
 
       async function onModalClose() {
         document.body.removeChild(modal);
@@ -545,13 +530,7 @@ function doNext(ev) {
       }
 
       const overlay = document.createElement("div");
-      overlay.style.position = "fixed";
-      overlay.style.top = "0";
-      overlay.style.left = "0";
-      overlay.style.width = "100%";
-      overlay.style.height = "100%";
-      overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
-      overlay.style.zIndex = "999";
+      overlay.className = "pinyin-select-overlay";
       overlay.addEventListener("click", () => {
         onModalClose();
       });
@@ -559,19 +538,8 @@ function doNext(ev) {
       document.body.appendChild(overlay);
 
       const closeButton = document.createElement("button");
+      closeButton.className = "pinyin-select-close-button";
       closeButton.innerText = "×";
-      closeButton.style.position = "absolute";
-      closeButton.style.top = "10px";
-      closeButton.style.right = "10px";
-      closeButton.style.height = "30px";
-      closeButton.style.width = "30px";
-      closeButton.style.border = "none";
-      closeButton.style.backgroundColor = "#f5f5f5";
-      closeButton.style.cursor = "pointer";
-      closeButton.style.textAlign = "center";
-      closeButton.style.lineHeight = "30px";
-      closeButton.style.borderRadius = "50%";
-      closeButton.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.2)";
       closeButton.addEventListener("click", () => {
         onModalClose();
       });

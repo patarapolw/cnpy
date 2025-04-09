@@ -134,7 +134,7 @@ export async function searchPinyin(v, ps) {
   u.pathname = "/search.html";
   u.searchParams.set("q", joinPinyinForRegex(ps));
 
-  openInModal(u.pathname + u.search, `p:${v}`);
+  openInModal(u.pathname + u.search, `[${v}]`);
 }
 
 /**
