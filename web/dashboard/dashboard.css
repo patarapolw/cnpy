@@ -29,7 +29,7 @@ body {
 .nav {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: baseline;
 }
 
 .nav > .nav-content {

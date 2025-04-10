@@ -241,6 +241,12 @@ elNotesTextarea.addEventListener("paste", (ev) => {
   target.focus();
 });
 
+function setNotesTextAreaHeight() {
+  const el = elNotesTextarea;
+  el.style.height = "auto";
+  el.style.height = `${el.scrollHeight}px`;
+}
+
 elNotes.querySelectorAll("button").forEach((b) => {
   switch (b.innerText) {
     case "Save":
@@ -255,6 +261,7 @@ elNotes.querySelectorAll("button").forEach((b) => {
       b.onclick = (ev) => {
         ev.preventDefault();
         elNotes.setAttribute("data-has-notes", "");
+        setNotesTextAreaHeight();
       };
   }
 });
@@ -830,9 +837,10 @@ async function newVocab() {
   elVocab.onclick = null;
 
   elNotesTextarea.value = notes || "";
-  makeNotes(true);
+  makeNotes({ skipSave: true });
 
   elNotes.setAttribute("data-has-notes", notes ? "1" : "");
+  setNotesTextAreaHeight();
 
   document.querySelectorAll(".external-links a").forEach((a) => {
     if (!(a instanceof HTMLAnchorElement)) return;
@@ -1023,10 +1031,10 @@ async function newVocabList() {
 
 /**
  *
- * @param {boolean} [skipSave]
+ * @param {{skipSave?: boolean}} [opts={}]
  * @returns
  */
-function makeNotes(skipSave) {
+function makeNotes({ skipSave } = {}) {
   const notesText = elNotesTextarea.value;
   const elDisplay = /** @type {HTMLDivElement} */ (
     elNotes.querySelector("#notes-show .notes-display")
@@ -1056,11 +1064,18 @@ function makeNotes(skipSave) {
         notes += AI_TRANSLATION_STRING + "\n" + r.result;
         item.data.notes = notes;
 
+        // Save the notes asynchronously
+        // without needing to show the notes display and checking if the item is still the same
+        api.save_notes(item.v, notes);
+
         // Check if the item is still the same
         if (state.vocabList[state.i]?.v !== item.v) return;
 
         elNotesTextarea.value = notes;
-        makeNotes(true); // Update the notes display
+
+        // Update the notes display with the new notes without saving again
+        makeNotes({ skipSave: true });
+        // Toggle the notes display to show the new notes
         elNotes.setAttribute("data-has-notes", "1");
       }
       makeNotes.aiTranslationTriggeredSet.delete(item.v); // Remove the item from the set

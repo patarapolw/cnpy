@@ -229,7 +229,7 @@ summary {
 
 #notes fieldset > :first-child {
   height: 100%;
-  min-height: 120px;
+  min-height: 150px;
 }
 
 #notes[data-has-notes=""] fieldset {
