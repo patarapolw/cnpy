@@ -1035,7 +1035,6 @@ async function newVocabList() {
  * @returns
  */
 function makeNotes({ skipSave } = {}) {
-  const notesText = elNotesTextarea.value;
   const elDisplay = /** @type {HTMLDivElement} */ (
     elNotes.querySelector("#notes-show .notes-display")
   );
@@ -1043,18 +1042,28 @@ function makeNotes({ skipSave } = {}) {
 
   const AI_TRANSLATION_STRING = "<!-- AI translation -->";
 
+  let isAITranslation = !elNotesTextarea.value.trim();
+  let reset = false;
+
+  if (elNotesTextarea.value.endsWith(AI_TRANSLATION_STRING)) {
+    isAITranslation = true;
+    elNotesTextarea.value = elNotesTextarea.value.slice(
+      0,
+      elNotesTextarea.value.length - AI_TRANSLATION_STRING.length
+    );
+    reset = true;
+  }
+
   // Use a flag to prevent repeated AI translation calls for the same item
-  if (
-    !makeNotes.aiTranslationTriggeredSet.has(item.v) &&
-    (!notesText.trim() || notesText.endsWith(AI_TRANSLATION_STRING))
-  ) {
+  if (!makeNotes.aiTranslationTriggeredSet.has(item.v) && isAITranslation) {
     makeNotes.aiTranslationTriggeredSet.add(item.v); // Add the item to the set
 
-    api.ai_translation(item.v).then((r) => {
-      let notes = item.data.notes || "";
-      if (notes.endsWith(AI_TRANSLATION_STRING)) {
-        notes = notes.slice(0, notes.length - AI_TRANSLATION_STRING.length);
-      }
+    api.ai_translation(item.v, reset).then(async (r) => {
+      // Get the notes again after the AI translation finishes
+      // This is to ensure that we are working with the latest notes
+      let {
+        data: { notes = "" },
+      } = await api.get_vocab(item.v);
 
       if (r.result && !notes.includes(AI_TRANSLATION_STRING)) {
         if (notes) {
@@ -1082,6 +1091,7 @@ function makeNotes({ skipSave } = {}) {
     });
   }
 
+  const notesText = elNotesTextarea.value;
   const newHTML = notesText.trim() ? converter.makeHtml(notesText) : "";
   if (newHTML === elDisplay.innerHTML) return;
 

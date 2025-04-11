@@ -120,7 +120,13 @@ with server:
 
     @bottle.post("/api/ai_translation/<v>")
     def ai_translation(v: str):
+        obj: Any = bottle.request.json
+        reset: bool = obj.get("reset", False)
+
         if g.is_ai_translation_available:
+            if reset:
+                db.execute("DELETE FROM ai_dict WHERE v = ?", (v,))
+
             t = ai.ai_translation(v)
             if t:
                 return {"result": t}
