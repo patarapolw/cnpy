@@ -159,7 +159,12 @@ async function filterItems() {
   }
 
   if (elIsNamesOnly.checked) {
-    items = items.filter((r) => /^[A-Z]/.test(r.pinyin));
+    items = items.filter((r) =>
+      r.pinyin
+        .split(";")
+        .map((p) => p.trim())
+        .some((c) => /^[A-Z]/.test(c))
+    );
   }
 
   ol.append(...items.map((r) => makeLI(r)));
