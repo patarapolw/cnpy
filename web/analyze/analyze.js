@@ -22,8 +22,8 @@ const elFilter = /** @type {HTMLInputElement} */ (
 const elIsShowPinyin = /** @type {HTMLInputElement} */ (
   document.querySelector("#show-pinyin")
 );
-const elIsKnownHanzi = /** @type {HTMLInputElement} */ (
-  document.querySelector("#known-hanzi")
+const elIsExcludeKnownHanzi = /** @type {HTMLInputElement} */ (
+  document.querySelector("#exclude-known-hanzi")
 );
 const elIsNamesOnly = /** @type {HTMLInputElement} */ (
   document.querySelector("#names-only")
@@ -78,7 +78,7 @@ elFilter.addEventListener("input", (ev) => {
 
 /** @type {Set<string>} */
 let knownHanzi = null;
-elIsKnownHanzi.addEventListener("change", async (ev) => {
+elIsExcludeKnownHanzi.addEventListener("change", async (ev) => {
   if (!knownHanzi) {
     const stats = await api.get_stats();
     knownHanzi = new Set(stats.all);
@@ -152,7 +152,7 @@ async function filterItems() {
     ? allItems.filter((r) => r.v.includes(elFilter.value))
     : allItems;
 
-  if (!elIsKnownHanzi.checked) {
+  if (elIsExcludeKnownHanzi.checked) {
     items = items.filter((r) => {
       return Array.from(r.v).some((c) => !knownHanzi.has(c));
     });
