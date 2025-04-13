@@ -16,7 +16,7 @@ if __name__ == "__main__":
             is_debug = True
 
     win = webview.create_window(
-        "Pinyin Quiz",
+        "cnpy",
         server,  # type: ignore
         text_select=True,
         confirm_close=True,
