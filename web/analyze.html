@@ -20,6 +20,41 @@
       </footer>
     </fieldset>
     <fieldset id="result">
+      <input type="text" name="filter" id="filter" placeholder="Filter" />
+      <details id="options">
+        <summary>Options</summary>
+        <div id="options-content">
+          <label>
+            <input
+              type="checkbox"
+              name="show-pinyin"
+              id="show-pinyin"
+              checked
+            />
+            Show Pinyin
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              name="known-hanzi"
+              id="known-hanzi"
+              checked
+            />
+            Known Hanzi
+          </label>
+          <label>
+            <input type="checkbox" name="names-only" id="names-only" />
+            Names only
+          </label>
+          <div style="flex-grow: 1"></div>
+          <div class="nav-content">
+            <a href="./list.html?f=vocab/vocab.txt" target="modal">Add</a>
+          </div>
+          <div class="nav-content">
+            <a href="./list.html?f=skip/skip.txt" target="modal">Skip</a>
+          </div>
+        </div>
+      </details>
       <div style="overflow: auto">
         <ol></ol>
       </div>
