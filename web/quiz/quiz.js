@@ -1047,10 +1047,6 @@ function makeNotes({ skipSave } = {}) {
 
   if (elNotesTextarea.value.endsWith(AI_TRANSLATION_STRING)) {
     isAITranslation = true;
-    elNotesTextarea.value = elNotesTextarea.value.slice(
-      0,
-      elNotesTextarea.value.length - AI_TRANSLATION_STRING.length
-    );
     reset = true;
   }
 
@@ -1064,6 +1060,10 @@ function makeNotes({ skipSave } = {}) {
       let {
         data: { notes = "" },
       } = await api.get_vocab(item.v);
+
+      if (notes.endsWith(AI_TRANSLATION_STRING)) {
+        notes = notes.slice(0, notes.length - AI_TRANSLATION_STRING.length);
+      }
 
       if (r.result && !notes.includes(AI_TRANSLATION_STRING)) {
         if (notes) {
@@ -1093,8 +1093,6 @@ function makeNotes({ skipSave } = {}) {
 
   const notesText = elNotesTextarea.value;
   const newHTML = notesText.trim() ? converter.makeHtml(notesText) : "";
-  if (newHTML === elDisplay.innerHTML) return;
-
   elDisplay.innerHTML = newHTML;
 
   elDisplay.querySelectorAll("a").forEach((el) => {
