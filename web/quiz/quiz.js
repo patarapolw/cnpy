@@ -1041,13 +1041,22 @@ function makeNotes({ skipSave } = {}) {
   const item = state.vocabList[state.i];
 
   const AI_TRANSLATION_STRING = "<!-- AI translation -->";
+  const NEW_AI_TRANSLATION_STRING = "<!-- AI translation (new) -->";
 
   let isAITranslation = !elNotesTextarea.value.trim();
   let reset = false;
 
+  if (elNotesTextarea.value.endsWith(NEW_AI_TRANSLATION_STRING)) {
+    reset = true;
+    elNotesTextarea.value = elNotesTextarea.value.slice(
+      0,
+      elNotesTextarea.value.length - NEW_AI_TRANSLATION_STRING.length
+    );
+    elNotesTextarea.value += AI_TRANSLATION_STRING;
+  }
+
   if (elNotesTextarea.value.endsWith(AI_TRANSLATION_STRING)) {
     isAITranslation = true;
-    reset = true;
   }
 
   // Use a flag to prevent repeated AI translation calls for the same item
