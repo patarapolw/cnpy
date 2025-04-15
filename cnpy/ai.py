@@ -124,8 +124,9 @@ async def ai_translation(v: str) -> str | None:
     """
     Translate a string using AI.
 
-    The function first checks the local database for a translation. If not found, it attempts
-    online AI translation, followed by local AI translation as a fallback.
+    This function first attempts to use online AI translation. If that fails,
+    it falls back to local AI translation. If both methods fail, it returns None.
+    The translated string is cached in the database for future use.
 
     Args:
         v (str): The string to translate.

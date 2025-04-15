@@ -148,7 +148,9 @@ with server:
                     try:
                         loop.run_until_complete(ai.ai_translation(v))
                     except Exception as e:
-                        print(f"ai.ai_translation error: {e}")
+                        print(
+                            f"ai.ai_translation error for '{v}': {type(e).__name__}: {e}"
+                        )
                     finally:
                         loop.stop()
 
