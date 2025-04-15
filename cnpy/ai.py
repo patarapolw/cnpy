@@ -1,16 +1,21 @@
-from openai import OpenAI
+from openai import AsyncOpenAI
+from ollama import AsyncClient
 from dotenv import load_dotenv
 
 from cnpy.db import db
+from cnpy.dir import exe_root
 
 # Load environment variables from .env file
-load_dotenv()
+load_dotenv(dotenv_path=exe_root / ".env")
 
 can_local_ai_translation = True
 can_online_ai_translation = True
 
 
-def local_ai_translation(v: str) -> str | None:
+ollama_client: AsyncClient | None = None
+
+
+async def local_ai_translation(v: str) -> str | None:
     """
     Translate a string using local AI.
 
@@ -30,12 +35,14 @@ def local_ai_translation(v: str) -> str | None:
     Returns:
         str | None: The translated string, or None if the translation fails.
     """
-    from ollama import chat
-
     try:
         print("Using local AI translation for:", v)
 
-        response = chat(
+        global ollama_client
+        if not ollama_client:
+            ollama_client = AsyncClient()
+
+        response = await ollama_client.chat(
             model="starling-lm",  # Replace with other models if needed
             messages=[{"role": "user", "content": f'"{v}"是'}],
         )
@@ -55,10 +62,10 @@ def local_ai_translation(v: str) -> str | None:
     return None
 
 
-client: OpenAI | None = None
+openai_client: AsyncOpenAI | None = None
 
 
-def online_ai_translation(v: str) -> str | None:
+async def online_ai_translation(v: str) -> str | None:
     """
     Translate a string using online AI.
 
@@ -80,14 +87,14 @@ def online_ai_translation(v: str) -> str | None:
     try:
         print("Using online AI translation for:", v)
 
-        global client
-        if not client:
-            client = OpenAI(
+        global openai_client
+        if not openai_client:
+            openai_client = AsyncOpenAI(
                 base_url="https://api.deepseek.com",  # Replace with other providers if needed
                 # api_key="",  # Replace with your actual API key or use environment variable OPENAI_API_KEY
             )
 
-        response = client.chat.completions.create(
+        response = openai_client.chat.completions.create(
             model="deepseek-chat",  # Replace with other models if needed
             messages=[{"role": "user", "content": f'"{v}"是'}],
             temperature=1.3,  # Adjust temperature according to documentation
@@ -95,7 +102,8 @@ def online_ai_translation(v: str) -> str | None:
         )
 
         print(f"{v} completed online AI response")
-        return response.choices[0].message.content
+        res = await response
+        return res.choices[0].message.content
     except Exception as e:
         print(f"Error in ai_translation: {e}")
 
@@ -111,7 +119,7 @@ def online_ai_translation(v: str) -> str | None:
     return None
 
 
-def ai_translation(v: str) -> str | None:
+async def ai_translation(v: str) -> str | None:
     """
     Translate a string using AI.
 
@@ -134,7 +142,7 @@ def ai_translation(v: str) -> str | None:
 
     # Try online AI translation first
     if can_online_ai_translation:
-        t = online_ai_translation(v)
+        t = await online_ai_translation(v)
         if t:
             db.execute("INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, t))
             db.commit()
@@ -142,7 +150,7 @@ def ai_translation(v: str) -> str | None:
 
     # If online translation fails, fall back to local translation
     if can_local_ai_translation:
-        t = local_ai_translation(v)
+        t = await local_ai_translation(v)
         if t:
             db.execute("INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, t))
             db.commit()
@@ -174,10 +182,20 @@ def load_db():
     db.commit()
 
 
-if __name__ == "__main__":
+async def _test_speed(n=5):
     # Test the speed of the AI translation
-    for r in db.execute("SELECT v FROM vlist ORDER BY RANDOM() LIMIT 5"):
+    for r in db.execute(f"SELECT v FROM vlist ORDER BY RANDOM() LIMIT {n}"):
         v = r[0]
         print(">", v)
-        translation = ai_translation(v)
+        translation = await ai_translation(v)
         print(translation)
+
+
+if __name__ == "__main__":
+    import asyncio
+
+    # Load the database
+    load_db()
+
+    # Test the speed of the AI translation
+    asyncio.run(_test_speed())

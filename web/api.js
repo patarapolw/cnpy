@@ -170,13 +170,11 @@ export const api = {
   /**
    *
    * @param {string} v
-   * @param {boolean} reset
+   * @param {{ reset?: boolean; result_only?: boolean }} opts
    * @returns {Promise<{result: string}>}
    */
-  async ai_translation(v, reset) {
-    return fetchAPI(`/api/ai_translation/${v}`, { reset }).then((r) =>
-      r.json()
-    );
+  async ai_translation(v, opts = {}) {
+    return fetchAPI(`/api/ai_translation/${v}`, opts).then((r) => r.json());
   },
 };
 

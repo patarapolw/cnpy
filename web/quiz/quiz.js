@@ -1063,18 +1063,25 @@ function makeNotes({ skipSave } = {}) {
   if (!makeNotes.aiTranslationTriggeredSet.has(item.v) && isAITranslation) {
     makeNotes.aiTranslationTriggeredSet.add(item.v); // Add the item to the set
 
-    api.ai_translation(item.v, reset).then(async (r) => {
-      // Get the notes again after the AI translation finishes
-      // This is to ensure that we are working with the latest notes
-      let {
-        data: { notes = "" },
-      } = await api.get_vocab(item.v);
+    api.ai_translation(item.v, { reset }).then(async (r) => {
+      const checkSameItem = () => state.vocabList[state.i]?.v === item.v;
+
+      while (checkSameItem() && !r.result) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        r = await api.ai_translation(item.v, { result_only: true });
+      }
+
+      // Check if the item is still the same
+      if (!checkSameItem()) return;
+
+      // Get the current notes
+      let notes = elNotesTextarea.value;
 
       if (notes.endsWith(AI_TRANSLATION_STRING)) {
         notes = notes.slice(0, notes.length - AI_TRANSLATION_STRING.length);
       }
 
-      if (r.result && !notes.includes(AI_TRANSLATION_STRING)) {
+      if (!notes.includes(AI_TRANSLATION_STRING)) {
         if (notes) {
           notes += "\n\n";
         }
@@ -1082,17 +1089,8 @@ function makeNotes({ skipSave } = {}) {
         notes += AI_TRANSLATION_STRING + "\n" + r.result;
         item.data.notes = notes;
 
-        // Save the notes asynchronously
-        // without needing to show the notes display and checking if the item is still the same
-        api.save_notes(item.v, notes);
-
-        // Check if the item is still the same
-        if (state.vocabList[state.i]?.v !== item.v) return;
-
         elNotesTextarea.value = notes;
-
-        // Update the notes display with the new notes without saving again
-        makeNotes({ skipSave: true });
+        makeNotes({ skipSave: false });
         // Toggle the notes display to show the new notes
         elNotes.setAttribute("data-has-notes", "1");
       }

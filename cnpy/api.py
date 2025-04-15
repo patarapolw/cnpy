@@ -7,6 +7,9 @@ import json
 import datetime
 import random
 from typing import Callable, TypedDict, Optional, Any
+import asyncio
+import threading
+import os
 
 from cnpy import quiz, cedict, sentence, ai
 from cnpy.db import db, radical_db
@@ -122,17 +125,36 @@ with server:
     def ai_translation(v: str):
         obj: Any = bottle.request.json
         reset: bool = obj.get("reset", False)
+        result_only: bool = obj.get("result_only", False)
+
+        result = ""
 
         if g.is_ai_translation_available:
             if reset:
-                db.execute("DELETE FROM ai_dict WHERE v = ?", (v,))
+                db.execute(
+                    "INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, "")
+                )
+                db.commit()
+            else:
+                for r in db.execute("SELECT t FROM ai_dict WHERE v = ? LIMIT 1", (v,)):
+                    result = r[0]
 
-            t = ai.ai_translation(v)
-            if t:
-                return {"result": t}
-            print("empty AI translation")
+            if not result_only:
 
-        return {"result": None}
+                def run_async_in_thread():
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    loop.run_until_complete(ai.ai_translation(v))
+                    loop.close()
+
+                thread = threading.Thread(
+                    target=run_async_in_thread,
+                    daemon=not os.getenv("CNPY_WAIT_FOR_AI_RESULTS"),
+                )
+                thread.start()
+
+        print(f"{v} -> {result[:5]}...")
+        return {"result": result}
 
     @bottle.post("/api/search")
     def search():
