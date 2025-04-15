@@ -826,21 +826,11 @@ async function newVocab() {
     el.setAttribute("data-checked", "");
   });
 
-  const {
-    data: { wordfreq, notes },
-    v,
-  } = state.vocabList[state.i];
-  // pywebview.api.log({ v, wordfreq });
+  const { v } = state.vocabList[state.i];
 
   state.vocabDetails = await api.vocab_details(v);
   elVocab.innerText = v;
   elVocab.onclick = null;
-
-  elNotesTextarea.value = notes || "";
-  makeNotes({ skipSave: true });
-
-  elNotes.setAttribute("data-has-notes", notes ? "1" : "");
-  setNotesTextAreaHeight();
 
   document.querySelectorAll(".external-links a").forEach((a) => {
     if (!(a instanceof HTMLAnchorElement)) return;
@@ -852,6 +842,20 @@ async function newVocab() {
     }
     a.href = href.replace("__voc__", v);
   });
+
+  elNotes.classList.remove("ready");
+
+  const {
+    data: { notes },
+  } = await api.get_vocab(v);
+
+  elNotesTextarea.value = notes || "";
+  makeNotes({ skipSave: true });
+
+  elNotes.setAttribute("data-has-notes", notes ? "1" : "");
+  setNotesTextAreaHeight();
+
+  elNotes.classList.add("ready");
 }
 
 async function newVocabList() {

@@ -1,3 +1,5 @@
+import time
+
 from openai import AsyncOpenAI
 from ollama import AsyncClient
 from dotenv import load_dotenv
@@ -35,6 +37,9 @@ async def local_ai_translation(v: str) -> str | None:
     Returns:
         str | None: The translated string, or None if the translation fails.
     """
+    start = time.time()
+    result = None
+
     try:
         print("Using local AI translation for:", v)
 
@@ -49,9 +54,9 @@ async def local_ai_translation(v: str) -> str | None:
 
         # Print completion details after awaiting the response
         print(f"{v} completed local AI response")
-        return response.message.content
+        result = response.message.content
     except Exception as e:
-        print(f"Error in ai_translation: {e}")
+        print(f"Error in ai_translation {v}: {e}")
 
         # Disable local AI translation if it fails
         # such as model not found or ollama not installed
@@ -60,7 +65,8 @@ async def local_ai_translation(v: str) -> str | None:
 
         print("Disabled local AI translation")
 
-    return None
+    print(f"Local AI translation {v} took {time.time() - start:.2f} seconds")
+    return result
 
 
 openai_client: AsyncOpenAI | None = None
@@ -85,6 +91,9 @@ async def online_ai_translation(v: str) -> str | None:
     Returns:
         str | None: The translated string, or None if the translation fails.
     """
+    start = time.time()
+    result = None
+
     try:
         print("Using online AI translation for:", v)
 
@@ -104,7 +113,7 @@ async def online_ai_translation(v: str) -> str | None:
 
         # Print completion details after awaiting the response
         print(f"{v} completed online AI response")
-        return response.choices[0].message.content
+        result = response.choices[0].message.content
     except Exception as e:
         print(f"Error in ai_translation: {e}")
 
@@ -117,7 +126,8 @@ async def online_ai_translation(v: str) -> str | None:
 
             print("Disabled online AI translation")
 
-    return None
+    print(f"Online AI translation {v} took {time.time() - start:.2f} seconds")
+    return result
 
 
 async def ai_translation(v: str) -> str | None:

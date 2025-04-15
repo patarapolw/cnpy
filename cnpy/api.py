@@ -162,7 +162,7 @@ with server:
                 )
                 thread.start()
 
-        print(f"{v} -> {result[:5]}...")
+        # print(f"{v} -> {result[:5]}...")
         return {"result": result}
 
     @bottle.post("/api/search")

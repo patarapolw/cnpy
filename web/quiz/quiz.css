@@ -236,11 +236,8 @@ summary {
   border: none;
 }
 
-#notes[data-has-notes=""] fieldset#notes-edit {
-  display: grid;
-}
-
-#notes:not([data-has-notes=""]) fieldset#notes-show {
+#notes.ready[data-has-notes=""] fieldset#notes-edit,
+#notes.ready:not([data-has-notes=""]) fieldset#notes-show {
   display: grid;
 }
 
