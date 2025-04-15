@@ -47,6 +47,7 @@ async def local_ai_translation(v: str) -> str | None:
             messages=[{"role": "user", "content": f'"{v}"是'}],
         )
 
+        # Print completion details after awaiting the response
         print(f"{v} completed local AI response")
         return response.message.content
     except Exception as e:
@@ -94,16 +95,16 @@ async def online_ai_translation(v: str) -> str | None:
                 # api_key="",  # Replace with your actual API key or use environment variable OPENAI_API_KEY
             )
 
-        response = openai_client.chat.completions.create(
+        response = await openai_client.chat.completions.create(
             model="deepseek-chat",  # Replace with other models if needed
             messages=[{"role": "user", "content": f'"{v}"是'}],
             temperature=1.3,  # Adjust temperature according to documentation
             stream=False,
         )
 
+        # Print completion details after awaiting the response
         print(f"{v} completed online AI response")
-        res = await response
-        return res.choices[0].message.content
+        return response.choices[0].message.content
     except Exception as e:
         print(f"Error in ai_translation: {e}")
 

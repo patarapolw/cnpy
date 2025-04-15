@@ -1066,12 +1066,16 @@ function makeNotes({ skipSave } = {}) {
     api.ai_translation(item.v, { reset }).then(async (r) => {
       const checkSameItem = () => state.vocabList[state.i]?.v === item.v;
 
-      while (checkSameItem() && !r.result) {
+      // Polling until the result is available
+      while (!r.result) {
         await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        // Do not get the result if the item has changed
+        if (!checkSameItem()) break;
         r = await api.ai_translation(item.v, { result_only: true });
       }
 
-      // Check if the item is still the same
+      // Do not update the notes if the item has changed
       if (!checkSameItem()) return;
 
       // Get the current notes
