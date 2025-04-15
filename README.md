@@ -1,3 +1,5 @@
+# cnpy
+
 Start with a batch of 20. Then, a new batch if the previous has been surpassed.
 
 After every rounds of not-Right's, there will be unlimited repeat drills until you get everything Right. Additionally, if too many wrongs (10), the repeat drill will start earlier.
@@ -46,9 +48,9 @@ Right-click context menu to check for similar Hanzi and vocabularies. The contex
 
 ## Text analysis
 
-Native Chinese articles can be parsed and optionally added to new vocab list. Quizzed vocabularies are excluded for brevity.
+Native Chinese articles can be parsed and optionally added to new vocab list. Unlearned Hanzi and names can be filtered. Quizzed vocabularies are excluded for brevity.
 
-![Parsed vocab](_README/text.png)
+![Parsed vocab](_README/433121105-236696c4-feee-41dc-ab56-ae46e27a7b34.jpg)
 
 ## Statistics
 
