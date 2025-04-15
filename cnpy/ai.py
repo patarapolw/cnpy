@@ -1,7 +1,7 @@
 import time
 
-from openai import AsyncOpenAI
-from ollama import AsyncClient
+from openai import OpenAI
+from ollama import chat
 from dotenv import load_dotenv
 
 from cnpy.db import db
@@ -14,10 +14,7 @@ can_local_ai_translation = True
 can_online_ai_translation = True
 
 
-ollama_client: AsyncClient | None = None
-
-
-async def local_ai_translation(v: str) -> str | None:
+def local_ai_translation(v: str) -> str | None:
     """
     Translate a string using local AI.
 
@@ -43,11 +40,7 @@ async def local_ai_translation(v: str) -> str | None:
     try:
         print("Using local AI translation for:", v)
 
-        global ollama_client
-        if not ollama_client:
-            ollama_client = AsyncClient()
-
-        response = await ollama_client.chat(
+        response = chat(
             model="starling-lm",  # Replace with other models if needed
             messages=[{"role": "user", "content": f'"{v}"是'}],
         )
@@ -69,10 +62,10 @@ async def local_ai_translation(v: str) -> str | None:
     return result
 
 
-openai_client: AsyncOpenAI | None = None
+openai_client: OpenAI | None = None
 
 
-async def online_ai_translation(v: str) -> str | None:
+def online_ai_translation(v: str) -> str | None:
     """
     Translate a string using online AI.
 
@@ -99,12 +92,12 @@ async def online_ai_translation(v: str) -> str | None:
 
         global openai_client
         if not openai_client:
-            openai_client = AsyncOpenAI(
+            openai_client = OpenAI(
                 base_url="https://api.deepseek.com",  # Replace with other providers if needed
                 # api_key="",  # Replace with your actual API key or use environment variable OPENAI_API_KEY
             )
 
-        response = await openai_client.chat.completions.create(
+        response = openai_client.chat.completions.create(
             model="deepseek-chat",  # Replace with other models if needed
             messages=[{"role": "user", "content": f'"{v}"是'}],
             temperature=1.3,  # Adjust temperature according to documentation
@@ -130,7 +123,7 @@ async def online_ai_translation(v: str) -> str | None:
     return result
 
 
-async def ai_translation(v: str) -> str | None:
+def ai_translation(v: str) -> str | None:
     """
     Translate a string using AI.
 
@@ -146,7 +139,7 @@ async def ai_translation(v: str) -> str | None:
     """
     # Try online AI translation first
     if can_online_ai_translation:
-        t = await online_ai_translation(v)
+        t = online_ai_translation(v)
         if t:
             db.execute("INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, t))
             db.commit()
@@ -154,7 +147,7 @@ async def ai_translation(v: str) -> str | None:
 
     # If online translation fails, fall back to local translation
     if can_local_ai_translation:
-        t = await local_ai_translation(v)
+        t = local_ai_translation(v)
         if t:
             db.execute("INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, t))
             db.commit()
@@ -186,20 +179,18 @@ def load_db():
     db.commit()
 
 
-async def _test_speed(n=5):
+def _test_speed(n=5):
     # Test the speed of the AI translation
     for r in db.execute(f"SELECT v FROM vlist ORDER BY RANDOM() LIMIT {n}"):
         v = r[0]
         print(">", v)
-        translation = await ai_translation(v)
+        translation = ai_translation(v)
         print(translation)
 
 
 if __name__ == "__main__":
-    import asyncio
-
     # Load the database
     load_db()
 
     # Test the speed of the AI translation
-    asyncio.run(_test_speed())
+    _test_speed()

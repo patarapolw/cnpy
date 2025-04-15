@@ -7,7 +7,6 @@ import json
 import datetime
 import random
 from typing import Callable, TypedDict, Optional, Any
-import asyncio
 import threading
 import os
 
@@ -142,19 +141,10 @@ with server:
             if not result_only:
 
                 def run_async_in_thread():
-                    loop = asyncio.new_event_loop()
-                    asyncio.set_event_loop(loop)
-
                     try:
-                        loop.run_until_complete(ai.ai_translation(v))
+                        ai.ai_translation(v)
                     except Exception as e:
-                        print(
-                            f"ai.ai_translation error for '{v}': {type(e).__name__}: {e}"
-                        )
-                    finally:
-                        loop.stop()
-
-                    loop.close()
+                        print(f"AI translation error {v}: {e}")
 
                 thread = threading.Thread(
                     target=run_async_in_thread,
