@@ -133,14 +133,6 @@ async def ai_translation(v: str) -> str | None:
     Returns:
         str | None: The translated string, or None if all translation methods fail.
     """
-    for r in db.execute("SELECT t FROM ai_dict WHERE v = ? LIMIT 1", (v,)):
-        return r[0]
-
-    # If not found in the database, insert a placeholder
-    # to avoid repeated queries
-    db.execute("INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, ""))
-    db.commit()
-
     # Try online AI translation first
     if can_online_ai_translation:
         t = await online_ai_translation(v)

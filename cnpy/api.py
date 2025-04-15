@@ -144,7 +144,14 @@ with server:
                 def run_async_in_thread():
                     loop = asyncio.new_event_loop()
                     asyncio.set_event_loop(loop)
-                    loop.run_until_complete(ai.ai_translation(v))
+
+                    try:
+                        loop.run_until_complete(ai.ai_translation(v))
+                    except Exception as e:
+                        print(f"ai.ai_translation error: {e}")
+                    finally:
+                        loop.stop()
+
                     loop.close()
 
                 thread = threading.Thread(
