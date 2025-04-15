@@ -1,7 +1,8 @@
 import time
+import os
 
 from openai import OpenAI
-from ollama import chat
+from ollama import Client
 from dotenv import load_dotenv
 
 from cnpy.db import db
@@ -14,19 +15,20 @@ can_local_ai_translation = True
 can_online_ai_translation = True
 
 
+ollama_client: Client | None = None
+
+
 def local_ai_translation(v: str) -> str | None:
     """
     Translate a string using local AI.
 
     Notes:
         - This function requires the Ollama library to be installed and configured.
-        - The model "starling-lm" should be available locally.
         - If the function fails (e.g., model not found or Ollama not installed),
           local AI translation will be disabled for subsequent calls.
 
     See Also:
         - https://ollama.com for installation instructions.
-        - https://ollama.com/library/starling-lm for model details.
 
     Args:
         v (str): The string to translate.
@@ -40,8 +42,14 @@ def local_ai_translation(v: str) -> str | None:
     try:
         print("Using local AI translation for:", v)
 
-        response = chat(
-            model="starling-lm",  # Replace with other models if needed
+        global ollama_client
+        if not ollama_client:
+            ollama_client = Client(
+                host=os.getenv("OLLAMA_HOST", "http://localhost:11434"),
+            )
+
+        response = ollama_client.chat(
+            model=os.getenv("OLLAMA_MODEL", "qwen:7b"),
             messages=[{"role": "user", "content": f'"{v}"是'}],
         )
 
@@ -93,14 +101,16 @@ def online_ai_translation(v: str) -> str | None:
         global openai_client
         if not openai_client:
             openai_client = OpenAI(
-                base_url="https://api.deepseek.com",  # Replace with other providers if needed
+                base_url=os.getenv("OPENAI_API_BASE", "https://api.deepseek.com"),
                 # api_key="",  # Replace with your actual API key or use environment variable OPENAI_API_KEY
             )
 
         response = openai_client.chat.completions.create(
-            model="deepseek-chat",  # Replace with other models if needed
+            model=os.getenv("OPENAI_MODEL", "deepseek-chat"),
             messages=[{"role": "user", "content": f'"{v}"是'}],
-            temperature=1.3,  # Adjust temperature according to documentation
+            temperature=float(
+                os.getenv("OPENAI_TEMPERATURE", "1.3")
+            ),  # Adjust temperature according to documentation
             stream=False,
         )
 
