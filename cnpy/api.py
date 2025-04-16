@@ -6,7 +6,7 @@ import bottle
 import json
 import datetime
 import random
-from typing import Callable, TypedDict, Optional, Any
+from typing import Callable, TypedDict, Any
 import threading
 import os
 
@@ -19,7 +19,6 @@ from cnpy.dir import assets_root, user_root, web_root
 
 class UserSettings(TypedDict):
     levels: list[int]
-    voice: Optional[str]
 
 
 class ServerGlobal:
@@ -28,7 +27,9 @@ class ServerGlobal:
     web_ready: Callable
 
     settings_path = user_root / "settings.json"
-    settings = UserSettings(levels=[], voice="")
+    settings = UserSettings(
+        levels=[],
+    )
 
     levels: dict[str, list[str]] = {}
     v_quiz: Any = None
@@ -108,7 +109,7 @@ with server:
     @bottle.get("/api/tts/<s>.mp3")
     def tts(s: str):
         g.settings = json.loads(g.settings_path.read_text("utf-8"))
-        p = tts_audio(s, g.settings.get("voice"))
+        p = tts_audio(s)
         if p:
             return bottle.static_file(p.name, root=p.parent)
 

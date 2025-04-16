@@ -17,8 +17,9 @@ try {
 /**
  *
  * @param {string} s
+ * @param {boolean} [web]
  */
-export async function speak(s, web = true) {
+export async function speak(s, web) {
   if (utterance && web) {
     return speakWeb(s);
   }
