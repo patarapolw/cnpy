@@ -135,11 +135,17 @@ with server:
                     "INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, "")
                 )
                 db.commit()
+            elif r := db.execute(
+                "SELECT t FROM ai_dict WHERE v = ? LIMIT 1", (v,)
+            ).fetchone():
+                result = r[0]
             else:
-                for r in db.execute("SELECT t FROM ai_dict WHERE v = ? LIMIT 1", (v,)):
-                    result = r[0]
+                # Insert placeholder entry if not exists
+                db.execute("INSERT INTO ai_dict (v, t) VALUES (?, ?)", (v, ""))
+                db.commit()
+                reset = True
 
-            if not result_only:
+            if reset and result_only == False:
 
                 def run_async_in_thread():
                     try:

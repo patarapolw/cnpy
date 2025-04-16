@@ -66,7 +66,7 @@ def local_ai_translation(v: str) -> str | None:
 
         print("Disabled local AI translation")
 
-    print(f"Local AI translation {v} took {time.time() - start:.2f} seconds")
+    print(f"{v} local AI translation took {time.time() - start:.1f} seconds")
     return result
 
 
@@ -118,7 +118,7 @@ def online_ai_translation(v: str) -> str | None:
         print(f"{v} completed online AI response")
         result = response.choices[0].message.content
     except Exception as e:
-        print(f"Error in ai_translation: {e}")
+        print(f"Error in ai_translation {v}: {e}")
 
         # Check for authentication or connection errors
         # and disable online AI translation if necessary
@@ -129,7 +129,7 @@ def online_ai_translation(v: str) -> str | None:
 
             print("Disabled online AI translation")
 
-    print(f"Online AI translation {v} took {time.time() - start:.2f} seconds")
+    print(f"{v} online AI translation took {time.time() - start:.1f} seconds")
     return result
 
 

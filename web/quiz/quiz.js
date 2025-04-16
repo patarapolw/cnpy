@@ -1065,9 +1065,12 @@ function makeNotes({ skipSave } = {}) {
 
   // Use a flag to prevent repeated AI translation calls for the same item
   if (!makeNotes.aiTranslationTriggeredSet.has(item.v) && isAITranslation) {
-    makeNotes.aiTranslationTriggeredSet.add(item.v); // Add the item to the set
+    makeNotes.aiTranslationTriggeredSet.add(item.v);
 
     api.ai_translation(item.v, { reset }).then(async (r) => {
+      // If API call has run once, it's ok to let the API call again
+      makeNotes.aiTranslationTriggeredSet.delete(item.v);
+
       const checkSameItem = () => state.vocabList[state.i]?.v === item.v;
 
       // Polling until the result is available
@@ -1102,7 +1105,6 @@ function makeNotes({ skipSave } = {}) {
         // Toggle the notes display to show the new notes
         elNotes.setAttribute("data-has-notes", "1");
       }
-      makeNotes.aiTranslationTriggeredSet.delete(item.v); // Remove the item from the set
     });
   }
 
