@@ -129,7 +129,7 @@ with server:
 
         result = ""
 
-        if g.is_ai_translation_available:
+        try:
             if reset:
                 db.execute(
                     "INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, "")
@@ -158,6 +158,8 @@ with server:
                     daemon=not os.getenv("CNPY_WAIT_FOR_AI_RESULTS"),
                 )
                 thread.start()
+        except Exception as e:
+            print(f"AI translation error {v}: {e}")
 
         # print(f"{v} -> {result[:5]}...")
         return {"result": result}
