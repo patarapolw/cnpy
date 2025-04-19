@@ -1122,9 +1122,9 @@ function makeNotes({ skipSave } = {}) {
 
   // Add MathJax support
   //@ts-ignore
-  if (typeof window.MathJax.typesetPromise === "function") {
-    // @ts-ignore
-    window.MathJax.typesetPromise([elDisplay]);
+  const { typesetPromise } = window.MathJax || {};
+  if (typeof typesetPromise === "function") {
+    typesetPromise([elDisplay]);
   }
 
   if (!skipSave) {
