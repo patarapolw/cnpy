@@ -193,6 +193,29 @@
       </details>
     </div>
 
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [
+            ["$", "$"],
+            ["\\(", "\\)"],
+          ],
+          displayMath: [
+            ["$$", "$$"],
+            ["\\[", "\\]"],
+          ],
+        },
+        svg: {
+          fontCache: "global",
+        },
+      };
+    </script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+
     <script src="./_lib/showdown.min.js"></script>
     <script src="./_lib/ctxmenu.min.js"></script>
     <script type="module" src="./quiz/quiz.js"></script>

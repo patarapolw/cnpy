@@ -1,6 +1,7 @@
 //@ts-check
 
 import { api } from "../api.js";
+import { mathjaxExtension } from "../mathjax-showdown.js";
 import { openInModal } from "../modal.js";
 import {
   comp_pinyin,
@@ -168,6 +169,8 @@ const converter = new showdown.Converter({
   // openLinksInNewWindow: true,
   emoji: true,
 });
+
+converter.addExtension(mathjaxExtension, "mathjax");
 
 elNotesTextarea.addEventListener("paste", (ev) => {
   const { clipboardData } = ev;
@@ -1116,6 +1119,13 @@ function makeNotes({ skipSave } = {}) {
     el.target = "_blank";
     el.rel = "noopener noreferrer";
   });
+
+  // Add MathJax support
+  //@ts-ignore
+  if (typeof window.MathJax.typesetPromise === "function") {
+    // @ts-ignore
+    window.MathJax.typesetPromise([elDisplay]);
+  }
 
   if (!skipSave) {
     item.data = item.data || {
