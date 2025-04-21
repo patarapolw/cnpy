@@ -155,7 +155,7 @@ with server:
 
                 thread = threading.Thread(
                     target=run_async_in_thread,
-                    daemon=not os.getenv("CNPY_WAIT_FOR_AI_RESULTS"),
+                    daemon=os.getenv("CNPY_WAIT_FOR_AI_RESULTS", "1") == "0",
                 )
                 thread.start()
         except Exception as e:
@@ -443,7 +443,7 @@ with server:
         result = []
         r_last = []
         max_review = limit * 2 - review_counter
-        max_new = 10
+        max_new = int(os.getenv("CNPY_MAX_NEW", "10"))
         for r in all_items:
             if len(result) >= limit:
                 break

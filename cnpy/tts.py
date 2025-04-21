@@ -19,8 +19,8 @@ ttsDir.mkdir(exist_ok=True)
 
 def tts_audio(text: str, voice=os.getenv("TTS_VOICE", "")):
     """
-    Get the audio file for the given text if TTS_VOICE is specified.
-    If TTS_VOICE is not specified, no audio file will be returned
+    Get the audio file for the given text using the specified voice.
+    If TTS_VOICE is "0", no audio file will be returned
     and the frontend will try to use the frontend TTS engine.
 
     Args:
@@ -29,19 +29,20 @@ def tts_audio(text: str, voice=os.getenv("TTS_VOICE", "")):
         Defaults to os.getenv("TTS_VOICE", "").
     If voice is "gtts", it will use gtts.
     If voice is "emoti", it will use emoti.
+    If voice is "0", it will return None.
     If voice is something else, it will use emoti with the specified voice.
 
     Returns:
         Path | None: None if no audio file is generated
     """
-    if voice == "gtts":
+    if voice == "" or voice == "gtts":
         return gtts_audio(text) or emoti_audio(text)
     elif voice == "emoti":
-        return emoti_audio(text)
-    elif voice:
+        return emoti_audio(text) or gtts_audio(text)
+    elif voice == "0":
+        return None
+    else:
         return emoti_audio(text, voice) or gtts_audio(text)
-
-    return None
 
 
 def emoti_audio(text: str, voice=""):
