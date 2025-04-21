@@ -79,9 +79,13 @@ elFilter.addEventListener("input", (ev) => {
 /** @type {Set<string>} */
 let knownHanzi = null;
 elIsExcludeKnownHanzi.addEventListener("change", async (ev) => {
-  if (!knownHanzi) {
+  {
     const stats = await api.get_stats();
-    knownHanzi = new Set(stats.all);
+
+    const vocabList = await api.load_file("vocab/vocab.txt");
+    const skipList = await api.load_file("skip/skip.txt");
+
+    knownHanzi = new Set(stats.all + vocabList + skipList);
   }
   filterItems();
 });
