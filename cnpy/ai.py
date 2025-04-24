@@ -14,6 +14,8 @@ load_dotenv(dotenv_path=exe_root / ".env")
 can_local_ai_translation = True
 can_online_ai_translation = True
 
+AI_QUESTION = os.getenv("CNPY_AI_QUESTION", '"{v}"是')
+
 
 ollama_client: Client | None = None
 
@@ -45,12 +47,12 @@ def local_ai_translation(v: str) -> str | None:
         global ollama_client
         if not ollama_client:
             ollama_client = Client(
-                host=os.getenv("OLLAMA_HOST", "http://localhost:11434"),
+                # host=None,  # Use environment variable OLLAMA_HOST
             )
 
         response = ollama_client.chat(
             model=os.getenv("OLLAMA_MODEL", "qwen:7b"),
-            messages=[{"role": "user", "content": f'"{v}"是'}],
+            messages=[{"role": "user", "content": AI_QUESTION.format(v=v)}],
         )
 
         # Print completion details after awaiting the response
@@ -78,13 +80,16 @@ def online_ai_translation(v: str) -> str | None:
     Translate a string using online AI.
 
     Notes:
-        - This function requires DeepSeek's OpenAI API to be configured.
+        - This function requires `OPENAI_API_KEY` to be set in the environment.
+          Get one from https://platform.deepseek.com or https://platform.openai.com.
         - If the function fails due to network issues, authentication errors,
           or lack of subscription, online AI translation will be disabled for subsequent calls.
         - Other errors (e.g., rate limits or server errors) will not disable online translation.
 
     See Also:
-        - https://api-docs.deepseek.com for API documentation.
+        - https://api-docs.deepseek.com to use DeepSeek with OpenAI API.
+        - https://platform.openai.com/docs/models to use OpenAI models (e.g. GPT-4.1).
+          Set `OPENAI_BASE_URL` to `https://api.openai.com/v1` in the `.env` file and set `OPENAI_MODEL` as appropriate.
 
     Args:
         v (str): The string to translate.
@@ -101,13 +106,13 @@ def online_ai_translation(v: str) -> str | None:
         global openai_client
         if not openai_client:
             openai_client = OpenAI(
-                base_url=os.getenv("OPENAI_API_BASE", "https://api.deepseek.com"),
-                # api_key="",  # Replace with your actual API key or use environment variable OPENAI_API_KEY
+                base_url=os.getenv("OPENAI_BASE_URL", "https://api.deepseek.com"),
+                # api_key=None,  # Use environment variable OPENAI_API_KEY
             )
 
         response = openai_client.chat.completions.create(
             model=os.getenv("OPENAI_MODEL", "deepseek-chat"),
-            messages=[{"role": "user", "content": f'"{v}"是'}],
+            messages=[{"role": "user", "content": AI_QUESTION.format(v=v)}],
             temperature=float(
                 os.getenv("OPENAI_TEMPERATURE", "1.3")
             ),  # Adjust temperature according to documentation
