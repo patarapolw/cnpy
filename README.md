@@ -11,8 +11,8 @@ No typo checking. No turning to Wrong or Right. However, there is a middle-way b
 - `Ctrl+Z` for Undo and redo later (move to the end of the queue)
 - `F1` or `F5` to End the current batch, and start the wrong drill or make a new batch.
 - Mulitple answers if applicable, separated by `;` (whitespaces are ignored). Important readings can be forced to require. Uncommon readings can be disabled and made wrong.
-- [Custom vocabularies](/user/vocab/) can be added, and will be put to the end of Due queue (if the entries exist in [the dictionary](https://www.mdbg.net/chinese/dictionary))
-- Some vocabularies can be [Skipped](/user/skip/) if added accidentally or practically uncommon (e.g. to be restarted as other related words).
+- Custom vocabularies can be added, and will be put to the end of Due queue (if the entries exist in [the dictionary](https://www.mdbg.net/chinese/dictionary))
+- Skip vocabularies can be set, if accidentally put to SRS, or considered practically uncommon.
 
 ![Due Quiz](_README/due.png)
 
@@ -48,7 +48,7 @@ Right-click context menu to check for similar Hanzi and vocabularies. The contex
 
 ## Text analysis
 
-Native Chinese articles can be parsed and optionally added to new vocab list. Unlearned Hanzi and names can be filtered. Quizzed vocabularies are excluded for brevity.
+Native Chinese articles can be parsed, and optionally, added to new vocab list. New Hanzi and names can be filtered. Quizzed vocabularies are excluded from the result.
 
 ![Parsed vocab](_README/parsed-vocab.jpg)
 
