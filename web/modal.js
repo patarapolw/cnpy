@@ -219,6 +219,7 @@ style.textContent = /* css */ `
     cursor: pointer;
     background-color: #f0f0f0;
     word-break: keep-all;
+    white-space: nowrap;
   }
 
   .tab:hover {
