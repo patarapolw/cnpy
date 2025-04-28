@@ -18,15 +18,15 @@ No typo checking. No turning to Wrong or Right. However, there is a middle-way b
 
 ![Dictionaries](_README/right.png)
 
-![Select reading](_README/select2.png)
+![Select Reading](_README/select3.png)
 
 ![Repeat Quiz](_README/repeat.png)
 
-Note taking is powered bidirectionally by markdown (via [showdown.js](https://showdownjs.com/)). The content may be copy+pasted from websites in Dictionary links.
+Note taking is powered bidirectionally by markdown (via [showdown.js](https://showdownjs.com/)). The content may be copy+pasted from websites in Dictionary links. AI dictionary may be configured by `.env` at the root of the project, to cover for monolingual definitions, colloquial usages, and grammar explanation.
 
 ![Notes](_README/notes.png)
 
-Right-click context menu to check for similar Hanzi and vocabularies. The context-menu is also for extra menu and updating CC-CEDICT.
+Right-click context menu to check for similar Hanzi and vocabularies. The context-menu is also for TTS (speech synthesis), extra menu and updating CC-CEDICT.
 
 ![Right click](_README/contextmenu.png)
 
@@ -50,7 +50,7 @@ Right-click context menu to check for similar Hanzi and vocabularies. The contex
 
 Native Chinese articles can be parsed and optionally added to new vocab list. Unlearned Hanzi and names can be filtered. Quizzed vocabularies are excluded for brevity.
 
-![Parsed vocab](_README/433121105-236696c4-feee-41dc-ab56-ae46e27a7b34.jpg)
+![Parsed vocab](_README/parsed-vocab.jpg)
 
 ## Statistics
 
@@ -71,3 +71,12 @@ Vocabularies are from [CC-CEDICT](https://www.mdbg.net/chinese/dictionary?page=c
 Sentences are from [Tatoeba project](https://tatoeba.org).
 
 Hanzi decomposition data are from [CJKV (Chinese Japanese Korean Vietnamese) Ideograph Database](https://github.com/cjkvi/cjkvi-ids).
+
+## Configuration
+
+AI dictionary and TTS can be configured by `.env` put beside the exe or Python root.
+
+* Set `CNPY_MAX_NEW=0` to do reviews to 0 first before adding new items.
+* Set `TTS_VOICE=0` to use web TTS and disable [gTTS](https://github.com/pndurette/gTTS?tab=readme-ov-file#disclaimer)/emoti-voice. Set to [a voice](https://github.com/netease-youdao/EmotiVoice/wiki/😊-voice-wiki-page) to use [emoti-voice](https://github.com/netease-youdao/EmotiVoice?tab=readme-ov-file#quickstart).
+* Set `OPENAI_API_KEY` , `OPENAI_API_BASE`, `OPENAI_MODEL` to use [DeepSeek](https://api-docs.deepseek.com/) / [ChatGPT](https://platform.openai.com/docs/models), etc.
+* Install [ollama](https://ollama.com) and set `OLLAMA_HOST`, `OLLAMA_MODEL` to use offline AI.
