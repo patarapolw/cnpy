@@ -193,6 +193,8 @@ style.textContent = /* css */ `
     display: flex;
     background-color: #f9f9f9;
     border-bottom: 1px solid #ccc;
+    overflow-x: scroll;
+    padding-right: 80px;
   }
 
   #iframe-container {
@@ -216,6 +218,7 @@ style.textContent = /* css */ `
     border-right: 1px solid #ccc;
     cursor: pointer;
     background-color: #f0f0f0;
+    word-break: keep-all;
   }
 
   .tab:hover {
