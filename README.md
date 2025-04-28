@@ -77,6 +77,6 @@ Hanzi decomposition data are from [CJKV (Chinese Japanese Korean Vietnamese) Ide
 AI dictionary and TTS can be configured by `.env` put beside the exe or Python root.
 
 * Set `CNPY_MAX_NEW=0` to do reviews to 0 first before adding new items.
-* Set `TTS_VOICE=0` to use web TTS and disable [gTTS](https://github.com/pndurette/gTTS?tab=readme-ov-file#disclaimer)/emoti-voice. Set to [a voice](https://github.com/netease-youdao/EmotiVoice/wiki/😊-voice-wiki-page) to use [emoti-voice](https://github.com/netease-youdao/EmotiVoice?tab=readme-ov-file#quickstart).
+* Set `TTS_VOICE=0` to use web TTS and disable [gTTS](https://github.com/pndurette/gTTS?tab=readme-ov-file#disclaimer)/emoti-voice. Run [emoti-voice](https://github.com/netease-youdao/EmotiVoice?tab=readme-ov-file#quickstart) and set `TTS_VOICE` to [a voice](https://github.com/netease-youdao/EmotiVoice/wiki/😊-voice-wiki-page) to use emoti-voice.
 * Set `OPENAI_API_KEY` , `OPENAI_API_BASE`, `OPENAI_MODEL` to use [DeepSeek](https://api-docs.deepseek.com/) / [ChatGPT](https://platform.openai.com/docs/models), etc.
 * Install [ollama](https://ollama.com) and set `OLLAMA_HOST`, `OLLAMA_MODEL` to use offline AI.
