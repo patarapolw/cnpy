@@ -1,6 +1,6 @@
 ---
-title: [App] Hanzi typing SRS with levels and different principles
-url: https://community.wanikani.com/t/app-hanzi-typing-srs-with-levels-and-different-principles/69163
+title: '[App] Hanzi typing SRS with 60 levels and a different studying method'
+url: https://community.wanikani.com/t/app-hanzi-typing-srs-with-60-levels-and-a-different-studying-method/69163
 ---
 
 Also, in search for SRS that works, and so I have deviated from the ways of Anki. I think it can be made to include Japanese, but it's unlikely for me to go that far.
@@ -27,20 +27,40 @@ Also, in search for SRS that works, and so I have deviated from the ways of Anki
 - Custom vocab list, and custom skip list
 - Online text parser
 
-<div align=center>
+![Hanzi list up|686x500](upload://vVtoeHruN92GJE5yOmml2uWhWOX.png)
+
+## Quizzing
+
+![first time|686x500](upload://ipx7xNVrPVvfHO1jdDiVD38QCWv.png)
+
+![reading select|690x475](upload://tzWDJkGLEXK0haCeRSRDZuf1APT.png)
+
+![repeat|686x500](upload://xJjPONutyJsnerdo0PE3e1d1KRP.png)
+
+Also with history,
+
+![history|690x475](upload://fAGUBe08sCZJwb62LkTcCzarGav.png)
+
+## Levels
 
 ![levels|690x411](upload://7HZP1Q3XaYDIQctbcRr2MOPqKXB.jpeg)
 
-![reading select|686x500](upload://9V1Q0I4jY9gBb5VrXFUz68esnoL.png)
+## Breakdown
+
+<div align=center>
 
 ![sup|510x500](upload://N3r8yOZIc1kZ9ceoYemTrhZZ1v.png)
 
 ![including|510x500](upload://j08K7KOQ3BN1lp3fyVVHGTReT27.png)
 
-![Hanzi list up|686x500](upload://aYSY4OdsVMADikI8hWMzdyQPZKX.png)
-
 </div>
 
-Currently, it's a [desktop app](https://github.com/patarapolw/cnpy/releases), and it's kinda unlikely that I would make it into a website or include Japanese (as it doesn't have much benefit to myself). Anyway, [contributions](https://github.com/patarapolw/cnpy/issues/6) welcome.
+## Text analysis
+
+![text analyzer|690x411](upload://zZiO56hzo9rykdxf1CoARjBAwJl.jpeg)
+
+Currently, it's a [desktop app](https://github.com/patarapolw/cnpy/releases), and it's kinda unlikely that I would make it into a website or include Japanese (as it doesn't have much benefit to myself). Anyway, [contributions](https://github.com/patarapolw/cnpy) welcome.
+
+Download the zip file, unzip, and open the exe file.
 
 Also, Happy Chinese New Year :tada: :dragon_face:
