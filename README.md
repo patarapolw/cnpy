@@ -1,3 +1,5 @@
+# cnpy
+
 Start with a batch of 20. Then, a new batch if the previous has been surpassed.
 
 After every rounds of not-Right's, there will be unlimited repeat drills until you get everything Right. Additionally, if too many wrongs (10), the repeat drill will start earlier.
@@ -9,28 +11,32 @@ No typo checking. No turning to Wrong or Right. However, there is a middle-way b
 - `Ctrl+Z` for Undo and redo later (move to the end of the queue)
 - `F1` or `F5` to End the current batch, and start the wrong drill or make a new batch.
 - Mulitple answers if applicable, separated by `;` (whitespaces are ignored). Important readings can be forced to require. Uncommon readings can be disabled and made wrong.
-- [Custom vocabularies](/user/vocab/) can be added, and will be put to the end of Due queue (if the entries exist in [the dictionary](https://www.mdbg.net/chinese/dictionary))
-- Some vocabularies can be [Skipped](/user/skip/) if added accidentally or practically uncommon (e.g. to be restarted as other related words).
+- Custom vocabularies can be added, and will be put to the end of Due queue (if the entries exist in [the dictionary](https://www.mdbg.net/chinese/dictionary))
+- Skip vocabularies can be set, if accidentally put to SRS, or considered practically uncommon.
 
 ![Due Quiz](_README/due.png)
 
 ![Dictionaries](_README/right.png)
 
-![Select reading](_README/select2.png)
+![Select Reading](_README/select3.png)
 
 ![Repeat Quiz](_README/repeat.png)
 
-Note taking is powered bidirectionally by markdown (via [showdown.js](https://showdownjs.com/)). The content may be copy+pasted from websites in Dictionary links.
+Note taking is powered bidirectionally by markdown (via [showdown.js](https://showdownjs.com/)). The content may be copy+pasted from websites in Dictionary links. AI dictionary may be configured by `.env` at the root of the project, to cover for monolingual definitions, colloquial usages, and grammar explanation.
 
 ![Notes](_README/notes.png)
 
-Right-click context menu to check for similar Hanzi and vocabularies. The context-menu is also for extra menu and updating CC-CEDICT.
+Right-click context menu to check for similar Hanzi and vocabularies. The context-menu is also for TTS (speech synthesis), extra menu and updating CC-CEDICT.
 
 ![Right click](_README/contextmenu.png)
 
 <img title="Hanzi containing" src="_README/sup.png" width=600 />
 
 <img title="Word containing" src="_README/in.png" width=600 />
+
+Also, to access quiz history.
+
+![Quiz history](_README/history.png)
 
 ## Vocab lists
 
@@ -46,9 +52,9 @@ Right-click context menu to check for similar Hanzi and vocabularies. The contex
 
 ## Text analysis
 
-Native Chinese articles can be parsed and optionally added to new vocab list. Quizzed vocabularies are excluded for brevity.
+Native Chinese articles can be parsed, and optionally, added to new vocab list. New Hanzi and names can be filtered. Quizzed vocabularies are excluded from the result.
 
-![Parsed vocab](_README/text.png)
+![Parsed vocab](_README/parsed-vocab.jpg)
 
 ## Statistics
 
@@ -69,3 +75,12 @@ Vocabularies are from [CC-CEDICT](https://www.mdbg.net/chinese/dictionary?page=c
 Sentences are from [Tatoeba project](https://tatoeba.org).
 
 Hanzi decomposition data are from [CJKV (Chinese Japanese Korean Vietnamese) Ideograph Database](https://github.com/cjkvi/cjkvi-ids).
+
+## Configuration
+
+AI dictionary and TTS can be configured by `.env` put beside the exe or Python root.
+
+* Set `CNPY_MAX_NEW=0` to do reviews to 0 first before adding new items.
+* Set `TTS_VOICE=0` to use web TTS and disable [gTTS](https://github.com/pndurette/gTTS?tab=readme-ov-file#disclaimer)/emoti-voice. Run [emoti-voice](https://github.com/netease-youdao/EmotiVoice?tab=readme-ov-file#quickstart) and set `TTS_VOICE` to [a voice](https://github.com/netease-youdao/EmotiVoice/wiki/😊-voice-wiki-page) to use emoti-voice.
+* Set `OPENAI_API_KEY` , `OPENAI_API_BASE`, `OPENAI_MODEL` to use [DeepSeek](https://api-docs.deepseek.com/) / [ChatGPT](https://platform.openai.com/docs/models), etc.
+* Install [ollama](https://ollama.com) and set `OLLAMA_HOST`, `OLLAMA_MODEL` to use offline AI.

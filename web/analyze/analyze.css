@@ -17,6 +17,10 @@ fieldset {
   grid-template-rows: 1fr auto;
 }
 
+#result {
+  grid-template-rows: auto auto 1fr auto;
+}
+
 fieldset.active {
   display: grid;
 }
@@ -48,4 +52,23 @@ li::marker {
   font-size: 10px;
   font-family: Arial, Helvetica, sans-serif;
   color: grey;
+}
+
+#options {
+  font-size: small;
+  margin-top: 0.5em;
+}
+
+#options summary {
+  cursor: pointer;
+}
+
+#options-content {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.hide-pinyin .pinyin {
+  display: none;
 }

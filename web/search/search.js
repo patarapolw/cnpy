@@ -85,7 +85,7 @@ async function parseInput() {
             action: () => openItem(r.v),
           },
           {
-            text: "Search",
+            text: `*${r.v}*`,
             action: () => searchVoc(r.v),
           },
           {

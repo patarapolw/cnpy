@@ -6,7 +6,7 @@ import { openItem, searchVoc, speak } from "../util.js";
 const elTableBody = document.querySelector("tbody");
 const elRowTemplate = elTableBody.querySelector("template");
 
-window.addEventListener("pywebviewready", async () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const levels = await api.get_levels();
 
   elTableBody.append(
@@ -46,7 +46,7 @@ window.addEventListener("pywebviewready", async () => {
                   action: () => openItem(v),
                 },
                 {
-                  text: "Search",
+                  text: `*${v}*`,
                   action: () => searchVoc(v),
                 },
               ],

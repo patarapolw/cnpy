@@ -1,6 +1,8 @@
 //@ts-check
 
 import { api } from "../api.js";
+import { mathjaxExtension } from "../mathjax-showdown.js";
+import { openInModal } from "../modal.js";
 import {
   comp_pinyin,
   openItem,
@@ -89,8 +91,6 @@ elInput.addEventListener("keydown", (ev) => {
   }
 });
 
-let isDialog = false;
-
 document.querySelectorAll("#check-buttons-area button[name]").forEach((b) => {
   /** @type {HTMLButtonElement} */ (b).onclick = (ev) => {
     ev.preventDefault();
@@ -134,18 +134,6 @@ document.addEventListener("keydown", (ev) => {
   }
 });
 
-window.addEventListener("focus", async () => {
-  if (isDialog && elCompare.innerText) {
-    isDialog = false;
-
-    const { v } = state.vocabList[state.i];
-    state.vocabList[state.i] = await api.get_vocab(v);
-
-    softCleanup();
-    doNext();
-  }
-});
-
 window.addEventListener("click", (ev) => {
   if (ev.target instanceof HTMLElement) {
     if (
@@ -159,12 +147,12 @@ window.addEventListener("click", (ev) => {
 ctxmenu.attach("#counter .right", [
   {
     text: "Add vocab list",
-    action: () => api.new_window("./list.html?f=vocab/vocab.txt", "Add vocab"),
+    action: () => openInModal("./list.html?f=vocab/vocab.txt", "Add"),
     style: "text-align: left",
   },
   {
     text: "Skip vocab list",
-    action: () => api.new_window("./list.html?f=skip/skip.txt", "Skip"),
+    action: () => openInModal("./list.html?f=skip/skip.txt", "Skip"),
     style: "text-align: left",
   },
   {
@@ -181,6 +169,8 @@ const converter = new showdown.Converter({
   // openLinksInNewWindow: true,
   emoji: true,
 });
+
+converter.addExtension(mathjaxExtension, "mathjax");
 
 elNotesTextarea.addEventListener("paste", (ev) => {
   const { clipboardData } = ev;
@@ -254,6 +244,12 @@ elNotesTextarea.addEventListener("paste", (ev) => {
   target.focus();
 });
 
+function setNotesTextAreaHeight() {
+  const el = elNotesTextarea;
+  el.style.height = "auto";
+  el.style.height = `${el.scrollHeight}px`;
+}
+
 elNotes.querySelectorAll("button").forEach((b) => {
   switch (b.innerText) {
     case "Save":
@@ -268,11 +264,12 @@ elNotes.querySelectorAll("button").forEach((b) => {
       b.onclick = (ev) => {
         ev.preventDefault();
         elNotes.setAttribute("data-has-notes", "");
+        setNotesTextAreaHeight();
       };
   }
 });
 
-window.addEventListener("pywebviewready", () => {
+document.addEventListener("DOMContentLoaded", () => {
   newVocab();
 });
 
@@ -505,11 +502,61 @@ function doNext(ev) {
       ev.preventDefault();
       const a = elCompare;
       if (!a.href) return;
-      isDialog = true;
-      api.new_window(a.href, a.title || a.innerText, {
-        width: 300,
-        height: 300,
+
+      const iframe = document.createElement("iframe");
+      iframe.className = "pinyin-select-iframe";
+      iframe.src = a.href;
+
+      const modal = document.createElement("div");
+      modal.className = "pinyin-select-modal";
+      iframe.onload = () => {
+        const updateHeight = () => {
+          const newHeight = `${iframe.contentWindow.document.documentElement.scrollHeight}px`;
+          modal.style.height = newHeight;
+        };
+
+        const observer = new MutationObserver(updateHeight);
+        observer.observe(iframe.contentWindow.document.documentElement, {
+          childList: true,
+          subtree: true,
+        });
+
+        iframe.contentWindow.addEventListener("resize", updateHeight);
+        modal.addEventListener("DOMNodeRemoved", () => observer.disconnect());
+        updateHeight();
+      };
+
+      async function onModalClose() {
+        document.body.removeChild(modal);
+        document.body.removeChild(overlay);
+
+        if (elCompare.innerText) {
+          const { v } = state.vocabList[state.i];
+          state.vocabList[state.i] = await api.get_vocab(v);
+
+          softCleanup();
+          doNext();
+        }
+      }
+
+      const overlay = document.createElement("div");
+      overlay.className = "pinyin-select-overlay";
+      overlay.addEventListener("click", () => {
+        onModalClose();
       });
+
+      document.body.appendChild(overlay);
+
+      const closeButton = document.createElement("button");
+      closeButton.className = "pinyin-select-close-button";
+      closeButton.innerText = "×";
+      closeButton.addEventListener("click", () => {
+        onModalClose();
+      });
+
+      modal.appendChild(iframe);
+      modal.appendChild(closeButton);
+      document.body.appendChild(modal);
     };
 
     elCompare.textContent = "";
@@ -782,20 +829,11 @@ async function newVocab() {
     el.setAttribute("data-checked", "");
   });
 
-  const {
-    data: { wordfreq, notes },
-    v,
-  } = state.vocabList[state.i];
-  // pywebview.api.log({ v, wordfreq });
+  const { v } = state.vocabList[state.i];
 
   state.vocabDetails = await api.vocab_details(v);
   elVocab.innerText = v;
   elVocab.onclick = null;
-
-  elNotesTextarea.value = notes || "";
-  makeNotes(true);
-
-  elNotes.setAttribute("data-has-notes", notes ? "1" : "");
 
   document.querySelectorAll(".external-links a").forEach((a) => {
     if (!(a instanceof HTMLAnchorElement)) return;
@@ -807,6 +845,20 @@ async function newVocab() {
     }
     a.href = href.replace("__voc__", v);
   });
+
+  elNotes.classList.remove("ready");
+
+  const {
+    data: { notes },
+  } = await api.get_vocab(v);
+
+  elNotesTextarea.value = notes || "";
+  makeNotes({ skipSave: true });
+
+  elNotes.setAttribute("data-has-notes", notes ? "1" : "");
+  setNotesTextAreaHeight();
+
+  elNotes.classList.add("ready");
 }
 
 async function newVocabList() {
@@ -986,20 +1038,81 @@ async function newVocabList() {
 
 /**
  *
- * @param {boolean} [skipSave]
+ * @param {{skipSave?: boolean}} [opts={}]
  * @returns
  */
-function makeNotes(skipSave) {
-  const notesText = elNotesTextarea.value;
+function makeNotes({ skipSave } = {}) {
   const elDisplay = /** @type {HTMLDivElement} */ (
     elNotes.querySelector("#notes-show .notes-display")
   );
+  const item = state.vocabList[state.i];
 
-  if (!notesText.trim() && !elDisplay.innerHTML.trim()) return;
+  const AI_TRANSLATION_STRING = "<!-- AI translation -->";
+  const NEW_AI_TRANSLATION_STRING = "<!-- AI translation (new) -->";
 
-  const newHTML = converter.makeHtml(notesText);
-  if (newHTML === elDisplay.innerHTML) return;
+  let isAITranslation = !elNotesTextarea.value.trim();
+  let reset = false;
 
+  if (elNotesTextarea.value.endsWith(NEW_AI_TRANSLATION_STRING)) {
+    reset = true;
+    elNotesTextarea.value = elNotesTextarea.value.slice(
+      0,
+      elNotesTextarea.value.length - NEW_AI_TRANSLATION_STRING.length
+    );
+    elNotesTextarea.value += AI_TRANSLATION_STRING;
+  }
+
+  if (elNotesTextarea.value.endsWith(AI_TRANSLATION_STRING)) {
+    isAITranslation = true;
+  }
+
+  // Use a flag to prevent repeated AI translation calls for the same item
+  if (!makeNotes.aiTranslationTriggeredSet.has(item.v) && isAITranslation) {
+    makeNotes.aiTranslationTriggeredSet.add(item.v);
+
+    api.ai_translation(item.v, { reset }).then(async (r) => {
+      // If API call has run once, it's ok to let the API call again
+      makeNotes.aiTranslationTriggeredSet.delete(item.v);
+
+      const checkSameItem = () => state.vocabList[state.i]?.v === item.v;
+
+      // Polling until the result is available
+      while (!r.result) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        // Do not get the result if the item has changed
+        if (!checkSameItem()) break;
+        r = await api.ai_translation(item.v, { result_only: true });
+      }
+
+      // Do not update the notes if the item has changed
+      if (!checkSameItem()) return;
+
+      // Get the current notes
+      let notes = elNotesTextarea.value;
+
+      if (notes.endsWith(AI_TRANSLATION_STRING)) {
+        notes = notes.slice(0, notes.length - AI_TRANSLATION_STRING.length);
+      }
+
+      if (!notes.includes(AI_TRANSLATION_STRING)) {
+        if (notes) {
+          notes += "\n\n";
+        }
+
+        notes += AI_TRANSLATION_STRING + "\n" + r.result;
+        item.data.notes = notes;
+
+        elNotesTextarea.value = notes;
+        makeNotes({ skipSave: false });
+        // Toggle the notes display to show the new notes
+        elNotes.setAttribute("data-has-notes", "1");
+      }
+    });
+  }
+
+  const notesText = elNotesTextarea.value;
+  const newHTML = notesText.trim() ? converter.makeHtml(notesText) : "";
   elDisplay.innerHTML = newHTML;
 
   elDisplay.querySelectorAll("a").forEach((el) => {
@@ -1007,8 +1120,14 @@ function makeNotes(skipSave) {
     el.rel = "noopener noreferrer";
   });
 
+  // Add MathJax support
+  //@ts-ignore
+  const { typesetPromise } = window.MathJax || {};
+  if (typeof typesetPromise === "function") {
+    typesetPromise([elDisplay]);
+  }
+
   if (!skipSave) {
-    const item = state.vocabList[state.i];
     item.data = item.data || {
       wordfreq: 0,
       notes: "",
@@ -1017,3 +1136,6 @@ function makeNotes(skipSave) {
     api.save_notes(item.v, notesText);
   }
 }
+
+// Initialize the flag for AI translation
+makeNotes.aiTranslationTriggeredSet = /** @type {Set<string>} */ (new Set());

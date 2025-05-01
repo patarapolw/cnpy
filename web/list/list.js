@@ -7,7 +7,7 @@ const elEditor = /** @type {HTMLOListElement} */ (
   document.getElementById("editor")
 );
 
-window.addEventListener("pywebviewready", async () => {
+document.addEventListener("DOMContentLoaded", async () => {
   if (!filename) return;
 
   let txt = await api.load_file(filename);

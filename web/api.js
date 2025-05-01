@@ -131,16 +131,6 @@ export const api = {
   },
   /**
    *
-   * @param {string} url
-   * @param {string} title
-   * @param {{ width: number, height: number} | { maximized: true } | null} [args]
-   */
-  async new_window(url, title, args) {
-    url = new URL(url, location.origin).href;
-    return fetchAPI("/api/new_window", { url, title, args });
-  },
-  /**
-   *
    * @param {string} f
    */
   async load_file(f) {
@@ -176,6 +166,15 @@ export const api = {
    */
   async decompose(ks) {
     return fetchAPI(`/api/decompose`, { ks }).then((r) => r.json());
+  },
+  /**
+   *
+   * @param {string} v
+   * @param {{ reset?: boolean; result_only?: boolean }} opts
+   * @returns {Promise<{result: string}>}
+   */
+  async ai_translation(v, opts = {}) {
+    return fetchAPI(`/api/ai_translation/${v}`, opts).then((r) => r.json());
   },
 };
 

@@ -49,7 +49,7 @@ def populate_db(web_log: Callable[[str], None] = print):
             UPDATE quiz SET
                 [data] = json_set(IFNULL([data], '{}'), '$.sent', json(a.ids))
             FROM a
-            WHERE v = a.v0
+            WHERE v = a.v0 OR v IN (SELECT simp FROM cedict WHERE trad = a.v0)
             """
         )
 

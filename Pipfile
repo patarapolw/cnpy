@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 pywebview = "*"
-fsrs = "*"
+fsrs = "~=3.1.0"
 regex = "*"
 wordfreq = "*"
 jieba = "*"
@@ -13,6 +13,9 @@ pyinstaller = "*"
 bottle = "*"
 gtts = "*"
 requests = "*"
+ollama = "*"
+openai = "*"
+python-dotenv = "*"
 
 [dev-packages]
 

@@ -16,10 +16,11 @@ if __name__ == "__main__":
             is_debug = True
 
     win = webview.create_window(
-        "Pinyin Quiz",
+        "cnpy",
         server,  # type: ignore
         text_select=True,
         confirm_close=True,
+        maximized=True,
     )
     log_win = None
 
@@ -61,7 +62,6 @@ if __name__ == "__main__":
     g.web_log = web_log
     g.web_close_log = web_close_log
     g.web_ready = lambda: win.load_url("/dashboard.html")
-    g.web_window = web_window
 
     webview.start(lambda: start(), debug=is_debug)
 

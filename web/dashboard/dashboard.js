@@ -1,6 +1,7 @@
 //@ts-check
 
 import { api } from "../api.js";
+import { openInModal } from "../modal.js";
 import { openItem, searchComponent, searchVoc, speak } from "../util.js";
 
 const elDueCount = /** @type {HTMLSpanElement} */ (
@@ -15,15 +16,32 @@ const elHanziList = /** @type {HTMLDivElement} */ (
   document.getElementById("hanzi-list")
 );
 
-document.querySelectorAll('a[target="new_window"]').forEach((a) => {
+document.querySelectorAll('a[target="modal"]').forEach((a) => {
   if (!(a instanceof HTMLAnchorElement)) return;
   a.onclick = (ev) => {
     ev.preventDefault();
-    api.new_window(
-      a.href,
-      a.innerText,
-      a.href.includes("levels.html") ? { maximized: true } : null
-    );
+
+    if (a.href.includes("levels.html")) {
+      const iframe = document.createElement("iframe");
+      iframe.className = "level-iframe";
+      iframe.src = a.href;
+
+      const modal = document.createElement("div");
+      modal.className = "level-modal";
+
+      const closeButton = document.createElement("button");
+      closeButton.className = "level-close-button";
+      closeButton.innerText = "×";
+      closeButton.onclick = () => {
+        modal.remove();
+      };
+
+      modal.appendChild(iframe);
+      modal.appendChild(closeButton);
+      document.body.appendChild(modal);
+    } else {
+      openInModal(a.href, a.innerText.split(" ")[0]);
+    }
   };
 });
 
@@ -41,7 +59,7 @@ window.addEventListener("focus", () => {
     reloadQueue = doLoading();
   }
 });
-window.addEventListener("pywebviewready", () => {
+document.addEventListener("DOMContentLoaded", () => {
   reloadQueue = doLoading();
 });
 
@@ -105,7 +123,7 @@ async function doLoading() {
                   action: () => openItem(c),
                 },
                 {
-                  text: "Search",
+                  text: `*${c}*`,
                   action: () => searchVoc(c),
                 },
               ],
@@ -141,7 +159,7 @@ async function doLoading() {
               action: () => openItem(c),
             },
             {
-              text: "Search",
+              text: `*${c}*`,
               action: () => searchVoc(c),
             },
             {

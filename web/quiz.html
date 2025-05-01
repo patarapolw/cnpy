@@ -58,7 +58,7 @@
       <a
         id="type-compare"
         class="internal-link"
-        target="new_window"
+        target="modal"
         title="Specify valid Pinyin"
       ></a>
       <div
@@ -125,7 +125,7 @@
           >
           /
           <a
-            href="https://duckduckgo.com/?t=ffab&q=__voc__+词典&ia=web"
+            href="https://duckduckgo.com/?t=ffab&q=__voc__&ia=web"
             target="_blank"
             rel="noopener noreferrer"
             >DuckDuckGo</a
@@ -192,6 +192,29 @@
         </fieldset>
       </details>
     </div>
+
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [
+            ["$", "$"],
+            ["\\(", "\\)"],
+          ],
+          displayMath: [
+            ["$$", "$$"],
+            ["\\[", "\\]"],
+          ],
+        },
+        svg: {
+          fontCache: "global",
+        },
+      };
+    </script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
 
     <script src="./_lib/showdown.min.js"></script>
     <script src="./_lib/ctxmenu.min.js"></script>

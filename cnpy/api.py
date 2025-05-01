@@ -6,9 +6,11 @@ import bottle
 import json
 import datetime
 import random
-from typing import Callable, TypedDict, Optional, Any
+from typing import Callable, TypedDict, Any
+import threading
+import os
 
-from cnpy import quiz, cedict, sentence
+from cnpy import quiz, cedict, sentence, ai
 from cnpy.db import db, radical_db
 from cnpy.stats import make_stats
 from cnpy.tts import tts_audio
@@ -17,28 +19,31 @@ from cnpy.dir import assets_root, user_root, web_root
 
 class UserSettings(TypedDict):
     levels: list[int]
-    voice: Optional[str]
 
 
 class ServerGlobal:
     web_log: Callable
     web_close_log: Callable
     web_ready: Callable
-    web_window: Callable[[str, str, Optional[dict]], Any]
 
     settings_path = user_root / "settings.json"
-    settings = UserSettings(levels=[], voice="")
+    settings = UserSettings(
+        levels=[],
+    )
 
     levels: dict[str, list[str]] = {}
     v_quiz: Any = None
 
     latest_stats = make_stats()
 
+    is_ai_translation_available = True
+
 
 def start():
     quiz.load_db()
     cedict.load_db(g.web_log)
     sentence.load_db(g.web_log)
+    ai.load_db()
 
     g.web_ready()
 
@@ -104,7 +109,7 @@ with server:
     @bottle.get("/api/tts/<s>.mp3")
     def tts(s: str):
         g.settings = json.loads(g.settings_path.read_text("utf-8"))
-        p = tts_audio(s, g.settings.get("voice"))
+        p = tts_audio(s)
         if p:
             return bottle.static_file(p.name, root=p.parent)
 
@@ -115,6 +120,49 @@ with server:
     @bottle.post("/api/get_settings")
     def get_settings():
         return g.settings
+
+    @bottle.post("/api/ai_translation/<v>")
+    def ai_translation(v: str):
+        obj: Any = bottle.request.json
+        reset: bool = obj.get("reset", False)
+        result_only: bool = obj.get("result_only", False)
+
+        result = ""
+
+        try:
+            if reset:
+                db.execute(
+                    "INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, "")
+                )
+                db.commit()
+            elif r := db.execute(
+                "SELECT t FROM ai_dict WHERE v = ? LIMIT 1", (v,)
+            ).fetchone():
+                result = r[0]
+            else:
+                # Insert placeholder entry if not exists
+                db.execute("INSERT INTO ai_dict (v, t) VALUES (?, ?)", (v, ""))
+                db.commit()
+                reset = True
+
+            if reset and result_only == False:
+
+                def run_async_in_thread():
+                    try:
+                        ai.ai_translation(v)
+                    except Exception as e:
+                        print(f"AI translation error {v}: {e}")
+
+                thread = threading.Thread(
+                    target=run_async_in_thread,
+                    daemon=os.getenv("CNPY_WAIT_FOR_AI_RESULTS", "1") == "0",
+                )
+                thread.start()
+        except Exception as e:
+            print(f"AI translation error {v}: {e}")
+
+        # print(f"{v} -> {result[:5]}...")
+        return {"result": result}
 
     @bottle.post("/api/search")
     def search():
@@ -395,7 +443,7 @@ with server:
         result = []
         r_last = []
         max_review = limit * 2 - review_counter
-        max_new = 10
+        max_new = int(os.getenv("CNPY_MAX_NEW", "10"))
         for r in all_items:
             if len(result) >= limit:
                 break
@@ -621,16 +669,6 @@ with server:
             )
 
         db.commit()
-
-    @bottle.post("/api/new_window")
-    def new_window():
-        obj: Any = bottle.request.json
-
-        g.web_window(
-            obj["url"],
-            obj["title"],
-            obj.get("args"),
-        )
 
     @bottle.post("/api/load_file/<f:path>")
     def load_file(f: str):

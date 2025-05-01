@@ -6,7 +6,7 @@ const elPinyinSelect = document.getElementById("pinyin-select");
 const elWarnings = document.getElementById("warnings");
 const elWarningItems = document.getElementById("warning-items");
 
-window.addEventListener("pywebviewready", async () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const v = new URL(location.href, location.origin).searchParams.get("v");
   if (!v) return;
 
