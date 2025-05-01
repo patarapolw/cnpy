@@ -30,13 +30,13 @@ Right-click context menu to check for similar Hanzi and vocabularies. The contex
 
 ![Right click](_README/contextmenu.png)
 
-Also, to access quiz history.
-
-![Quiz history](_README/history.png)
-
 <img title="Hanzi containing" src="_README/sup.png" width=600 />
 
 <img title="Word containing" src="_README/in.png" width=600 />
+
+Also, to access quiz history.
+
+![Quiz history](_README/history.png)
 
 ## Vocab lists
 
