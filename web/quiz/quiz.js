@@ -250,9 +250,12 @@ function setNotesTextAreaHeight() {
   el.style.height = `${el.scrollHeight}px`;
 }
 
+const AI_TRANSLATION_STRING = "<!-- AI translation -->";
+const NEW_AI_TRANSLATION_STRING = "<!-- AI translation (new) -->";
+
 elNotes.querySelectorAll("button").forEach((b) => {
-  switch (b.innerText) {
-    case "Save":
+  switch (b.name) {
+    case "save":
       b.onclick = (ev) => {
         ev.preventDefault();
         makeNotes();
@@ -260,11 +263,41 @@ elNotes.querySelectorAll("button").forEach((b) => {
         elNotes.setAttribute("data-has-notes", "1");
       };
       break;
-    case "Edit":
+    case "edit":
       b.onclick = (ev) => {
         ev.preventDefault();
         elNotes.setAttribute("data-has-notes", "");
         setNotesTextAreaHeight();
+      };
+      break;
+    case "ai":
+      b.onclick = (ev) => {
+        ev.preventDefault();
+
+        const item = state.vocabList[state.i];
+        let { value: notesText } = elNotesTextarea;
+
+        const indexAI = notesText.indexOf(AI_TRANSLATION_STRING);
+        if (indexAI !== -1) {
+          if (!confirm("Remove old AI translation?")) return;
+
+          notesText =
+            notesText.slice(0, indexAI).trimEnd() +
+            "\n" +
+            NEW_AI_TRANSLATION_STRING;
+        } else {
+          notesText += "\n" + AI_TRANSLATION_STRING;
+        }
+
+        item.data = item.data || {
+          wordfreq: 0,
+          notes: "",
+        };
+        item.data.notes = notesText;
+        elNotesTextarea.value = notesText;
+
+        makeNotes();
+        elNotes.setAttribute("data-has-notes", "1");
       };
   }
 });
@@ -907,6 +940,10 @@ async function newVocabList() {
     state.new = r.new;
     state.review_counter += r.result.length;
 
+    if (r.isAIenabled) {
+      elRoot.setAttribute("data-ai", "1");
+    }
+
     if (!state.mode) {
       customItemSRS = r.customItemSRS;
 
@@ -1047,9 +1084,6 @@ function makeNotes({ skipSave } = {}) {
   );
   const item = state.vocabList[state.i];
 
-  const AI_TRANSLATION_STRING = "<!-- AI translation -->";
-  const NEW_AI_TRANSLATION_STRING = "<!-- AI translation (new) -->";
-
   let isAITranslation = !elNotesTextarea.value.trim();
   let reset = false;
 
@@ -1109,6 +1143,20 @@ function makeNotes({ skipSave } = {}) {
         elNotes.setAttribute("data-has-notes", "1");
       }
     });
+  }
+
+  if (isAITranslation) {
+    document.querySelectorAll('button[name="ai"]').forEach((el) => {
+      const b = /** @type {HTMLButtonElement} */ (el);
+      b.disabled = true;
+    });
+
+    setTimeout(() => {
+      document.querySelectorAll('button[name="ai"]').forEach((el) => {
+        const b = /** @type {HTMLButtonElement} */ (el);
+        b.disabled = false;
+      });
+    }, 1000);
   }
 
   const notesText = elNotesTextarea.value;

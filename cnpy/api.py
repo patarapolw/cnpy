@@ -36,7 +36,9 @@ class ServerGlobal:
 
     latest_stats = make_stats()
 
-    is_ai_translation_available = True
+    is_ai_translation_available = any(
+        (os.getenv("OPENAI_API_KEY"), os.getenv("OLLAMA_MODEL"))
+    )
 
 
 def start():
@@ -423,16 +425,20 @@ with server:
         n = len(all_items)
         n_new = len([r for r in all_items if not r.get("srs")])
 
+        output = {
+            "count": n,
+            "new": n_new,
+            "isAIenabled": g.is_ai_translation_available,
+        }
+
         if g.v_quiz:
             v = g.v_quiz
             g.v_quiz = None
 
-            return {
-                "result": [v],
-                "count": n,
-                "new": n_new,
-                "customItemSRS": v.get("srs"),
-            }
+            output["result"] = [v]
+            output["customItemSRS"] = v.get("srs")
+
+            return output
 
         # random between near difficulty, like [5.0,5.5), [5.5,6.0)
         random.shuffle(all_items)
@@ -461,11 +467,9 @@ with server:
         result = result[:limit]
         random.shuffle(result)
 
-        return {
-            "result": result,
-            "count": n,
-            "new": n_new,
-        }
+        output["result"] = result
+
+        return output
 
     @bottle.post("/api/get_vocab/<v>")
     def get_vocab(v: str):

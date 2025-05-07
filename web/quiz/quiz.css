@@ -252,6 +252,15 @@ summary {
   flex-direction: row-reverse;
 }
 
+button[name="ai"] {
+  display: none;
+}
+
+[data-ai] button[name="ai"] {
+  display: block;
+  margin-right: 0.5em;
+}
+
 /* Overlay styles */
 .pinyin-select-overlay {
   position: fixed;

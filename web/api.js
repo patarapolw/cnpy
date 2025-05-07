@@ -68,6 +68,7 @@ export const api = {
    *  count: number;
    *  new: number;
    *  customItemSRS?: any;
+   *  isAIenabled?: boolean;
    * }>}
    */
   async due_vocab_list(review_counter = 0) {
