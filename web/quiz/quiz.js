@@ -1100,9 +1100,19 @@ function makeNotes({ skipSave } = {}) {
     isAITranslation = true;
   }
 
+  document.querySelectorAll('button[name="ai"]').forEach((el) => {
+    const b = /** @type {HTMLButtonElement} */ (el);
+    b.disabled = false;
+  });
+
   // Use a flag to prevent repeated AI translation calls for the same item
   if (!makeNotes.aiTranslationTriggeredSet.has(item.v) && isAITranslation) {
     makeNotes.aiTranslationTriggeredSet.add(item.v);
+
+    document.querySelectorAll('button[name="ai"]').forEach((el) => {
+      const b = /** @type {HTMLButtonElement} */ (el);
+      b.disabled = true;
+    });
 
     api.ai_translation(item.v, { reset }).then(async (r) => {
       // If API call has run once, it's ok to let the API call again
@@ -1143,20 +1153,6 @@ function makeNotes({ skipSave } = {}) {
         elNotes.setAttribute("data-has-notes", "1");
       }
     });
-  }
-
-  if (isAITranslation) {
-    document.querySelectorAll('button[name="ai"]').forEach((el) => {
-      const b = /** @type {HTMLButtonElement} */ (el);
-      b.disabled = true;
-    });
-
-    setTimeout(() => {
-      document.querySelectorAll('button[name="ai"]').forEach((el) => {
-        const b = /** @type {HTMLButtonElement} */ (el);
-        b.disabled = false;
-      });
-    }, 1000);
   }
 
   const notesText = elNotesTextarea.value;
