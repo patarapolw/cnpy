@@ -11,8 +11,10 @@ from cnpy.dir import exe_root
 # Load environment variables from .env file
 load_dotenv(dotenv_path=exe_root / ".env")
 
-can_local_ai_translation = True
-can_online_ai_translation = True
+local_ai_model = os.getenv("OLLAMA_MODEL", "")
+can_local_ai_translation = bool(local_ai_model)
+
+can_online_ai_translation = bool(os.getenv("OPENAI_API_KEY"))
 
 AI_QUESTION = os.getenv("CNPY_AI_QUESTION", '"{v}"是')
 
@@ -26,8 +28,6 @@ def local_ai_translation(v: str) -> str | None:
 
     Notes:
         - This function requires the Ollama library to be installed and configured.
-        - If the function fails (e.g., model not found or Ollama not installed),
-          local AI translation will be disabled for subsequent calls.
 
     See Also:
         - https://ollama.com for installation instructions.
@@ -51,7 +51,7 @@ def local_ai_translation(v: str) -> str | None:
             )
 
         response = ollama_client.chat(
-            model=os.getenv("OLLAMA_MODEL", "qwen:7b"),
+            model=local_ai_model,
             messages=[{"role": "user", "content": AI_QUESTION.format(v=v)}],
         )
 
@@ -60,13 +60,6 @@ def local_ai_translation(v: str) -> str | None:
         result = response.message.content
     except Exception as e:
         print(f"Error in ai_translation {v}: {e}")
-
-        # Disable local AI translation if it fails
-        # such as model not found or ollama not installed
-        global can_local_ai_translation
-        can_local_ai_translation = False
-
-        print("Disabled local AI translation")
 
     print(f"{v} local AI translation took {time.time() - start:.1f} seconds")
     return result
@@ -82,9 +75,6 @@ def online_ai_translation(v: str) -> str | None:
     Notes:
         - This function requires `OPENAI_API_KEY` to be set in the environment.
           Get one from https://platform.deepseek.com or https://platform.openai.com.
-        - If the function fails due to network issues, authentication errors,
-          or lack of subscription, online AI translation will be disabled for subsequent calls.
-        - Other errors (e.g., rate limits or server errors) will not disable online translation.
 
     See Also:
         - https://api-docs.deepseek.com to use DeepSeek with OpenAI API.
@@ -124,15 +114,6 @@ def online_ai_translation(v: str) -> str | None:
         result = response.choices[0].message.content
     except Exception as e:
         print(f"Error in ai_translation {v}: {e}")
-
-        # Check for authentication or connection errors
-        # and disable online AI translation if necessary
-        msg = str(e).lower()
-        if "api_key" in msg or "authentication" in msg or "connection" in msg:
-            global can_online_ai_translation
-            can_online_ai_translation = False
-
-            print("Disabled online AI translation")
 
     print(f"{v} online AI translation took {time.time() - start:.1f} seconds")
     return result
