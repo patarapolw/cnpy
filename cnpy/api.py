@@ -483,13 +483,15 @@ with server:
 
         for r in db.execute("SELECT * FROM quiz WHERE v = ? LIMIT 1", (v,)):
             g.v_quiz = quiz.load_db_entry(r)
-            return {"ok": r["v"]}
 
         for r in db.execute(
             "SELECT * FROM quiz WHERE v IN (SELECT simp FROM cedict WHERE trad = ?) LIMIT 1",
             (v,),
         ):
-            return {"ok": r["v"]}
+            g.v_quiz = quiz.load_db_entry(r)
+
+        if g.v_quiz:
+            return {"ok": g.v_quiz["v"]}
 
         return {"ok": None}
 
