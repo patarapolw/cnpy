@@ -87,7 +87,7 @@ export const api = {
   /**
    *
    * @param {string} v
-   * @returns {Promise<{ ok: string | null }>}
+   * @returns {Promise<{ v: string | null }>}
    */
   async set_vocab_for_quiz(v) {
     return fetchAPI(`/api/set_vocab_for_quiz/${v}`).then((r) => r.json());

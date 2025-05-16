@@ -102,10 +102,10 @@ export function comp_pinyin(a, b, isFuzzy) {
  */
 export async function openItem(v) {
   const r = await api.set_vocab_for_quiz(v);
-  if (r.ok) {
+  if (r.v) {
     openInModal("./quiz.html", v);
   } else {
-    alert(`Invalid vocab: ${v}`);
+    searchVoc(v);
   }
 }
 

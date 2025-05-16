@@ -484,16 +484,19 @@ with server:
         for r in db.execute("SELECT * FROM quiz WHERE v = ? LIMIT 1", (v,)):
             g.v_quiz = quiz.load_db_entry(r)
 
-        for r in db.execute(
-            "SELECT * FROM quiz WHERE v IN (SELECT simp FROM cedict WHERE trad = ?) LIMIT 1",
-            (v,),
-        ):
-            g.v_quiz = quiz.load_db_entry(r)
+        if g.v_quiz is None:
+            rs = db.execute(
+                "SELECT * FROM quiz WHERE v IN (SELECT simp FROM cedict WHERE trad = ?)",
+                (v,),
+            ).fetchall()
+
+            if len(rs) == 1:
+                g.v_quiz = quiz.load_db_entry(rs[0])
 
         if g.v_quiz:
-            return {"ok": g.v_quiz["v"]}
+            return g.v_quiz
 
-        return {"ok": None}
+        return {"v": None}
 
     @bottle.post("/api/new_vocab_list")
     def new_vocab_list():
