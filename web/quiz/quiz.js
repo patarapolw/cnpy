@@ -104,7 +104,6 @@ document.addEventListener("keydown", (ev) => {
   switch (ev.key) {
     case "Escape":
       // Mark repeat
-      // Doesn't overlap with F1
       if (state.mode === "show") return;
       if (state.isRepeat) {
         if (state.lastIsRight === true) {
@@ -116,26 +115,25 @@ document.addEventListener("keydown", (ev) => {
         }
       }
       break;
-    case "F1":
-      // New vocab list
-      // Doesn't overlap with Escape
-      if (state.mode === "show") return;
-      if (state.isRepeat) return;
-      if (typeof state.lastIsRight === "boolean") return;
-      {
-        state.skip++;
+    // case "F1":
+    //   // Skip
+    //   if (state.mode === "show") return;
+    //   if (state.isRepeat) return;
+    //   if (typeof state.lastIsRight === "boolean") return;
+    //   {
+    //     state.skip++;
 
-        const elTotal = /** @type {HTMLDivElement} */ (
-          document.querySelector(".count[data-count-type='total']")
-        );
+    //     const elTotal = /** @type {HTMLDivElement} */ (
+    //       document.querySelector(".count[data-count-type='total']")
+    //     );
 
-        elTotal.innerText = (state.total - state.skip).toString();
+    //     elTotal.innerText = (state.total - state.skip).toString();
 
-        newVocab();
-      }
-      break;
+    //     newVocab();
+    //   }
+    //   break;
     case "F5":
-      // Wrap up
+      // New vocab list / Wrap up
       // Significant physical distance from Escape and F1
       if (state.mode === "show") return;
       if (!state.isRepeat) {
