@@ -104,7 +104,12 @@ document.addEventListener("keydown", (ev) => {
   switch (ev.key) {
     case "Escape":
       // Mark repeat
+      // Can only be done if already answered (not overlapping with F1)
+      // Can be done in both Quiz mode, and Repeat mode
+      // No need to mark repeat in Repeat mode for wrong answers
       if (state.mode === "show") return;
+      if (typeof state.lastIsRight !== "boolean") return;
+
       if (state.isRepeat) {
         if (state.lastIsRight === true) {
           mark("repeat");
@@ -115,27 +120,31 @@ document.addEventListener("keydown", (ev) => {
         }
       }
       break;
-    // case "F1":
-    //   // Skip
-    //   if (state.mode === "show") return;
-    //   if (state.isRepeat) return;
-    //   if (typeof state.lastIsRight === "boolean") return;
-    //   {
-    //     state.skip++;
+    case "F1":
+      // Skip
+      // Can only be done if not answered yet (not overlapping with Escape)
+      // Can only be done in Quiz mode, not Repeat mode
+      if (state.mode === "show") return;
+      if (typeof state.lastIsRight === "boolean") return;
 
-    //     const elTotal = /** @type {HTMLDivElement} */ (
-    //       document.querySelector(".count[data-count-type='total']")
-    //     );
+      if (!state.isRepeat) {
+        state.skip++;
 
-    //     elTotal.innerText = (state.total - state.skip).toString();
+        const elTotal = /** @type {HTMLDivElement} */ (
+          document.querySelector(".count[data-count-type='total']")
+        );
 
-    //     newVocab();
-    //   }
-    //   break;
+        elTotal.innerText = (state.total - state.skip).toString();
+
+        newVocab();
+      }
+      break;
     case "F5":
       // New vocab list / Wrap up
       // Significant physical distance from Escape and F1
+      // Can only be done if not answered yet
       if (state.mode === "show") return;
+
       if (!state.isRepeat) {
         state.review_counter -= state.max - state.i;
         newVocabList();

@@ -9,7 +9,9 @@ No typo checking. No turning to Wrong or Right. However, there is a middle-way b
 - `v` is accepted for `u:` or `ü` (for IME practice)
 - `ESC` for Not sure
 - `Ctrl+Z` for Undo and redo later (move to the end of the queue)
+- `F1` to Skip the current vocab (putting to skip list is considered separately)
 - `F5` to End the current batch, and start the wrong drill or make a new batch.
+- `F1` / `F5` must be done before answering, that is, not because of not knowing the answer and no spoiler.
 - Mulitple answers if applicable, separated by `;` (whitespaces are ignored). Important readings can be forced to require. Uncommon readings can be disabled and made wrong.
 - Custom vocabularies can be added, and will be put to the end of Due queue (if the entries exist in [the dictionary](https://www.mdbg.net/chinese/dictionary))
 - Skip vocabularies can be set, if accidentally put to SRS, or considered practically uncommon.
