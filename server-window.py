@@ -1,10 +1,9 @@
 import sys
 from threading import Thread
-
-import webview
+import atexit
 
 from cnpy.db import db
-from cnpy.api import server, start
+from cnpy.api import server, start, g
 
 
 if __name__ == "__main__":
@@ -14,17 +13,16 @@ if __name__ == "__main__":
         if arg == "--debug":
             is_debug = True
 
-    t_server = Thread(target=lambda: server.run(port=5000, debug=True), daemon=True)
+    atexit.register(lambda: db.commit())
+
+    t_server = Thread(
+        target=lambda: server.run(port=5000, debug=True),
+        daemon=False,  # Blocking thread
+    )
     t_server.run()
 
-    win = webview.create_window(
-        "Pinyin Quiz",
-        "http://localhost:3000",
-        text_select=True,
-        confirm_close=True,
-    )
-    log_win = None
+    g.web_log = print
+    g.web_ready = lambda: None
+    g.web_close_log = lambda: None
 
-    webview.start(lambda: start(), debug=is_debug)
-
-    db.commit()
+    start()
