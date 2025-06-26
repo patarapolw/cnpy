@@ -1,0 +1,21 @@
+fieldset * {
+  font-family: sans-serif;
+}
+
+fieldset form {
+  display: flex;
+  width: 100%;
+}
+
+fieldset form + * {
+  margin-top: 1em;
+}
+
+input[type="text"] {
+  flex-grow: 1;
+  margin-left: 0.5em;
+}
+
+.hide-options .hideable-option {
+  display: none;
+}
