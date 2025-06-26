@@ -123,6 +123,18 @@ with server:
     def get_settings():
         return g.settings
 
+    @bottle.post("/api/get_env/<k>")
+    def get_env(k: str):
+        for r in db.execute("SELECT v FROM settings WHERE k = ? LIMIT 1", (k,)):
+            return {"v": r["v"]}
+
+        return {"v": None}
+
+    @bottle.post("/api/set_env/<k>")
+    def set_env(k: str):
+        obj: Any = bottle.request.json
+        db.execute("UPDATE settings SET v = ? WHERE k = ?", (obj["v"], k))
+
     @bottle.post("/api/ai_translation/<v>")
     def ai_translation(v: str):
         obj: Any = bottle.request.json

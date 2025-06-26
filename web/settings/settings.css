@@ -19,3 +19,9 @@ input[type="text"] {
 .hide-options .hideable-option {
   display: none;
 }
+
+footer {
+  position: absolute;
+  bottom: 1em;
+  right: 1em;
+}

@@ -16,6 +16,9 @@ def load_db():
 
 
 def populate_db():
+    # TODO: use settings from sync
+    db.execute("DELETE FROM settings")
+
     for k, v in env.items():
         db.execute("INSERT OR REPLACE INTO settings (k, v) VALUES (?, ?)", (k, v))
 
@@ -27,12 +30,6 @@ def populate_db():
 
 
 def reset_db():
-    db.executescript(
-        """
-        DROP TABLE settings;
-        """
-    )
-
     load_db()
 
 

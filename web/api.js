@@ -177,6 +177,33 @@ export const api = {
   async ai_translation(v, opts = {}) {
     return fetchAPI(`/api/ai_translation/${v}`, opts).then((r) => r.json());
   },
+  /**
+   * @typedef {'OPENAI_API_KEY'
+   * | 'OPENAI_API_BASE'
+   * | 'OPENAI_MODEL'
+   * | 'OLLAMA_MODEL'
+   * | 'OLLAMA_HOST'
+   * | 'CNPY_WAIT_FOR_AI_RESULTS'
+   * | 'CNPY_MAX_NEW'
+   * | 'TTS_VOICE'
+   * } EnvKey
+   *
+   * @param {EnvKey} k
+   * @returns {Promise<string>}
+   */
+  async get_env(k) {
+    return fetchAPI(`/api/get_env/${k}`)
+      .then((r) => r.json())
+      .then((r) => r.v || "");
+  },
+  /**
+   *
+   * @param {EnvKey} k
+   * @param {string} v
+   */
+  async set_env(k, v) {
+    return fetchAPI(`/api/set_env/${k}`, { v });
+  },
 };
 
 /**
