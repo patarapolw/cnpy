@@ -13,7 +13,7 @@ import traceback
 
 from cnpy import quiz, cedict, sentence, ai, settings, sync
 from cnpy.db import db, radical_db
-from cnpy.stats import make_stats
+from cnpy.stats import make_stats, Stats
 from cnpy.tts import tts_audio
 from cnpy.dir import assets_root, user_root, web_root, settings_path
 from cnpy.env import env
@@ -36,7 +36,7 @@ class ServerGlobal:
     levels: dict[str, list[str]] = {}
     v_quiz: Any = None
 
-    latest_stats = make_stats()
+    latest_stats: Stats
 
     is_ai_translation_available = any(
         (env.get("OPENAI_API_KEY"), env.get("OLLAMA_MODEL"))
@@ -163,6 +163,7 @@ with server:
     def set_env(k: str):
         obj: Any = bottle.request.json
         db.execute("INSERT OR REPLACE INTO settings (k,v) VALUES (?,?)", (k, obj["v"]))
+        env[k] = obj["v"]
 
     @bottle.post("/api/ai_translation/<v>")
     def ai_translation(v: str):

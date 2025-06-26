@@ -53,7 +53,7 @@ def upload_sync():
         sync_db.execute(
             """
             INSERT INTO quiz
-            (v, srs, [data], modified) VALUES (:v, :srs, :data, :modified)
+                (v, srs, [data], modified) VALUES (:v, :srs, :data, :modified)
             ON CONFLICT (v) DO UPDATE SET
                 srs = :srs, [data] = :data, modified = :modified
             WHERE v = :v AND ((modified IS NULL AND :modified IS NULL)

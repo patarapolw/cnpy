@@ -19,10 +19,11 @@ def populate_db():
     for k, v in env.items():
         db.execute("INSERT OR REPLACE INTO settings (k, v) VALUES (?, ?)", (k, v))
 
-    db.execute(
-        "INSERT OR REPLACE INTO settings (k, v) VALUES (?, ?)",
-        ("settings", settings_path.read_text("utf-8")),
-    )
+    if settings_path.exists():
+        db.execute(
+            "INSERT OR REPLACE INTO settings (k, v) VALUES (?, ?)",
+            ("settings", settings_path.read_text("utf-8")),
+        )
     db.commit()
 
     for r in db.execute("SELECT k, v FROM settings WHERE k != 'settings'"):
