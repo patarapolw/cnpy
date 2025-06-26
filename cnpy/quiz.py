@@ -9,13 +9,15 @@ def load_db():
         CREATE TABLE IF NOT EXISTS quiz (
             v       TEXT NOT NULL PRIMARY KEY,
             srs     JSON,
-            [data]  JSON
+            [data]  JSON,
+            modified    TEXT -- datetime() output in UTC, e.g. 2025-06-26 04:56:48
         );
 
         CREATE INDEX IF NOT EXISTS idx_quiz_srs_due ON quiz (json_extract(srs, '$.due'));
         CREATE INDEX IF NOT EXISTS idx_quiz_wordfreq ON quiz (json_extract([data], '$.wordfreq'));
         CREATE INDEX IF NOT EXISTS idx_quiz_sent_count ON quiz (json_array_length([data], '$.sent'));
         CREATE INDEX IF NOT EXISTS idx_quiz_count ON quiz (json_extract([data], '$.count'));
+        CREATE INDEX IF NOT EXISTS idx_quiz_modified ON quiz (modified);
 
         CREATE TABLE IF NOT EXISTS revlog (
             v           TEXT NOT NULL,
@@ -39,6 +41,24 @@ def load_db():
 
         CREATE INDEX IF NOT EXISTS idx_vlist_created_f ON vlist (unixepoch(created));
         CREATE INDEX IF NOT EXISTS idx_vlist_skip ON vlist (skip);
+        """
+    )
+
+    if not db.execute(
+        "SELECT 1 FROM pragma_table_info('quiz') WHERE name = 'modified'"
+    ).fetchmany(1):
+        db.executescript("ALTER TABLE quiz ADD COLUMN modified TEXT")
+
+    db.executescript(
+        """
+        CREATE TRIGGER IF NOT EXISTS t_quiz_modified
+        AFTER UPDATE OF srs, [data] ON quiz
+        FOR EACH ROW
+        BEGIN
+            UPDATE quiz
+            SET modified = datetime()
+            WHERE v = OLD.v;
+        END
         """
     )
 
