@@ -1,22 +1,17 @@
 import time
-import os
 
 from openai import OpenAI
 from ollama import Client
-from dotenv import load_dotenv
 
 from cnpy.db import db
-from cnpy.dir import exe_root
+from cnpy.env import env
 
-# Load environment variables from .env file
-load_dotenv(dotenv_path=exe_root / ".env")
-
-local_ai_model = os.getenv("OLLAMA_MODEL", "")
+local_ai_model = env.get("OLLAMA_MODEL") or ""
 can_local_ai_translation = bool(local_ai_model)
 
-can_online_ai_translation = bool(os.getenv("OPENAI_API_KEY"))
+can_online_ai_translation = bool(env.get("OPENAI_API_KEY") or "")
 
-AI_QUESTION = os.getenv("CNPY_AI_QUESTION", '"{v}"是')
+AI_QUESTION = env.get("CNPY_AI_QUESTION") or '"{v}"是'
 
 
 ollama_client: Client | None = None
@@ -96,15 +91,20 @@ def online_ai_translation(v: str) -> str | None:
         global openai_client
         if not openai_client:
             openai_client = OpenAI(
-                base_url=os.getenv("OPENAI_BASE_URL", "https://api.deepseek.com"),
+                base_url=env.get("OPENAI_BASE_URL") or "https://api.deepseek.com",
                 # api_key=None,  # Use environment variable OPENAI_API_KEY
             )
 
+        model = env.get("OPENAI_MODEL") or "deepseek-chat"
+        temperature = env.get("OPENAI_TEMPERATURE")
+        if not temperature and model == "deepseek-chat":
+            temperature = "1.3"
+
         response = openai_client.chat.completions.create(
-            model=os.getenv("OPENAI_MODEL", "deepseek-chat"),
+            model=model,
             messages=[{"role": "user", "content": AI_QUESTION.format(v=v)}],
             temperature=float(
-                os.getenv("OPENAI_TEMPERATURE", "1.3")
+                temperature or "1"
             ),  # Adjust temperature according to documentation
             stream=False,
         )

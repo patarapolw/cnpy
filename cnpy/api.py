@@ -8,13 +8,13 @@ import datetime
 import random
 from typing import Callable, TypedDict, Any
 import threading
-import os
 
-from cnpy import quiz, cedict, sentence, ai
+from cnpy import quiz, cedict, sentence, ai, settings
 from cnpy.db import db, radical_db
 from cnpy.stats import make_stats
 from cnpy.tts import tts_audio
-from cnpy.dir import assets_root, user_root, web_root
+from cnpy.dir import assets_root, user_root, web_root, settings_path
+from cnpy.env import env
 
 
 class UserSettings(TypedDict):
@@ -26,7 +26,6 @@ class ServerGlobal:
     web_close_log: Callable
     web_ready: Callable
 
-    settings_path = user_root / "settings.json"
     settings = UserSettings(
         levels=[],
     )
@@ -37,7 +36,7 @@ class ServerGlobal:
     latest_stats = make_stats()
 
     is_ai_translation_available = any(
-        (os.getenv("OPENAI_API_KEY"), os.getenv("OLLAMA_MODEL"))
+        (env.get("OPENAI_API_KEY"), env.get("OLLAMA_MODEL"))
     )
 
 
@@ -46,6 +45,7 @@ def start():
     cedict.load_db(g.web_log)
     sentence.load_db(g.web_log)
     ai.load_db()
+    settings.load_db()
 
     g.web_ready()
 
@@ -75,7 +75,7 @@ def fn_get_freq_min():
 
 
 def fn_save_settings():
-    g.settings_path.write_text(
+    settings_path.write_text(
         json.dumps(
             g.settings,
             ensure_ascii=False,
@@ -88,8 +88,8 @@ srs = fsrs.FSRS()
 g = ServerGlobal()
 server = bottle.Bottle()
 
-if g.settings_path.exists():
-    g.settings = json.loads(g.settings_path.read_text("utf-8"))
+if settings_path.exists():
+    g.settings = json.loads(settings_path.read_text("utf-8"))
 
 folder = assets_root / "zhquiz-level"
 for f in folder.glob("**/*.txt"):
@@ -110,7 +110,7 @@ with server:
 
     @bottle.get("/api/tts/<s>.mp3")
     def tts(s: str):
-        g.settings = json.loads(g.settings_path.read_text("utf-8"))
+        g.settings = json.loads(settings_path.read_text("utf-8"))
         p = tts_audio(s)
         if p:
             return bottle.static_file(p.name, root=p.parent)
@@ -157,7 +157,7 @@ with server:
 
                 thread = threading.Thread(
                     target=run_async_in_thread,
-                    daemon=os.getenv("CNPY_WAIT_FOR_AI_RESULTS", "1") == "0",
+                    daemon=(env.get("CNPY_WAIT_FOR_AI_RESULTS") or "1") == "0",
                 )
                 thread.start()
         except Exception as e:
@@ -449,7 +449,7 @@ with server:
         result = []
         r_last = []
         max_review = limit * 2 - review_counter
-        max_new = int(os.getenv("CNPY_MAX_NEW", "10"))
+        max_new = int(env.get("CNPY_MAX_NEW") or "10")
         for r in all_items:
             if len(result) >= limit:
                 break
