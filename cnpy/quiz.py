@@ -41,6 +41,7 @@ def load_db():
 
         CREATE INDEX IF NOT EXISTS idx_vlist_created_f ON vlist (unixepoch(created));
         CREATE INDEX IF NOT EXISTS idx_vlist_skip ON vlist (skip);
+        CREATE INDEX IF NOT EXISTS idx_vlist_level ON vlist (json_extract([data], '$.level'));
         """
     )
 

@@ -381,11 +381,14 @@ with server:
             if is_dup:
                 f.write_text("\n".join(nodup_f_vs), encoding="utf-8")
 
-        for lv in g.settings.get("levels", []):
+        levels = g.settings.get("levels", [])
+        levels.sort(reverse=True)
+
+        for lv in levels:
             for v in g.levels[f"{lv:02d}"]:
                 db.execute(
-                    "INSERT INTO vlist (v, created) VALUES (?,?) ON CONFLICT DO NOTHING",
-                    (v, now_str),
+                    "REPLACE INTO vlist (v, created, [data]) VALUES (?,?, json_object('level',?))",
+                    (v, now_str, lv),
                 )
                 vs.add(v)
 

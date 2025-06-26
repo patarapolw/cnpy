@@ -62,7 +62,9 @@ def upload_sync():
             dict(r),
         )
 
-    for r in db.execute("SELECT * FROM vlist"):
+    for r in db.execute(
+        "SELECT * FROM vlist WHERE json_extract([data],'$.level') IS NULL"
+    ):
         sync_db.execute(
             """
             INSERT INTO vlist
@@ -116,13 +118,28 @@ def restore_sync():
         )
 
     (user_root / "vocab" / "vocab.txt").write_text(
-        "\n".join(r["v"] for r in db.execute("SELECT v FROM vlist WHERE skip IS NULL")),
+        "\n".join(
+            r["v"]
+            for r in db.execute(
+                """
+                SELECT v FROM vlist
+                WHERE skip IS NULL
+                AND json_extract([data],'$.level') IS NULL
+                """
+            )
+        ),
         encoding="utf-8",
     )
 
     (user_root / "skip" / "skip.txt").write_text(
         "\n".join(
-            r["v"] for r in db.execute("SELECT v FROM vlist WHERE skip IS NOT NULL")
+            r["v"]
+            for r in db.execute(
+                """
+                SELECT v FROM vlist
+                WHERE skip IS NOT NULL
+                """
+            )
         ),
         encoding="utf-8",
     )
