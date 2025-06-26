@@ -193,7 +193,7 @@ export const api = {
    * @returns {Promise<string>}
    */
   async get_env(k) {
-    return fetchAPI(`/api/get_env/${k}`)
+    return fetchAPI(`/api/env/get/${k}`)
       .then((r) => r.json())
       .then((r) => r.v || "");
   },
@@ -203,16 +203,19 @@ export const api = {
    * @param {string} v
    */
   async set_env(k, v) {
-    return fetchAPI(`/api/set_env/${k}`, { v });
+    return fetchAPI(`/api/env/set/${k}`, { v });
   },
   /**
    *
    * @returns {Promise<string | null>}
    */
   async set_sync_db() {
-    return fetchAPI("/api/set_sync_db")
+    return fetchAPI("/api/sync/setup")
       .then((r) => r.json())
       .then((r) => r.db);
+  },
+  async sync_restore() {
+    return fetchAPI("/api/sync/restore");
   },
 };
 

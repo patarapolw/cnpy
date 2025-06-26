@@ -1,6 +1,7 @@
 //@ts-check
 
 import { api } from "../api.js";
+import { closeModal } from "../modal.js";
 
 /** @type {(() => Promise<void>)[]} */
 const saveRunners = [];
@@ -38,9 +39,10 @@ const saveRunners = [];
   }
 
   async function init() {
-    checkboxHasNew.checked = (await api.get_env("CNPY_MAX_NEW")) !== "0";
+    checkboxHasNew.checked =
+      ((await api.get_env("CNPY_MAX_NEW")) ?? "10") !== "0";
 
-    const ttsVoice = await api.get_env("TTS_VOICE");
+    const ttsVoice = (await api.get_env("TTS_VOICE")) ?? "";
     if (ttsVoice === "0") {
       ttsEngine = "";
     } else if (ttsVoice === "gtts" || ttsVoice === "") {
@@ -105,14 +107,17 @@ const saveRunners = [];
   }
 
   async function init() {
-    inputOpenAIapiKey.value = await api.get_env("OPENAI_API_KEY");
+    inputOpenAIapiKey.value =
+      (await api.get_env("OPENAI_API_KEY")) ?? inputOpenAIapiKey.value;
     inputOpenAIapiKey.addEventListener("input", () => {
       checkAPIkey();
     });
 
     if (inputOpenAIapiKey.value) {
-      inputOpenAIserver.value = await api.get_env("OPENAI_API_BASE");
-      inputOpenAImodel.value = await api.get_env("OPENAI_MODEL");
+      inputOpenAIserver.value =
+        (await api.get_env("OPENAI_API_BASE")) ?? inputOpenAIserver.value;
+      inputOpenAImodel.value =
+        (await api.get_env("OPENAI_MODEL")) ?? inputOpenAImodel.value;
     }
 
     checkAPIkey();
@@ -151,12 +156,13 @@ const saveRunners = [];
   }
 
   async function init() {
-    const model = await api.get_env("OLLAMA_MODEL");
+    const model = (await api.get_env("OLLAMA_MODEL")) ?? "";
     if (model) {
       llmEngine = "ollama";
       inputLocalLLMmodel.value = model;
 
-      inputLocalLLMhost.value = await api.get_env("OLLAMA_HOST");
+      inputLocalLLMhost.value =
+        (await api.get_env("OLLAMA_HOST")) ?? inputLocalLLMhost.value;
     }
 
     radioLocalLLMengine.querySelectorAll("input").forEach((inp) => {
@@ -210,16 +216,28 @@ const saveRunners = [];
 
   inputSyncDatabase.onclick = async () => {
     const db = await api.set_sync_db();
-    inputSyncDatabase.value = db || inputSyncDatabase.value;
-    check();
+    if (db) {
+      inputSyncDatabase.value = db;
+      await api.set_env("CNPY_SYNC_DATABASE", db);
+
+      check();
+    }
+  };
+
+  btnRestore.onclick = async () => {
+    await api.sync_restore();
   };
 
   btnRemove.onclick = async () => {
     inputSyncDatabase.value = "";
+    await api.set_env("CNPY_SYNC_DATABASE", "");
+
     check();
   };
 
   async function init() {
+    inputSyncDatabase.value =
+      (await api.get_env("CNPY_SYNC_DATABASE")) ?? inputSyncDatabase.value;
     check();
   }
   init();
@@ -231,4 +249,5 @@ const saveRunners = [];
 const btnSave = document.querySelector("button#save");
 btnSave.onclick = async () => {
   await Promise.all(saveRunners.map((fn) => fn()));
+  closeModal();
 };

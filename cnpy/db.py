@@ -8,6 +8,7 @@ from cnpy.dir import user_root, assets_root
 
 db = sqlite3.connect(user_root / "main.db", check_same_thread=False)
 db.row_factory = sqlite3.Row
+db.execute("pragma cached_statements=0")
 
 
 def re(y, x):

@@ -9,8 +9,9 @@ import datetime
 import random
 from typing import Callable, TypedDict, Any
 import threading
+import traceback
 
-from cnpy import quiz, cedict, sentence, ai, settings
+from cnpy import quiz, cedict, sentence, ai, settings, sync
 from cnpy.db import db, radical_db
 from cnpy.stats import make_stats
 from cnpy.tts import tts_audio
@@ -48,6 +49,8 @@ def start():
     sentence.load_db(g.web_log)
     ai.load_db()
     settings.load_db()
+
+    sync.restore_sync()
 
     g.web_ready()
 
@@ -125,7 +128,7 @@ with server:
     def get_settings():
         return g.settings
 
-    @bottle.post("/api/set_sync_db")
+    @bottle.post("/api/sync/setup")
     def set_sync_db():
         file_path = g.win.create_file_dialog(
             webview.SAVE_DIALOG,
@@ -137,17 +140,25 @@ with server:
 
         return {"db": None}
 
-    @bottle.post("/api/get_env/<k>")
+    @bottle.post("/api/sync/restore")
+    def sync_restore():
+        sync.restore_sync()
+
+    @bottle.post("/api/env/get/<k>")
     def get_env(k: str):
-        for r in db.execute("SELECT v FROM settings WHERE k = ? LIMIT 1", (k,)):
-            return {"v": r[0]}
+        try:
+            for r in db.execute("SELECT v FROM settings WHERE k = ? LIMIT 1", (k,)):
+                return {"v": r["v"]}
+        except Exception as e:
+            traceback.print_exc()
+            return {"v": env.get(k)}
 
         return {"v": None}
 
-    @bottle.post("/api/set_env/<k>")
+    @bottle.post("/api/env/set/<k>")
     def set_env(k: str):
         obj: Any = bottle.request.json
-        db.execute("UPDATE settings SET v = ? WHERE k = ?", (obj["v"], k))
+        db.execute("INSERT OR REPLACE INTO settings (k,v) VALUES (?,?)", (k, obj["v"]))
 
     @bottle.post("/api/ai_translation/<v>")
     def ai_translation(v: str):

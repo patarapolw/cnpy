@@ -1,0 +1,128 @@
+import sqlite3
+from pathlib import Path
+import atexit
+
+from cnpy.env import env
+from cnpy.db import db
+from cnpy.dir import user_root
+
+ENV_KEY_SYNC = "CNPY_SYNC_DATABASE"
+
+
+def upload_sync():
+    sync_db_path = env.get(ENV_KEY_SYNC)
+    if not sync_db_path:
+        return
+
+    sync_db = sqlite3.connect(sync_db_path)
+    sync_db.executescript(
+        """
+        CREATE TABLE IF NOT EXISTS settings (
+            k   TEXT NOT NULL PRIMARY KEY,
+            v   TEXT -- or serialized json
+        );
+
+        CREATE TABLE IF NOT EXISTS quiz (
+            v       TEXT NOT NULL PRIMARY KEY,
+            srs     JSON,
+            [data]  JSON,
+            modified    TEXT -- datetime() output in UTC, e.g. 2025-06-26 04:56:48
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_quiz_modified ON quiz (modified);
+
+        DROP TABLE IF EXISTS vlist;
+        CREATE TABLE vlist (
+            v           TEXT NOT NULL PRIMARY KEY,
+            created     TEXT NOT NULL,  -- TIMESTAMP
+            skip        INT,            -- boolean
+            [data]      JSON
+        );
+        """
+    )
+
+    for r in db.execute("SELECT * FROM settings"):
+        if r["k"] == ENV_KEY_SYNC:
+            continue
+
+        sync_db.execute(
+            "INSERT OR REPLACE INTO settings (k, v) VALUES (:k, :v)", dict(r)
+        )
+
+    for r in db.execute("SELECT * FROM quiz"):
+        sync_db.execute(
+            """
+            INSERT INTO quiz
+            (v, srs, [data], modified) VALUES (:v, :srs, :data, :modified)
+            ON CONFLICT (v) DO UPDATE SET
+                srs = :srs, [data] = :data, modified = :modified
+            WHERE v = :v AND ((modified IS NULL AND :modified IS NULL)
+            OR :modified > modified)
+            """,
+            dict(r),
+        )
+
+    for r in db.execute("SELECT * FROM vlist"):
+        sync_db.execute(
+            """
+            INSERT INTO vlist
+            (v, created, skip, [data]) VALUES (:v,:created,:skip,:data)
+            """,
+            dict(r),
+        )
+
+    sync_db.commit()
+    print("uploaded sync")
+
+
+atexit.register(upload_sync)
+
+
+def restore_sync():
+    sync_db_path = env.get(ENV_KEY_SYNC)
+    if not sync_db_path or not Path(sync_db_path).exists():
+        return
+
+    sync_db = sqlite3.connect(sync_db_path)
+    sync_db.row_factory = sqlite3.Row
+
+    for r in sync_db.execute("SELECT * FROM settings"):
+        if r["k"] == ENV_KEY_SYNC:
+            continue
+
+        db.execute("INSERT OR REPLACE INTO settings (k, v) VALUES (:k, :v)", dict(r))
+        env[r["k"]] = r["v"]
+
+    for r in sync_db.execute("SELECT * FROM quiz"):
+        db.execute(
+            """
+            INSERT INTO quiz
+            (v, srs, [data], modified) VALUES (:v,:srs,:data,:modified)
+            ON CONFLICT (v) DO UPDATE SET
+                srs = :srs, [data] = :data, modified = :modified
+            WHERE v = :v AND
+            ((modified IS NULL AND :modified IS NULL) OR :modified > modified)
+            """,
+            dict(r),
+        )
+
+    for r in sync_db.execute("SELECT * FROM vlist"):
+        db.execute(
+            """
+            INSERT OR REPLACE INTO vlist
+            (v, created, skip, [data]) VALUES (:v,:created,:skip,:data)
+            """,
+            dict(r),
+        )
+
+    (user_root / "vocab" / "vocab.txt").write_text(
+        "\n".join(r["v"] for r in db.execute("SELECT v FROM vlist WHERE skip IS NULL")),
+        encoding="utf-8",
+    )
+
+    (user_root / "skip" / "skip.txt").write_text(
+        "\n".join(
+            r["v"] for r in db.execute("SELECT v FROM vlist WHERE skip IS NOT NULL")
+        ),
+        encoding="utf-8",
+    )
