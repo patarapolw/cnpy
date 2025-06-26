@@ -74,7 +74,7 @@ def upload_sync():
         )
 
     sync_db.commit()
-    print("uploaded sync")
+    print(f"uploaded sync to {sync_db_path}")
 
 
 atexit.register(upload_sync)

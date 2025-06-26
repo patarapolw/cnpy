@@ -133,9 +133,13 @@ with server:
         file_path = g.win.create_file_dialog(
             webview.SAVE_DIALOG,
             save_filename="cnpy.db",
-            file_types=("SQLite database (*.db)",),
+            file_types=("cnpy SQLite database (*.db)",),
         )
         if file_path:
+            file_path = str(file_path)
+            env[sync.ENV_KEY_SYNC] = file_path
+            sync.restore_sync()
+
             return {"db": file_path}
 
         return {"db": None}
