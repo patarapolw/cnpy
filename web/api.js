@@ -186,6 +186,7 @@ export const api = {
    * | 'CNPY_WAIT_FOR_AI_RESULTS'
    * | 'CNPY_MAX_NEW'
    * | 'TTS_VOICE'
+   * | 'CNPY_SYNC_DATABASE'
    * } EnvKey
    *
    * @param {EnvKey} k
@@ -203,6 +204,15 @@ export const api = {
    */
   async set_env(k, v) {
     return fetchAPI(`/api/set_env/${k}`, { v });
+  },
+  /**
+   *
+   * @returns {Promise<string | null>}
+   */
+  async set_sync_db() {
+    return fetchAPI("/api/set_sync_db")
+      .then((r) => r.json())
+      .then((r) => r.db);
   },
 };
 

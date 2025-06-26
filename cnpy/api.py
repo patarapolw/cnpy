@@ -2,6 +2,7 @@ import fsrs
 from regex import Regex
 import jieba
 import bottle
+import webview
 
 import json
 import datetime
@@ -25,6 +26,7 @@ class ServerGlobal:
     web_log: Callable
     web_close_log: Callable
     web_ready: Callable
+    win: webview.Window
 
     settings = UserSettings(
         levels=[],
@@ -123,10 +125,22 @@ with server:
     def get_settings():
         return g.settings
 
+    @bottle.post("/api/set_sync_db")
+    def set_sync_db():
+        file_path = g.win.create_file_dialog(
+            webview.SAVE_DIALOG,
+            save_filename="cnpy.db",
+            file_types=("SQLite database (*.db)",),
+        )
+        if file_path:
+            return {"db": file_path}
+
+        return {"db": None}
+
     @bottle.post("/api/get_env/<k>")
     def get_env(k: str):
         for r in db.execute("SELECT v FROM settings WHERE k = ? LIMIT 1", (k,)):
-            return {"v": r["v"]}
+            return {"v": r[0]}
 
         return {"v": None}
 

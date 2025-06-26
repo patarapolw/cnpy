@@ -188,6 +188,45 @@ const saveRunners = [];
   saveRunners.push(save);
 }
 
+////////////////////
+
+{
+  /** @type {HTMLFieldSetElement} */
+  const fieldSetSync = document.querySelector("fieldset#sync");
+
+  /** @type {HTMLInputElement} */
+  const inputSyncDatabase = fieldSetSync.querySelector(
+    'input[name="sync-database"]'
+  );
+  /** @type {HTMLButtonElement} */
+  const btnRestore = fieldSetSync.querySelector('button[name="restore"]');
+  /** @type {HTMLButtonElement} */
+  const btnRemove = fieldSetSync.querySelector('button[name="remove"]');
+
+  function check() {
+    btnRestore.disabled = !inputSyncDatabase.value;
+    btnRemove.disabled = !inputSyncDatabase.value;
+  }
+
+  inputSyncDatabase.onclick = async () => {
+    const db = await api.set_sync_db();
+    inputSyncDatabase.value = db || inputSyncDatabase.value;
+    check();
+  };
+
+  btnRemove.onclick = async () => {
+    inputSyncDatabase.value = "";
+    check();
+  };
+
+  async function init() {
+    check();
+  }
+  init();
+}
+
+////////////////////
+
 /** @type {HTMLButtonElement} */
 const btnSave = document.querySelector("button#save");
 btnSave.onclick = async () => {

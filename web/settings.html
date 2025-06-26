@@ -185,16 +185,16 @@
       </fieldset>
     </fieldset>
 
-    <fieldset disabled>
+    <fieldset id="sync">
       <legend>Sync</legend>
 
       <form>
         <label for="sync-database">Sync database:</label>
-        <input type="text" name="sync-database" id="sync-database" />
+        <input type="text" name="sync-database" id="sync-database" readonly />
       </form>
 
-      <button type="button">Restore from sync</button>
-      <button type="button">Remove sync</button>
+      <button type="button" name="restore">Restore</button>
+      <button type="button" name="remove">Remove sync</button>
     </fieldset>
 
     <footer>
