@@ -4,7 +4,7 @@ import atexit
 
 from cnpy.env import env
 from cnpy.db import db
-from cnpy.dir import user_root
+from cnpy.dir import user_root, settings_path
 
 ENV_LOCAL_KEY_PREFIX = "CNPY_LOCAL_"
 ENV_KEY_SYNC = f"{ENV_LOCAL_KEY_PREFIX}SYNC_DATABASE"
@@ -106,6 +106,9 @@ def restore_sync():
 
         db.execute("INSERT OR REPLACE INTO settings (k, v) VALUES (:k, :v)", dict(r))
         env[r["k"]] = r["v"]
+
+        if k == "settings":
+            settings_path.write_text(r["v"], encoding="utf-8")
 
     db.execute("DELETE FROM settings WHERE v = ''")
 
