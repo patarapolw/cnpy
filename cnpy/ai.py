@@ -125,8 +125,8 @@ def ai_translation(v: str) -> str | None:
     """
     Translate a string using AI.
 
-    This function first attempts to use online AI translation. If that fails,
-    it falls back to local AI translation. If both methods fail, it returns None.
+    This function first attempts to use local AI translation. If that fails,
+    it falls back to online AI translation. If both methods fail, it returns None.
     The translated string is cached in the database for future use.
 
     Args:
@@ -135,17 +135,15 @@ def ai_translation(v: str) -> str | None:
     Returns:
         str | None: The translated string, or None if all translation methods fail.
     """
-    # Try online AI translation first
-    if can_online_ai_translation:
-        t = online_ai_translation(v)
+    if can_local_ai_translation:
+        t = local_ai_translation(v)
         if t:
             db.execute("INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, t))
             db.commit()
             return t
 
-    # If online translation fails, fall back to local translation
-    if can_local_ai_translation:
-        t = local_ai_translation(v)
+    if can_online_ai_translation:
+        t = online_ai_translation(v)
         if t:
             db.execute("INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, t))
             db.commit()
