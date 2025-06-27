@@ -6,7 +6,8 @@ from cnpy.env import env
 from cnpy.db import db
 from cnpy.dir import user_root
 
-ENV_KEY_SYNC = "CNPY_SYNC_DATABASE"
+ENV_KEY_PREFIX = "CNPY_SYNC_"
+ENV_KEY_SYNC = ENV_KEY_PREFIX + "DATABASE"
 
 
 def upload_sync():
@@ -42,7 +43,8 @@ def upload_sync():
     )
 
     for r in db.execute("SELECT * FROM settings"):
-        if r["k"] == ENV_KEY_SYNC:
+        k: str = r["k"]
+        if k.startswith(ENV_KEY_PREFIX):
             continue
 
         sync_db.execute(
@@ -81,6 +83,9 @@ atexit.register(upload_sync)
 
 
 def restore_sync():
+    if env.get(ENV_KEY_PREFIX + "UPLOAD_ONLY"):
+        return
+
     sync_db_path = env.get(ENV_KEY_SYNC)
     if not sync_db_path or not Path(sync_db_path).exists():
         return
@@ -89,7 +94,8 @@ def restore_sync():
     sync_db.row_factory = sqlite3.Row
 
     for r in sync_db.execute("SELECT * FROM settings"):
-        if r["k"] == ENV_KEY_SYNC:
+        k: str = r["k"]
+        if k.startswith(ENV_KEY_PREFIX):
             continue
 
         db.execute("INSERT OR REPLACE INTO settings (k, v) VALUES (:k, :v)", dict(r))
@@ -143,3 +149,4 @@ def restore_sync():
         ),
         encoding="utf-8",
     )
+    print(f"restored sync from {sync_db_path}")

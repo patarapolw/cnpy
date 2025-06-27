@@ -17,7 +17,6 @@ def load_db():
         CREATE INDEX IF NOT EXISTS idx_quiz_wordfreq ON quiz (json_extract([data], '$.wordfreq'));
         CREATE INDEX IF NOT EXISTS idx_quiz_sent_count ON quiz (json_array_length([data], '$.sent'));
         CREATE INDEX IF NOT EXISTS idx_quiz_count ON quiz (json_extract([data], '$.count'));
-        CREATE INDEX IF NOT EXISTS idx_quiz_modified ON quiz (modified);
 
         CREATE TABLE IF NOT EXISTS revlog (
             v           TEXT NOT NULL,
@@ -52,6 +51,8 @@ def load_db():
 
     db.executescript(
         """
+        CREATE INDEX IF NOT EXISTS idx_quiz_modified ON quiz (modified);
+
         CREATE TRIGGER IF NOT EXISTS t_quiz_modified
         AFTER UPDATE OF srs, [data] ON quiz
         FOR EACH ROW
