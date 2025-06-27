@@ -6,8 +6,8 @@ from cnpy.env import env
 from cnpy.db import db
 from cnpy.dir import user_root
 
-ENV_KEY_PREFIX = "CNPY_SYNC_"
-ENV_KEY_SYNC = ENV_KEY_PREFIX + "DATABASE"
+ENV_LOCAL_KEY_PREFIX = "CNPY_LOCAL_"
+ENV_KEY_SYNC = f"{ENV_LOCAL_KEY_PREFIX}SYNC_DATABASE"
 
 
 def upload_sync():
@@ -44,12 +44,14 @@ def upload_sync():
 
     for r in db.execute("SELECT * FROM settings"):
         k: str = r["k"]
-        if k.startswith(ENV_KEY_PREFIX):
+        if k.startswith(ENV_LOCAL_KEY_PREFIX):
             continue
 
         sync_db.execute(
             "INSERT OR REPLACE INTO settings (k, v) VALUES (:k, :v)", dict(r)
         )
+
+    sync_db.execute("DELETE FROM settings WHERE v = ''")
 
     for r in db.execute("SELECT * FROM quiz"):
         sync_db.execute(
@@ -60,7 +62,7 @@ def upload_sync():
                 srs = :srs, [data] = :data, modified = :modified
             WHERE v = :v
             AND CASE
-                -- upload sync is less proactive, assuming only new updates will trigger
+                -- "AND", upload sync is less proactive, assuming only new updates will trigger
                 WHEN modified IS NULL AND :modified IS NULL THEN TRUE
                 ELSE :modified > modified
             END
@@ -87,7 +89,7 @@ atexit.register(upload_sync)
 
 
 def restore_sync():
-    if env.get(ENV_KEY_PREFIX + "UPLOAD_ONLY"):
+    if env.get(f"{ENV_LOCAL_KEY_PREFIX}UPLOAD_ONLY"):
         return
 
     sync_db_path = env.get(ENV_KEY_SYNC)
@@ -99,11 +101,13 @@ def restore_sync():
 
     for r in sync_db.execute("SELECT * FROM settings"):
         k: str = r["k"]
-        if k.startswith(ENV_KEY_PREFIX):
+        if k.startswith(ENV_LOCAL_KEY_PREFIX):
             continue
 
         db.execute("INSERT OR REPLACE INTO settings (k, v) VALUES (:k, :v)", dict(r))
         env[r["k"]] = r["v"]
+
+    db.execute("DELETE FROM settings WHERE v = ''")
 
     for r in sync_db.execute("SELECT * FROM quiz"):
         db.execute(
@@ -114,7 +118,7 @@ def restore_sync():
                 srs = :srs, [data] = :data, modified = :modified
             WHERE v = :v
             AND CASE
-                -- restore sync is more proactive, trying to restore more updates like recently quizzed
+                -- "OR", restore sync is more proactive, trying to restore more updates like recently quizzed
                 WHEN modified IS NULL OR :modified IS NULL THEN TRUE
                 ELSE :modified > modified
             END

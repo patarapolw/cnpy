@@ -5,8 +5,9 @@ from ollama import Client
 
 from cnpy.db import db
 from cnpy.env import env
+from cnpy.sync import ENV_LOCAL_KEY_PREFIX
 
-local_ai_model = env.get("OLLAMA_MODEL") or ""
+local_ai_model = env.get(f"{ENV_LOCAL_KEY_PREFIX}OLLAMA_MODEL") or ""
 can_local_ai_translation = bool(local_ai_model)
 
 can_online_ai_translation = bool(env.get("OPENAI_API_KEY") or "")
@@ -42,7 +43,8 @@ def local_ai_translation(v: str) -> str | None:
         global ollama_client
         if not ollama_client:
             ollama_client = Client(
-                # host=None,  # Use environment variable OLLAMA_HOST
+                # Use environment variable CNPY_LOCAL_OLLAMA_HOST
+                host=env.get(f"{ENV_LOCAL_KEY_PREFIX}OLLAMA_HOST")
             )
 
         response = ollama_client.chat(

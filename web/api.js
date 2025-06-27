@@ -181,12 +181,12 @@ export const api = {
    * @typedef {'OPENAI_API_KEY'
    * | 'OPENAI_API_BASE'
    * | 'OPENAI_MODEL'
-   * | 'OLLAMA_MODEL'
-   * | 'OLLAMA_HOST'
-   * | 'CNPY_WAIT_FOR_AI_RESULTS'
    * | 'CNPY_MAX_NEW'
-   * | 'TTS_VOICE'
-   * | 'CNPY_SYNC_DATABASE'
+   * | 'CNPY_LOCAL_OLLAMA_MODEL'
+   * | 'CNPY_LOCAL_OLLAMA_HOST'
+   * | 'CNPY_LOCAL_WAIT_FOR_AI_RESULTS'
+   * | 'CNPY_LOCAL_TTS_VOICE'
+   * | 'CNPY_LOCAL_SYNC_DATABASE'
    * } EnvKey
    *
    * @param {EnvKey} k

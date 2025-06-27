@@ -5,6 +5,7 @@ import json
 
 from cnpy.dir import tmp_root
 from cnpy.env import env
+from cnpy.sync import ENV_LOCAL_KEY_PREFIX
 
 is_emoti_available = True
 is_gtts_available = True
@@ -14,7 +15,7 @@ ttsDir = tmp_root / "tts"
 ttsDir.mkdir(exist_ok=True)
 
 
-def tts_audio(text: str, voice=env.get("TTS_VOICE") or ""):
+def tts_audio(text: str, voice=env.get(f"{ENV_LOCAL_KEY_PREFIX}TTS_VOICE") or ""):
     """
     Get the audio file for the given text using the specified voice.
     If TTS_VOICE is "0", no audio file will be returned
@@ -23,7 +24,7 @@ def tts_audio(text: str, voice=env.get("TTS_VOICE") or ""):
     Args:
         text (str): text to speak
         voice (str, optional): voice to use. If not specified, TTS_VOICE will be used.
-        Defaults to env.get("TTS_VOICE") or "".
+        Defaults to env.get("CNPY_LOCAL_TTS_VOICE") or "".
     If voice is "gtts", it will use gtts.
     If voice is "emoti", it will use emoti.
     If voice is "0", it will return None.

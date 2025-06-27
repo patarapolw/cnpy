@@ -42,7 +42,7 @@ const saveRunners = [];
     checkboxHasNew.checked =
       ((await api.get_env("CNPY_MAX_NEW")) ?? "10") !== "0";
 
-    const ttsVoice = (await api.get_env("TTS_VOICE")) ?? "";
+    const ttsVoice = (await api.get_env("CNPY_LOCAL_TTS_VOICE")) ?? "";
     if (ttsVoice === "0") {
       ttsEngine = "";
     } else if (ttsVoice === "gtts" || ttsVoice === "") {
@@ -74,11 +74,11 @@ const saveRunners = [];
     await api.set_env("CNPY_MAX_NEW", checkboxHasNew.checked ? "10" : "0");
 
     if ((ttsEngine = "")) {
-      await api.set_env("TTS_VOICE", "0");
+      await api.set_env("CNPY_LOCAL_TTS_VOICE", "0");
     } else if (ttsEngine === "gtts") {
-      await api.set_env("TTS_VOICE", "gtts");
+      await api.set_env("CNPY_LOCAL_TTS_VOICE", "gtts");
     } else {
-      await api.set_env("TTS_VOICE", inputVoiceName.value);
+      await api.set_env("CNPY_LOCAL_TTS_VOICE", inputVoiceName.value);
     }
   }
   saveRunners.push(save);
@@ -156,13 +156,14 @@ const saveRunners = [];
   }
 
   async function init() {
-    const model = (await api.get_env("OLLAMA_MODEL")) ?? "";
+    const model = (await api.get_env("CNPY_LOCAL_OLLAMA_MODEL")) ?? "";
     if (model) {
       llmEngine = "ollama";
       inputLocalLLMmodel.value = model;
 
       inputLocalLLMhost.value =
-        (await api.get_env("OLLAMA_HOST")) ?? inputLocalLLMhost.value;
+        (await api.get_env("CNPY_LOCAL_OLLAMA_HOST")) ??
+        inputLocalLLMhost.value;
     }
 
     radioLocalLLMengine.querySelectorAll("input").forEach((inp) => {
@@ -185,10 +186,10 @@ const saveRunners = [];
 
   async function save() {
     if (llmEngine == "ollama") {
-      await api.set_env("OLLAMA_MODEL", inputLocalLLMmodel.value);
-      await api.set_env("OLLAMA_HOST", inputLocalLLMhost.value);
+      await api.set_env("CNPY_LOCAL_OLLAMA_MODEL", inputLocalLLMmodel.value);
+      await api.set_env("CNPY_LOCAL_OLLAMA_HOST", inputLocalLLMhost.value);
     } else {
-      await api.set_env("OLLAMA_MODEL", "");
+      await api.set_env("CNPY_LOCAL_OLLAMA_MODEL", "");
     }
   }
   saveRunners.push(save);
@@ -218,8 +219,6 @@ const saveRunners = [];
     const db = await api.set_sync_db();
     if (db) {
       inputSyncDatabase.value = db;
-      await api.set_env("CNPY_SYNC_DATABASE", db);
-
       check();
     }
   };
@@ -230,14 +229,15 @@ const saveRunners = [];
 
   btnRemove.onclick = async () => {
     inputSyncDatabase.value = "";
-    await api.set_env("CNPY_SYNC_DATABASE", "");
+    await api.set_env("CNPY_LOCAL_SYNC_DATABASE", "");
 
     check();
   };
 
   async function init() {
     inputSyncDatabase.value =
-      (await api.get_env("CNPY_SYNC_DATABASE")) ?? inputSyncDatabase.value;
+      (await api.get_env("CNPY_LOCAL_SYNC_DATABASE")) ??
+      inputSyncDatabase.value;
     check();
   }
   init();

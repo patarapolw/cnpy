@@ -19,6 +19,8 @@ def populate_db():
     for k, v in env.items():
         db.execute("INSERT OR REPLACE INTO settings (k, v) VALUES (?, ?)", (k, v))
 
+    db.execute("DELETE FROM settings WHERE v = ''")
+
     if settings_path.exists():
         db.execute(
             "INSERT OR REPLACE INTO settings (k, v) VALUES (?, ?)",

@@ -15,8 +15,9 @@ from cnpy import quiz, cedict, sentence, ai, settings, sync
 from cnpy.db import db, radical_db, db_version
 from cnpy.stats import make_stats, Stats
 from cnpy.tts import tts_audio
-from cnpy.dir import assets_root, user_root, web_root, settings_path
+from cnpy.dir import assets_root, user_root, web_root, exe_root, settings_path
 from cnpy.env import env
+from cnpy.sync import ENV_LOCAL_KEY_PREFIX
 
 
 class UserSettings(TypedDict):
@@ -39,7 +40,7 @@ class ServerGlobal:
     latest_stats: Stats
 
     is_ai_translation_available = any(
-        (env.get("OPENAI_API_KEY"), env.get("OLLAMA_MODEL"))
+        (env.get("OPENAI_API_KEY"), env.get(f"{ENV_LOCAL_KEY_PREFIX}OLLAMA_MODEL"))
     )
 
 
@@ -133,12 +134,19 @@ with server:
     def set_sync_db():
         file_path = g.win.create_file_dialog(
             webview.SAVE_DIALOG,
+            directory=str(exe_root),
             save_filename="cnpy.db",
             file_types=("cnpy SQLite database (*.db)",),
         )
         if file_path:
             file_path = str(file_path)
+
+            db.execute(
+                "INSERT OR REPLACE INTO settings (k,v) VALUES (?,?)",
+                (sync.ENV_KEY_SYNC, file_path),
+            )
             env[sync.ENV_KEY_SYNC] = file_path
+
             sync.restore_sync()
 
             return {"db": file_path}
@@ -200,7 +208,10 @@ with server:
 
                 thread = threading.Thread(
                     target=run_async_in_thread,
-                    daemon=(env.get("CNPY_WAIT_FOR_AI_RESULTS") or "1") == "0",
+                    daemon=(
+                        env.get(f"{ENV_LOCAL_KEY_PREFIX}WAIT_FOR_AI_RESULTS") or "1"
+                    )
+                    == "0",
                 )
                 thread.start()
         except Exception as e:
