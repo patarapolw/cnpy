@@ -698,7 +698,7 @@ with server:
             (card_json, v),
         ).rowcount:
             db.execute(
-                "INSERT INTO quiz (v, srs) VALUES (?, ?)",
+                "INSERT INTO quiz (v, srs, modified) VALUES (?, ?, datetime())",
                 (v, card_json),
             )
 
@@ -730,7 +730,7 @@ with server:
             (notes, v),
         ).rowcount:
             db.execute(
-                "INSERT INTO quiz (v, [data]) VALUES (?, json_object('notes', ?))",
+                "INSERT INTO quiz (v, [data], modified) VALUES (?, json_object('notes', ?), datetime())",
                 (v, notes),
             )
 

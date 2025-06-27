@@ -62,8 +62,8 @@ def upload_sync():
                 srs = :srs, [data] = :data, modified = :modified
             WHERE v = :v
             AND CASE
-                -- "AND", upload sync is less proactive, assuming only new updates will trigger
-                WHEN modified IS NULL AND :modified IS NULL THEN TRUE
+                -- "OR" to push all SRS updates
+                WHEN modified IS NULL OR :modified IS NULL THEN TRUE
                 ELSE :modified > modified
             END
             """,

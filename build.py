@@ -33,7 +33,7 @@ if __name__ == "__main__":
     PyInstaller.__main__.run(pyi_args)
     # PyInstaller.building.build_main.main(None, "cnpy.spec")  # type: ignore
 
-    if not env.get("CNPY_BUILD_SKIP_DOWNLOAD"):
+    if not env.get("CNPY_LOCAL_BUILD_SKIP_DOWNLOAD"):
         dump_cedict_and_wordfreq(True)
 
     for f in Path().glob("*.md"):

@@ -53,15 +53,6 @@ def load_db():
     db.executescript(
         """
         CREATE INDEX IF NOT EXISTS idx_quiz_modified ON quiz (modified);
-
-        CREATE TRIGGER IF NOT EXISTS t_quiz_modified
-        AFTER UPDATE OF srs, [data] ON quiz
-        FOR EACH ROW
-        BEGIN
-            UPDATE quiz
-            SET modified = datetime()
-            WHERE v = OLD.v;
-        END
         """
     )
 
