@@ -12,7 +12,7 @@ import threading
 import traceback
 
 from cnpy import quiz, cedict, sentence, ai, settings, sync
-from cnpy.db import db, radical_db
+from cnpy.db import db, radical_db, db_version
 from cnpy.stats import make_stats, Stats
 from cnpy.tts import tts_audio
 from cnpy.dir import assets_root, user_root, web_root, settings_path
@@ -52,6 +52,7 @@ def start():
 
     sync.restore_sync()
 
+    db.execute(f"PRAGMA user_version={db_version}")
     g.web_ready()
 
     db.execute(

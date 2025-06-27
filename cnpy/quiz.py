@@ -44,11 +44,11 @@ def load_db():
         """
     )
 
-    # TODO: db versioning
-    if not db.execute(
-        "SELECT 1 FROM pragma_table_info('quiz') WHERE name = 'modified'"
-    ).fetchmany(1):
-        db.executescript("ALTER TABLE quiz ADD COLUMN modified TEXT")
+    if db.execute("PRAGMA user_version").fetchone()[0] < 1:
+        if not db.execute(
+            "SELECT 1 FROM pragma_table_info('quiz') WHERE name = 'modified'"
+        ).fetchmany(1):
+            db.executescript("ALTER TABLE quiz ADD COLUMN modified TEXT")
 
     db.executescript(
         """
