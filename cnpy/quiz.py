@@ -44,6 +44,7 @@ def load_db():
         """
     )
 
+    # TODO: db versioning
     if not db.execute(
         "SELECT 1 FROM pragma_table_info('quiz') WHERE name = 'modified'"
     ).fetchmany(1):

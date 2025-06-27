@@ -58,8 +58,12 @@ def upload_sync():
                 (v, srs, [data], modified) VALUES (:v, :srs, :data, :modified)
             ON CONFLICT (v) DO UPDATE SET
                 srs = :srs, [data] = :data, modified = :modified
-            WHERE v = :v AND ((modified IS NULL AND :modified IS NULL)
-            OR :modified > modified)
+            WHERE v = :v
+            AND CASE
+                -- upload sync is less proactive, assuming only new updates will trigger
+                WHEN modified IS NULL AND :modified IS NULL THEN TRUE
+                ELSE :modified > modified
+            END
             """,
             dict(r),
         )
@@ -70,7 +74,7 @@ def upload_sync():
         sync_db.execute(
             """
             INSERT INTO vlist
-            (v, created, skip, [data]) VALUES (:v,:created,:skip,:data)
+                (v, created, skip, [data]) VALUES (:v,:created,:skip,:data)
             """,
             dict(r),
         )
@@ -105,11 +109,15 @@ def restore_sync():
         db.execute(
             """
             INSERT INTO quiz
-            (v, srs, [data], modified) VALUES (:v,:srs,:data,:modified)
+                (v, srs, [data], modified) VALUES (:v,:srs,:data,:modified)
             ON CONFLICT (v) DO UPDATE SET
                 srs = :srs, [data] = :data, modified = :modified
-            WHERE v = :v AND
-            ((modified IS NULL AND :modified IS NULL) OR :modified > modified)
+            WHERE v = :v
+            AND CASE
+                -- restore sync is more proactive, trying to restore more updates like recently quizzed
+                WHEN modified IS NULL OR :modified IS NULL THEN TRUE
+                ELSE :modified > modified
+            END
             """,
             dict(r),
         )
@@ -118,7 +126,7 @@ def restore_sync():
         db.execute(
             """
             INSERT OR REPLACE INTO vlist
-            (v, created, skip, [data]) VALUES (:v,:created,:skip,:data)
+                (v, created, skip, [data]) VALUES (:v,:created,:skip,:data)
             """,
             dict(r),
         )
