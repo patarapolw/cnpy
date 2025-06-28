@@ -8,9 +8,9 @@ from cnpy.env import env
 from cnpy.sync import ENV_LOCAL_KEY_PREFIX
 
 local_ai_model = env.get(f"{ENV_LOCAL_KEY_PREFIX}OLLAMA_MODEL") or ""
-can_local_ai_translation = bool(local_ai_model)
+can_local_ai = bool(local_ai_model)
 
-can_online_ai_translation = bool(env.get("OPENAI_API_KEY") or "")
+can_online_ai = bool(env.get("OPENAI_API_KEY") or "")
 
 Q_TRANSLATION = '"{v}"是'
 Q_MEANING = """
@@ -64,7 +64,7 @@ def ollama_ai_ask(s: str) -> str | None:
 
         result = response.message.content
     except Exception as e:
-        print(f"Error in ai_translation `{s}`: {e}")
+        print(f"Error in ollama_ai `{s}`: {e}")
 
     return result
 
@@ -72,7 +72,7 @@ def ollama_ai_ask(s: str) -> str | None:
 openai_client: OpenAI | None = None
 
 
-def online_ai_translation(s: str) -> str | None:
+def online_ai_ask(s: str) -> str | None:
     """
     Ask a question using online AI.
 
@@ -117,7 +117,7 @@ def online_ai_translation(s: str) -> str | None:
 
         result = response.choices[0].message.content
     except Exception as e:
-        print(f"Error in ai_translation `{s}`: {e}")
+        print(f"Error in online_ai `{s}`: {e}")
 
     return result
 
@@ -126,29 +126,29 @@ def ai_ask(v: str, meaning: str | None = "") -> str | None:
     """
     Ask AI with a question type
 
-    This function first attempts to use local AI translation. If that fails,
-    it falls back to online AI translation. If both methods fail, it returns None.
-    The translated string is cached in the database for future use.
+    This function first attempts to use local AI. If that fails,
+    it falls back to online AI. If both methods fail, it returns None.
+    In case of translation, the result string is cached in the database for future use.
 
     Args:
-        v (str): The string of vocab to translate.
+        v (str): The string of vocab to ask.
         meaning (str | None): The string of user supplied meaning to the vocab
 
     Returns:
-        str | None: The translated string, or None if all translation methods fail.
+        str | None: The answered string, or None if all methods fail.
     """
     t: str | None = None
     prompt = Q_MEANING.format(v=v, m=meaning) if meaning else Q_TRANSLATION.format(v=v)
 
     start = time.time()
 
-    if can_local_ai_translation:
+    if can_local_ai:
         print(f"{v}: using local AI")
         t = ollama_ai_ask(prompt)
 
-    if not t and can_online_ai_translation:
+    if not t and can_online_ai:
         print(f"{v}: using online AI")
-        t = online_ai_translation(prompt)
+        t = online_ai_ask(prompt)
 
     print(f"{v}: AI response took {time.time() - start:.1f} seconds")
 
@@ -157,7 +157,7 @@ def ai_ask(v: str, meaning: str | None = "") -> str | None:
         db.execute("INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, t))
         db.commit()
 
-    # If both online and local translation fail, return None
+    # If both online and local fail, return None
     return t or None
 
 
@@ -196,5 +196,5 @@ if __name__ == "__main__":
     # Load the database
     load_db()
 
-    # Test the speed of the AI translation
+    # Test the speed of the AI ask
     _test_speed()
