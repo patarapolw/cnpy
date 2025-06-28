@@ -93,7 +93,14 @@ try {
 
     if (url === APP_URL) {
       await page.waitForSelector(SEL_TEXTAREA);
-      await page.keyboard.type(prompt(v));
+      // Injecting text to ChatGPT still doesn't work so far.
+      await page.$eval(
+        SEL_TEXTAREA,
+        (el, p) => {
+          /** @type {HTMLDivElement} */ (el).innerText = p;
+        },
+        prompt(v)
+      );
     }
   }
 
