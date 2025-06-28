@@ -171,7 +171,7 @@ export const api = {
   /**
    *
    * @param {string} v
-   * @param {{ reset?: boolean; result_only?: boolean }} opts
+   * @param {{ reset?: boolean; result_only?: boolean; meaning?: string }} opts
    * @returns {Promise<{result: string}>}
    */
   async ai_translation(v, opts = {}) {

@@ -174,16 +174,25 @@ with server:
         db.execute("INSERT OR REPLACE INTO settings (k,v) VALUES (?,?)", (k, obj["v"]))
         env[k] = obj["v"]
 
+    meaning_quiz_response_dict: dict[str, str] = {}
+
     @bottle.post("/api/ai_translation/<v>")
     def ai_translation(v: str):
         obj: Any = bottle.request.json
         reset: bool = obj.get("reset", False)
         result_only: bool = obj.get("result_only", False)
+        meaning: str | None = obj.get("meaning", None)
 
         result = ""
+        global meaning_quiz_response_dict
 
         try:
-            if reset:
+            if meaning:
+                reset = True
+                result = meaning_quiz_response_dict.get(v)
+                if result:
+                    del meaning_quiz_response_dict[v]
+            elif reset:
                 db.execute(
                     "INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, "")
                 )
@@ -200,11 +209,14 @@ with server:
 
             if reset and result_only == False:
 
-                def run_async_in_thread():
+                def run_async_in_thread(d: dict):
                     try:
-                        ai.ai_translation(v)
+                        r = ai.ai_ask(v, meaning=meaning)
+                        if meaning:
+                            d[v] = r
                     except Exception as e:
-                        print(f"AI translation error {v}: {e}")
+                        traceback.print_exc()
+                        print(f"AI translation error {v}")
 
                 thread = threading.Thread(
                     target=run_async_in_thread,
@@ -212,6 +224,7 @@ with server:
                         env.get(f"{ENV_LOCAL_KEY_PREFIX}WAIT_FOR_AI_RESULTS") or "1"
                     )
                     == "0",
+                    args=(meaning_quiz_response_dict,),
                 )
                 thread.start()
         except Exception as e:

@@ -12,15 +12,25 @@ can_local_ai_translation = bool(local_ai_model)
 
 can_online_ai_translation = bool(env.get("OPENAI_API_KEY") or "")
 
-AI_QUESTION = env.get("CNPY_AI_QUESTION") or '"{v}"是'
+Q_TRANSLATION = '"{v}"是'
+Q_MEANING = """
+Is "{m}" a correct meaning for "{v}" in Chinese?
+Misspelling is considered correct, but give correction.
+If the answer is not correct, give a translation of the answer for comparison.
+Answer in the following format:
+{{
+  "correct": true, // false if wrong, null if it depends / not sure
+  "explanation": "" // give some explanation why right or wrong
+}}
+""".strip()
 
 
 ollama_client: Client | None = None
 
 
-def local_ai_translation(v: str) -> str | None:
+def ollama_ai_ask(s: str) -> str | None:
     """
-    Translate a string using local AI.
+    Ask a question using Ollama.
 
     Notes:
         - This function requires the Ollama library to be installed and configured.
@@ -29,17 +39,14 @@ def local_ai_translation(v: str) -> str | None:
         - https://ollama.com for installation instructions.
 
     Args:
-        v (str): The string to translate.
+        s (str): The string to ask.
 
     Returns:
-        str | None: The translated string, or None if the translation fails.
+        str | None: The answered string, or None if fails.
     """
-    start = time.time()
     result = None
 
     try:
-        print("Using local AI translation for:", v)
-
         global ollama_client
         if not ollama_client:
             ollama_client = Client(
@@ -49,25 +56,22 @@ def local_ai_translation(v: str) -> str | None:
 
         response = ollama_client.chat(
             model=local_ai_model,
-            messages=[{"role": "user", "content": AI_QUESTION.format(v=v)}],
+            messages=[{"role": "user", "content": s}],
         )
 
-        # Print completion details after awaiting the response
-        print(f"{v} completed local AI response")
         result = response.message.content
     except Exception as e:
-        print(f"Error in ai_translation {v}: {e}")
+        print(f"Error in ai_translation `{s}`: {e}")
 
-    print(f"{v} local AI translation took {time.time() - start:.1f} seconds")
     return result
 
 
 openai_client: OpenAI | None = None
 
 
-def online_ai_translation(v: str) -> str | None:
+def online_ai_translation(s: str) -> str | None:
     """
-    Translate a string using online AI.
+    Ask a question using online AI.
 
     Notes:
         - This function requires `OPENAI_API_KEY` to be set in the environment.
@@ -79,17 +83,14 @@ def online_ai_translation(v: str) -> str | None:
           Set `OPENAI_BASE_URL` to `https://api.openai.com/v1` in the `.env` file and set `OPENAI_MODEL` as appropriate.
 
     Args:
-        v (str): The string to translate.
+        v (str): The string to ask.
 
     Returns:
-        str | None: The translated string, or None if the translation fails.
+        str | None: The answered string, or None if fails.
     """
-    start = time.time()
     result = None
 
     try:
-        print("Using online AI translation for:", v)
-
         global openai_client
         if not openai_client:
             openai_client = OpenAI(
@@ -104,53 +105,57 @@ def online_ai_translation(v: str) -> str | None:
 
         response = openai_client.chat.completions.create(
             model=model,
-            messages=[{"role": "user", "content": AI_QUESTION.format(v=v)}],
+            messages=[{"role": "user", "content": s}],
             temperature=float(
                 temperature or "1"
             ),  # Adjust temperature according to documentation
             stream=False,
         )
 
-        # Print completion details after awaiting the response
-        print(f"{v} completed online AI response")
         result = response.choices[0].message.content
     except Exception as e:
-        print(f"Error in ai_translation {v}: {e}")
+        print(f"Error in ai_translation `{s}`: {e}")
 
-    print(f"{v} online AI translation took {time.time() - start:.1f} seconds")
     return result
 
 
-def ai_translation(v: str) -> str | None:
+def ai_ask(v: str, meaning: str | None = "") -> str | None:
     """
-    Translate a string using AI.
+    Ask AI with a question type
 
     This function first attempts to use local AI translation. If that fails,
     it falls back to online AI translation. If both methods fail, it returns None.
     The translated string is cached in the database for future use.
 
     Args:
-        v (str): The string to translate.
+        v (str): The string of vocab to translate.
+        meaning (str | None): The string of user supplied meaning to the vocab
 
     Returns:
         str | None: The translated string, or None if all translation methods fail.
     """
-    if can_local_ai_translation:
-        t = local_ai_translation(v)
-        if t:
-            db.execute("INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, t))
-            db.commit()
-            return t
+    t: str | None = None
+    prompt = Q_MEANING.format(v=v, m=meaning) if meaning else Q_TRANSLATION.format(v=v)
 
-    if can_online_ai_translation:
-        t = online_ai_translation(v)
-        if t:
-            db.execute("INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, t))
-            db.commit()
-            return t
+    start = time.time()
+
+    if can_local_ai_translation:
+        print(f"{v}: using local AI")
+        t = ollama_ai_ask(prompt)
+
+    if not t and can_online_ai_translation:
+        print(f"{v}: using online AI")
+        t = online_ai_translation(prompt)
+
+    print(f"{v}: AI response took {time.time() - start:.1f} seconds")
+
+    if t and not meaning:
+        print(f"{v}: saving AI translation")
+        db.execute("INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, t))
+        db.commit()
 
     # If both online and local translation fail, return None
-    return None
+    return t or None
 
 
 def load_db():
@@ -180,7 +185,7 @@ def _test_speed(n=5):
     for r in db.execute(f"SELECT v FROM vlist ORDER BY RANDOM() LIMIT {n}"):
         v = r[0]
         print(">", v)
-        translation = ai_translation(v)
+        translation = ai_ask(v)
         print(translation)
 
 

@@ -50,6 +50,13 @@ const elNotes = /** @type {HTMLDivElement} */ (
 const elNotesTextarea = /** @type {HTMLTextAreaElement} */ (
   elNotes.querySelector("textarea")
 );
+const elMeaningQuiz = /** @type {HTMLDetailsElement} */ (
+  document.getElementById("meaning-quiz")
+);
+const elMeaningInput = elMeaningQuiz.querySelector("input");
+const elMeaningExplanation = /** @type {HTMLDivElement} */ (
+  elMeaningQuiz.querySelector("#meaning-explanation")
+);
 
 elInput.addEventListener("keypress", (ev) => {
   switch (ev.key) {
@@ -628,7 +635,7 @@ function doNext(ev) {
       elCompare.innerText = pinyin.join("; ").replace(/u:/g, "ü");
     }
 
-    const elDictEntries = /** @type {HTMLDivElement} */ (
+    const elDictEntries = /** @type {HTMLDetailsElement} */ (
       document.getElementById("dictionary-entries")
     );
     {
@@ -666,7 +673,7 @@ function doNext(ev) {
       }
     }
 
-    const elSentences = /** @type {HTMLDivElement} */ (
+    const elSentences = /** @type {HTMLDetailsElement} */ (
       document.getElementById("sentences")
     );
     elSentences.setAttribute(
@@ -707,19 +714,8 @@ function doNext(ev) {
       }
     }
 
-    if (
-      elDictEntries instanceof HTMLDetailsElement &&
-      elSentences instanceof HTMLDetailsElement
-    ) {
-      elDictEntries.open = false;
-      elSentences.open = false;
-
-      if (state.vocabDetails.sentences.length) {
-        elSentences.open = true;
-      } else {
-        elDictEntries.open = true;
-      }
-    }
+    elDictEntries.open = false;
+    elSentences.open = false;
 
     state.lastIsFuzzy = false;
     state.lastIsRight = inputPinyin.every((v) =>
@@ -742,8 +738,10 @@ function doNext(ev) {
       }
     }
 
-    document.querySelectorAll("[data-checked]").forEach((el) => {
-      el.setAttribute("data-checked", state.lastIsRight ? "right" : "wrong");
+    const ATTR_DATA_CHECKED = "data-checked";
+
+    document.querySelectorAll(`[${ATTR_DATA_CHECKED}]`).forEach((el) => {
+      el.setAttribute(ATTR_DATA_CHECKED, state.lastIsRight ? "right" : "wrong");
     });
 
     elInput.innerText = elInput.innerText
@@ -752,6 +750,58 @@ function doNext(ev) {
     elInput.oninput = (ev) => {
       ev.preventDefault();
       return false;
+    };
+
+    elMeaningQuiz.open = false;
+
+    elMeaningInput.value = "";
+    elMeaningInput.setAttribute(ATTR_DATA_CHECKED, "");
+    elMeaningExplanation.textContent = "";
+
+    const elMeaningForm = /** @type {HTMLFormElement} */ (
+      elMeaningInput.parentElement
+    );
+    elMeaningForm.onsubmit = async (ev) => {
+      ev.preventDefault();
+
+      const v0 = v;
+      const meaning = elMeaningInput.value.trim();
+      if (meaning) {
+        try {
+          let { result } = await api.ai_translation(v, { meaning });
+
+          while (!result) {
+            elMeaningExplanation.textContent += ".";
+
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            const r = await api.ai_translation(v, {
+              meaning,
+              result_only: true,
+            });
+            result = r.result;
+
+            if (v0 !== v) return;
+          }
+          result = result.match(/\{[^]+\}/)?.[0] || result;
+          console.log(result);
+          const { correct, explanation } = JSON.parse(result);
+          elMeaningExplanation.textContent = explanation || "";
+
+          switch (correct) {
+            case true:
+              elMeaningInput.setAttribute(ATTR_DATA_CHECKED, "right");
+              break;
+            case false:
+              elMeaningInput.setAttribute(ATTR_DATA_CHECKED, "wrong");
+              break;
+            default:
+              elMeaningInput.setAttribute(ATTR_DATA_CHECKED, "maybe");
+          }
+        } catch (e) {
+          console.error(e);
+          elMeaningExplanation.textContent = "";
+        }
+      }
     };
   }
 
