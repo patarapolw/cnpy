@@ -6,15 +6,10 @@ import readline from "readline/promises";
 import sqlite3 from "better-sqlite3";
 import { paste } from "copy-paste";
 
+// AI web may block browser automation, e.g. puppeteer
 import puppeteer from "puppeteer-core";
 
 const db = sqlite3("user/llm.db");
-db.exec(/* sql */ `
-  CREATE TABLE IF NOT EXISTS gemini (
-    v     TEXT NOT NULL PRIMARY KEY,
-    [url] TEXT NOT NULL
-  );
-`);
 
 const vocList = await readFile("user/vocab/vocab.txt", "utf-8").then((s) =>
   s
@@ -38,14 +33,34 @@ const browser = await puppeteer.connect({
 });
 
 try {
+  let APP = "gemini";
+  let APP_URL = "https://gemini.google.com/app";
+  let SEL_TEXTAREA = ".ql-editor";
+
+  switch (APP) {
+    case "chatgpt":
+      APP_URL = "https://chatgpt.com";
+      SEL_TEXTAREA = "#prompt-textarea";
+      break;
+    case "gemini":
+      APP_URL = "https://gemini.google.com/app";
+      SEL_TEXTAREA = ".ql-editor";
+      break;
+  }
+
+  db.exec(/* sql */ `
+  CREATE TABLE IF NOT EXISTS "${APP}" (
+    v     TEXT NOT NULL PRIMARY KEY,
+    [url] TEXT NOT NULL
+  );
+`);
+
   const page = await browser.newPage();
 
-  const stmt = db.prepare("SELECT [url] FROM gemini WHERE v = :v");
+  const stmt = db.prepare(`SELECT [url] FROM "${APP}" WHERE v = :v`);
   const insertStmt = db.prepare(
-    "INSERT INTO gemini (v, [url]) VALUES (:v, :url) ON CONFLICT DO NOTHING"
+    `INSERT INTO "${APP}" (v, [url]) VALUES (:v, :url) ON CONFLICT DO NOTHING`
   );
-
-  const APP_URL = "https://gemini.google.com/app";
 
   let v = "";
   let url = APP_URL;
@@ -65,7 +80,6 @@ try {
    */
   async function openVocab(s) {
     if (!/^\p{sc=Han}+$/u.test(s)) return;
-    if (v === s) return;
 
     v = s;
     console.log(v);
@@ -75,17 +89,11 @@ try {
 
     if (url !== page.url()) {
       await page.goto(url);
-      await page.waitForNetworkIdle();
     }
 
     if (url === APP_URL) {
-      await page.$eval(
-        ".ql-editor",
-        (el, p) => {
-          /** @type {HTMLDivElement} */ (el).innerText = p;
-        },
-        prompt(v)
-      );
+      await page.waitForSelector(SEL_TEXTAREA);
+      await page.keyboard.type(prompt(v));
     }
   }
 
