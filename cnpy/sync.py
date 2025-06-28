@@ -146,6 +146,7 @@ def restore_sync():
                 SELECT v FROM vlist
                 WHERE skip IS NULL
                 AND json_extract([data],'$.level') IS NULL
+                ORDER BY created
                 """
             )
         ),
@@ -159,6 +160,7 @@ def restore_sync():
                 """
                 SELECT v FROM vlist
                 WHERE skip IS NOT NULL
+                ORDER BY created
                 """
             )
         ),

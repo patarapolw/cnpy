@@ -3,6 +3,7 @@
   "version": "2.2.0-preview",
   "description": "Pinyin SRS that repeats until everything right",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "pnpm run py app.py",
     "dev": "pnpm run py app.py --debug",
@@ -14,9 +15,14 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/copy-paste": "^1.1.33",
     "@types/showdown": "^2.0.6",
+    "better-sqlite3": "^12.1.1",
+    "copy-paste": "^2.1.1",
     "cross-env": "^7.0.3",
-    "ctxmenu": "^1.7.0"
+    "ctxmenu": "^1.7.0",
+    "puppeteer-core": "^24.11.1"
   },
   "packageManager": "pnpm@9.7.0"
 }
