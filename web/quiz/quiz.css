@@ -199,9 +199,16 @@ details {
   text-align: left;
 }
 
-details#meaning-quiz,
-input[type="text"] {
+#meaning-quiz {
   text-align: center;
+}
+
+#meaning-quiz {
+  display: none;
+}
+
+[data-ai] #meaning-quiz:not([data-checked=""]):not([data-checked="wrong"]) {
+  display: block;
 }
 
 #meaning-explanation {

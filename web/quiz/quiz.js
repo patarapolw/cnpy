@@ -741,7 +741,10 @@ function doNext(ev) {
     const ATTR_DATA_CHECKED = "data-checked";
 
     document.querySelectorAll(`[${ATTR_DATA_CHECKED}]`).forEach((el) => {
-      el.setAttribute(ATTR_DATA_CHECKED, state.lastIsRight ? "right" : "wrong");
+      el.setAttribute(
+        ATTR_DATA_CHECKED,
+        state.lastIsRight || showModeShowDetails ? "right" : "wrong"
+      );
     });
 
     elInput.innerText = elInput.innerText
@@ -763,6 +766,9 @@ function doNext(ev) {
     );
     elMeaningForm.onsubmit = async (ev) => {
       ev.preventDefault();
+
+      elMeaningInput.setAttribute(ATTR_DATA_CHECKED, "");
+      elMeaningExplanation.textContent = "";
 
       const v0 = v;
       const meaning = elMeaningInput.value.trim();
@@ -1087,17 +1093,17 @@ async function newVocabList() {
   await newVocab();
 
   if (customItemSRS !== undefined) {
-    let showDetails = true;
+    showModeShowDetails = true;
 
     const i = document.createElement("i");
     i.innerText = (() => {
       if (!customItemSRS?.due) return "";
-      showDetails = false;
+      showModeShowDetails = false;
 
       const due = new Date(customItemSRS.due);
       let untilDue = +due - +new Date();
       if (untilDue < 0) {
-        showDetails = false;
+        showModeShowDetails = false;
         return "(past due)";
       }
 
@@ -1107,7 +1113,7 @@ async function newVocabList() {
       }
 
       if (untilDue > 10) {
-        showDetails = true;
+        showModeShowDetails = true;
       }
 
       if (untilDue < 60) {
@@ -1130,7 +1136,7 @@ async function newVocabList() {
       return `(due ${due.toLocaleDateString()})`;
     })();
 
-    if (showDetails) {
+    if (showModeShowDetails) {
       state.isRepeat = true;
       mark("repeat");
     } else {
@@ -1140,6 +1146,8 @@ async function newVocabList() {
     elStatus.append(i);
   }
 }
+
+let showModeShowDetails = false;
 
 /**
  *

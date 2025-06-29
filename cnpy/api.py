@@ -212,8 +212,14 @@ with server:
                 def run_async_in_thread(d: dict):
                     try:
                         r = ai.ai_ask(v, meaning=meaning)
-                        if meaning:
+                        if meaning and r:
                             d[v] = r
+
+                            try:
+                                print(v, json.loads(r[r.index("{") : r.index("}") + 1]))
+                            except ValueError:
+                                traceback.print_exc()
+                                print(v, r)
                     except Exception as e:
                         traceback.print_exc()
                         print(f"AI translation error {v}")
