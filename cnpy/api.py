@@ -174,6 +174,7 @@ with server:
         db.execute("INSERT OR REPLACE INTO settings (k,v) VALUES (?,?)", (k, obj["v"]))
         env[k] = obj["v"]
 
+    ai_translation_response_dict: dict[str, str] = {}
     meaning_quiz_response_dict: dict[str, str] = {}
 
     @bottle.post("/api/ai_translation/<v>")
@@ -201,6 +202,9 @@ with server:
                 "SELECT t FROM ai_dict WHERE v = ? LIMIT 1", (v,)
             ).fetchone():
                 result = r[0]
+            elif tr := ai_translation_response_dict.get(v):
+                result = tr
+                del ai_translation_response_dict[v]
             else:
                 # Insert placeholder entry if not exists
                 db.execute("INSERT INTO ai_dict (v, t) VALUES (?, ?)", (v, ""))
@@ -212,9 +216,8 @@ with server:
                 def run_async_in_thread(d: dict):
                     try:
                         r = ai.ai_ask(v, meaning=meaning)
-                        if meaning and r:
-                            d[v] = r
-
+                        d[v] = r
+                        if r and meaning:
                             try:
                                 print(v, json.loads(r[r.index("{") : r.index("}") + 1]))
                             except ValueError:
@@ -230,7 +233,13 @@ with server:
                         env.get(f"{ENV_LOCAL_KEY_PREFIX}WAIT_FOR_AI_RESULTS") or "1"
                     )
                     == "0",
-                    args=(meaning_quiz_response_dict,),
+                    args=(
+                        (
+                            meaning_quiz_response_dict
+                            if meaning
+                            else ai_translation_response_dict
+                        ),
+                    ),
                 )
                 thread.start()
         except Exception as e:

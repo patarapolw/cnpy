@@ -770,7 +770,6 @@ function doNext(ev) {
       elMeaningInput.setAttribute(ATTR_DATA_CHECKED, "");
       elMeaningExplanation.textContent = "";
 
-      const v0 = v;
       const meaning = elMeaningInput.value.trim();
       if (meaning) {
         try {
@@ -786,7 +785,7 @@ function doNext(ev) {
             });
             result = r.result;
 
-            if (v0 !== v) return;
+            if (state.vocabList[state.i]?.v !== v) return;
           }
           result = result.match(/\{[^]+\}/)?.[0] || result;
           console.log(result);
