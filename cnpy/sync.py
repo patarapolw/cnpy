@@ -61,11 +61,13 @@ def upload_sync():
             ON CONFLICT (v) DO UPDATE SET
                 srs = :srs, [data] = :data, modified = :modified
             WHERE v = :v
-            AND CASE
-                -- "OR" to push all SRS updates
-                WHEN modified IS NULL OR :modified IS NULL THEN TRUE
-                ELSE :modified > modified
-            END
+            AND (
+                modified IS NULL OR
+                :modified > modified OR
+                -- maximize 'srs.last_review'
+                json_extract(srs, '$.last_review') IS NULL OR
+                json_extract(:srs, '$.last_review') > json_extract(srs, '$.last_review')
+            )
             """,
             dict(r),
         )
@@ -120,11 +122,13 @@ def restore_sync():
             ON CONFLICT (v) DO UPDATE SET
                 srs = :srs, [data] = :data, modified = :modified
             WHERE v = :v
-            AND CASE
-                -- "OR", restore sync is more proactive, trying to restore more updates like recently quizzed
-                WHEN modified IS NULL OR :modified IS NULL THEN TRUE
-                ELSE :modified > modified
-            END
+            AND (
+                modified IS NULL OR
+                :modified > modified OR
+                -- maximize 'srs.last_review'
+                json_extract(srs, '$.last_review') IS NULL OR
+                json_extract(:srs, '$.last_review') > json_extract(srs, '$.last_review')
+            )
             """,
             dict(r),
         )

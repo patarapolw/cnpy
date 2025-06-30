@@ -21,7 +21,7 @@ Misspellings are considered acceptable. If wrong, give the translation of the En
 Answer in JSON:
 {{
   "correct": true, // false if wrong, null if it depends / not sure
-  "explanation": "" // give some explanation why right or wrong
+  "explanation": "" // give some explanation why right or wrong, and also other possible meanings of the vocabulary
 }}
 
 Is "{m}" a correct meaning for "{v}" in Chinese?

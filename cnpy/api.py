@@ -722,7 +722,7 @@ with server:
 
         card_json = json.dumps(card.to_dict())
         if not db.execute(
-            "UPDATE quiz SET srs = ? WHERE v = ?",
+            "UPDATE quiz SET srs = ?, modified = datetime() WHERE v = ?",
             (card_json, v),
         ).rowcount:
             db.execute(
@@ -752,7 +752,8 @@ with server:
         if not db.execute(
             """
             UPDATE quiz SET
-                [data] = json_set(IFNULL([data], '{}'), '$.notes', ?)
+                [data] = json_set(IFNULL([data], '{}'), '$.notes', ?),
+                modified = datetime()
             WHERE v = ?
             """,
             (notes, v),
