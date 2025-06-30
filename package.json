@@ -8,6 +8,7 @@
     "start": "pnpm run py app.py",
     "dev": "pnpm run py app.py --debug",
     "prepare": "pnpm run py prepare_assets.py",
+    "prebuild": "pipenv clean",
     "build": "pnpm run py build.py %npm_package_version%",
     "py": "pipenv run python"
   },

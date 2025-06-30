@@ -1,6 +1,6 @@
 import sys
 import re
-from typing import Optional
+from tkinter import Tk
 
 import webview
 
@@ -15,16 +15,23 @@ if __name__ == "__main__":
         if arg == "--debug":
             is_debug = True
 
+    tk = Tk()
+    width, height = 1920, 1080
+    win_size: dict = {"width": width, "height": height}
+    if tk.winfo_screenwidth() < width + 100 or tk.winfo_screenheight() < height + 100:
+        win_size = {"maximized": True}
+    tk.destroy()
+
     win = webview.create_window(
         "cnpy",
         server,  # type: ignore
         text_select=True,
         confirm_close=True,
-        maximized=True,
+        **win_size,
     )
     log_win = None
 
-    def web_window(url: str, title: str, args: Optional[dict] = None):
+    def web_window(url: str, title: str, args: dict | None = None):
         args = args or {"width": 600}
 
         return webview.create_window(
