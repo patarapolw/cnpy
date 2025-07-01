@@ -190,7 +190,7 @@ with server:
         try:
             if meaning:
                 reset = True
-                result = meaning_quiz_response_dict.get(v)
+                result = meaning_quiz_response_dict.get(v, "")
                 if result:
                     del meaning_quiz_response_dict[v]
             elif reset:
@@ -201,7 +201,7 @@ with server:
             elif r := db.execute(
                 "SELECT t FROM ai_dict WHERE v = ? LIMIT 1", (v,)
             ).fetchone():
-                result = r[0]
+                result: str = r[0]
             elif tr := ai_translation_response_dict.get(v):
                 result = tr
                 del ai_translation_response_dict[v]
@@ -212,6 +212,8 @@ with server:
                 reset = True
 
             if reset and result_only == False:
+                if meaning:
+                    result = ""
 
                 def run_async_in_thread(d: dict):
                     try:
