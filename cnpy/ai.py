@@ -12,7 +12,7 @@ can_local_ai = bool(local_ai_model)
 
 can_online_ai = bool(env.get("OPENAI_API_KEY") or "")
 
-Q_TRANSLATION = '"{v}"是'
+Q_TRANSLATION = '"{v}"是什么？有什么读法（注音在内），用法，关联词/句子？'
 Q_MEANING = """
 You are a Chinese translation checker.
 You will be given a vocabulary and a meaning in English. Determine if the meaning matches.
