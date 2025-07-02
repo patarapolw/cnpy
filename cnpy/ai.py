@@ -7,10 +7,18 @@ from cnpy.db import db
 from cnpy.env import env
 from cnpy.sync import ENV_LOCAL_KEY_PREFIX
 
-local_ai_model = env.get(f"{ENV_LOCAL_KEY_PREFIX}OLLAMA_MODEL") or ""
-can_local_ai = bool(local_ai_model)
 
-can_online_ai = bool(env.get("OPENAI_API_KEY") or "")
+def get_local_model():
+    return env.get(f"{ENV_LOCAL_KEY_PREFIX}OLLAMA_MODEL") or ""
+
+
+def get_can_local():
+    return bool(get_local_model())
+
+
+def get_can_online():
+    return bool(env.get("OPENAI_API_KEY") or "")
+
 
 Q_TRANSLATION = '"{v}"是什么？有什么读法（注音在内），用法，关联词/句子？'
 Q_MEANING = """
@@ -58,7 +66,7 @@ def ollama_ai_ask(s: str) -> str | None:
             )
 
         response = ollama_client.chat(
-            model=local_ai_model,
+            model=get_local_model(),
             messages=[{"role": "user", "content": s}],
         )
 
@@ -142,15 +150,32 @@ def ai_ask(v: str, meaning: str | None = "") -> str | None:
 
     start = time.time()
 
-    if can_local_ai:
-        print(f"{v}: using local AI")
-        t = ollama_ai_ask(prompt)
+    name = f"{v} meaning" if meaning else f"{v} translation"
+    is_ai_run = False
 
-    if not t and can_online_ai:
-        print(f"{v}: using online AI")
-        t = online_ai_ask(prompt)
+    def do_local():
+        if get_can_local():
+            nonlocal is_ai_run
+            is_ai_run = True
 
-    print(f"{v}: AI response took {time.time() - start:.1f} seconds")
+            print(f"{name}: using local AI")
+            return ollama_ai_ask(prompt)
+
+    def do_online():
+        if get_can_online():
+            nonlocal is_ai_run
+            is_ai_run = True
+
+            print(f"{name}: using online AI")
+            return online_ai_ask(prompt)
+
+    if meaning:
+        t = do_local() or do_online()
+    else:
+        t = do_online() or do_local()
+
+    if is_ai_run:
+        print(f"{name}: AI response took {time.time() - start:.1f} seconds")
 
     if t and not meaning:
         print(f"{v}: saving AI translation")
