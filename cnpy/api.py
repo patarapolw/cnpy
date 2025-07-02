@@ -25,8 +25,6 @@ class UserSettings(TypedDict):
 
 
 class ServerGlobal:
-    web_log: Callable
-    web_close_log: Callable
     web_ready: Callable
     win: webview.Window
 
@@ -46,8 +44,8 @@ class ServerGlobal:
 
 def start():
     quiz.load_db()
-    cedict.load_db(g.web_log)
-    sentence.load_db(g.web_log)
+    cedict.load_db(print)
+    sentence.load_db(print)
     ai.load_db()
     settings.load_db()
 
@@ -418,7 +416,7 @@ with server:
                         )
 
                     if v in vs:
-                        g.web_log(f"{f.relative_to(path)} [L{i+1}]: {v} duplicated")
+                        print(f"{f.relative_to(path)} [L{i+1}]: {v} duplicated")
                         is_dup = True
                     else:
                         nodup_f_vs.append(v)
@@ -696,8 +694,7 @@ with server:
 
     @bottle.post("/api/update_dict")
     def update_dict():
-        cedict.reset_db(lambda s: g.web_log(s, height=300))
-        g.web_close_log()
+        cedict.reset_db(print)
 
     @bottle.post("/api/mark/<v>/<t>")
     def mark(v: str, t: str):

@@ -15,13 +15,13 @@ can_online_ai = bool(env.get("OPENAI_API_KEY") or "")
 Q_TRANSLATION = '"{v}"是什么？有什么读法（注音在内），用法，关联词/句子？'
 Q_MEANING = """
 You are a Chinese translation checker.
-You will be given a vocabulary and a meaning in English. Determine if the meaning matches.
-Misspellings are considered acceptable. If wrong, give the translation of the English instead.
+You will be given a vocabulary and a meaning in another language. Determine if the meaning matches.
+Misspellings are considered acceptable. If wrong, give a more proper translation.
 
 Answer in JSON:
 {{
   "correct": true, // false if wrong, null if it depends / not sure
-  "explanation": "" // give some explanation why right or wrong, and also other possible meanings of the vocabulary
+  "explanation": "" // give explanation in English why right or wrong, and also other possible meanings of the vocabulary
 }}
 
 Is "{m}" a correct meaning for "{v}" in Chinese?
