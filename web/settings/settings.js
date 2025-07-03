@@ -147,7 +147,8 @@ const saveRunners = [];
   const inputLocalLLMmodel = fieldsetLocalLLM.querySelector("input#llm-model");
 
   /** @type {HTMLInputElement} */
-  const inputLocalLLMhost = fieldsetLocalLLM.querySelector("input#llm-host");
+  const inputLocalLLMserver =
+    fieldsetLocalLLM.querySelector("input#llm-server");
 
   let llmEngine = "";
 
@@ -161,9 +162,9 @@ const saveRunners = [];
       llmEngine = "ollama";
       inputLocalLLMmodel.value = model;
 
-      inputLocalLLMhost.value =
+      inputLocalLLMserver.value =
         (await api.get_env("CNPY_LOCAL_OLLAMA_HOST")) ??
-        inputLocalLLMhost.value;
+        inputLocalLLMserver.value;
     }
 
     radioLocalLLMengine.querySelectorAll("input").forEach((inp) => {
@@ -187,7 +188,7 @@ const saveRunners = [];
   async function save() {
     if (llmEngine == "ollama") {
       await api.set_env("CNPY_LOCAL_OLLAMA_MODEL", inputLocalLLMmodel.value);
-      await api.set_env("CNPY_LOCAL_OLLAMA_HOST", inputLocalLLMhost.value);
+      await api.set_env("CNPY_LOCAL_OLLAMA_HOST", inputLocalLLMserver.value);
     } else {
       await api.set_env("CNPY_LOCAL_OLLAMA_MODEL", "");
     }

@@ -15,6 +15,7 @@ if __name__ == "__main__":
             is_debug = True
 
     tk = Tk()
+    tk.withdraw()
     width, height = 1920, 1080
     win_size: dict = {"width": width, "height": height}
     if tk.winfo_screenwidth() < width + 100 or tk.winfo_screenheight() < height + 100:

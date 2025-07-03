@@ -51,8 +51,6 @@ def upload_sync():
             "INSERT OR REPLACE INTO settings (k, v) VALUES (:k, :v)", dict(r)
         )
 
-    sync_db.execute("DELETE FROM settings WHERE v = ''")
-
     for r in db.execute("SELECT * FROM quiz"):
         sync_db.execute(
             """
