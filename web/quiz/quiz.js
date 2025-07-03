@@ -53,10 +53,75 @@ const elNotesTextarea = /** @type {HTMLTextAreaElement} */ (
 const elMeaningQuiz = /** @type {HTMLDetailsElement} */ (
   document.getElementById("meaning-quiz")
 );
-const elMeaningInput = elMeaningQuiz.querySelector("input");
+const elMeaningInput = /** @type {HTMLDivElement} */ (
+  elMeaningQuiz.querySelector("[contenteditable]")
+);
 const elMeaningExplanation = /** @type {HTMLDivElement} */ (
   elMeaningQuiz.querySelector("#meaning-explanation")
 );
+
+elMeaningQuiz.ontoggle = () => {
+  if (elMeaningQuiz.open) {
+    elMeaningInput.focus();
+  }
+};
+
+const ATTR_DATA_CHECKED = "data-checked";
+
+elMeaningInput.addEventListener("keypress", async (ev) => {
+  switch (ev.key) {
+    case "Enter":
+      ev.preventDefault();
+      elMeaningInput.oninput = (ev) => {
+        ev.preventDefault();
+        return false;
+      };
+
+      const { v } = state.vocabList[state.i];
+      const meaning = elMeaningInput.innerText.trim();
+
+      elMeaningInput.setAttribute(ATTR_DATA_CHECKED, "");
+      elMeaningExplanation.textContent = "";
+
+      if (meaning) {
+        try {
+          let { result } = await api.ai_translation(v, { meaning });
+
+          while (!result) {
+            elMeaningExplanation.textContent += ".";
+
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            const r = await api.ai_translation(v, {
+              meaning,
+              result_only: true,
+            });
+            result = r.result;
+
+            if (state.vocabList[state.i]?.v !== v) return;
+          }
+          result = result.match(/\{[^]+\}/)?.[0] || result;
+          console.log(result);
+          const { correct, explanation } = JSON.parse(result);
+          elMeaningExplanation.textContent = explanation || "";
+
+          switch (correct) {
+            case true:
+              elMeaningInput.setAttribute(ATTR_DATA_CHECKED, "right");
+              break;
+            case false:
+              elMeaningInput.setAttribute(ATTR_DATA_CHECKED, "wrong");
+              break;
+            default:
+              elMeaningInput.setAttribute(ATTR_DATA_CHECKED, "maybe");
+          }
+        } catch (e) {
+          console.error(e);
+          elMeaningExplanation.textContent = "";
+        }
+      }
+      elMeaningInput.oninput = null;
+  }
+});
 
 elInput.addEventListener("keypress", (ev) => {
   switch (ev.key) {
@@ -535,11 +600,10 @@ function doNext(ev) {
         }
 
         elInput.innerText = txt;
-        const attrName = "data-checked";
-        elInput.setAttribute(attrName, "warn");
+        elInput.setAttribute(ATTR_DATA_CHECKED, "warn");
         setTimeout(() => {
-          if (elInput.getAttribute(attrName) === "warn") {
-            elInput.setAttribute(attrName, "");
+          if (elInput.getAttribute(ATTR_DATA_CHECKED) === "warn") {
+            elInput.setAttribute(ATTR_DATA_CHECKED, "");
           }
         }, 1000);
 
@@ -738,8 +802,6 @@ function doNext(ev) {
       }
     }
 
-    const ATTR_DATA_CHECKED = "data-checked";
-
     document.querySelectorAll(`[${ATTR_DATA_CHECKED}]`).forEach((el) => {
       el.setAttribute(
         ATTR_DATA_CHECKED,
@@ -757,57 +819,9 @@ function doNext(ev) {
 
     elMeaningQuiz.open = false;
 
-    elMeaningInput.value = "";
+    elMeaningInput.innerText = "";
     elMeaningInput.setAttribute(ATTR_DATA_CHECKED, "");
     elMeaningExplanation.textContent = "";
-
-    const elMeaningForm = /** @type {HTMLFormElement} */ (
-      elMeaningInput.parentElement
-    );
-    elMeaningForm.onsubmit = async (ev) => {
-      ev.preventDefault();
-
-      elMeaningInput.setAttribute(ATTR_DATA_CHECKED, "");
-      elMeaningExplanation.textContent = "";
-
-      const meaning = elMeaningInput.value.trim();
-      if (meaning) {
-        try {
-          let { result } = await api.ai_translation(v, { meaning });
-
-          while (!result) {
-            elMeaningExplanation.textContent += ".";
-
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            const r = await api.ai_translation(v, {
-              meaning,
-              result_only: true,
-            });
-            result = r.result;
-
-            if (state.vocabList[state.i]?.v !== v) return;
-          }
-          result = result.match(/\{[^]+\}/)?.[0] || result;
-          console.log(result);
-          const { correct, explanation } = JSON.parse(result);
-          elMeaningExplanation.textContent = explanation || "";
-
-          switch (correct) {
-            case true:
-              elMeaningInput.setAttribute(ATTR_DATA_CHECKED, "right");
-              break;
-            case false:
-              elMeaningInput.setAttribute(ATTR_DATA_CHECKED, "wrong");
-              break;
-            default:
-              elMeaningInput.setAttribute(ATTR_DATA_CHECKED, "maybe");
-          }
-        } catch (e) {
-          console.error(e);
-          elMeaningExplanation.textContent = "";
-        }
-      }
-    };
   }
 
   return false;
@@ -870,6 +884,8 @@ async function newVocab() {
   elInput.oninput = null;
   elInput.focus();
 
+  elMeaningInput.oninput = null;
+
   softCleanup();
 
   state.i++;
@@ -931,8 +947,8 @@ async function newVocab() {
   );
   ctxmenu.delete("#vocab");
 
-  document.querySelectorAll("[data-checked]").forEach((el) => {
-    el.setAttribute("data-checked", "");
+  document.querySelectorAll(`[${ATTR_DATA_CHECKED}]`).forEach((el) => {
+    el.setAttribute(ATTR_DATA_CHECKED, "");
   });
 
   const { v } = state.vocabList[state.i];

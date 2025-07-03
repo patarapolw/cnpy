@@ -179,7 +179,7 @@ export const api = {
   },
   /**
    * @typedef {'OPENAI_API_KEY'
-   * | 'OPENAI_API_BASE'
+   * | 'OPENAI_BASE_URL'
    * | 'OPENAI_MODEL'
    * | 'CNPY_MAX_NEW'
    * | 'CNPY_LOCAL_OLLAMA_MODEL'

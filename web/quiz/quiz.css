@@ -131,6 +131,16 @@ a.internal-link:visited {
   background-color: palegoldenrod;
 }
 
+.meaning-input-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.meaning-input-container .typing-checker {
+  caret-color: auto !important;
+}
+
 .type-input[data-checked="warn"] {
   animation: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
   transform: translate3d(0, 0, 0);

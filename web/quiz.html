@@ -64,14 +64,17 @@
 
       <details id="meaning-quiz" class="if-checked" data-checked="">
         <summary>...</summary>
-        <form onsubmit="return false">
-          <input
-            type="text"
+        <div class="meaning-input-container">
+          <div
+            contenteditable=""
             class="typing-checker"
-            data-checked=""
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
             spellcheck="false"
-          />
-        </form>
+            data-checked=""
+          ></div>
+        </div>
         <div id="meaning-explanation" lang="zh-CN"></div>
       </details>
 

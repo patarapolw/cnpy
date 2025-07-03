@@ -115,7 +115,7 @@ const saveRunners = [];
 
     if (inputOpenAIapiKey.value) {
       inputOpenAIserver.value =
-        (await api.get_env("OPENAI_API_BASE")) ?? inputOpenAIserver.value;
+        (await api.get_env("OPENAI_BASE_URL")) ?? inputOpenAIserver.value;
       inputOpenAImodel.value =
         (await api.get_env("OPENAI_MODEL")) ?? inputOpenAImodel.value;
     }
@@ -127,7 +127,7 @@ const saveRunners = [];
   async function save() {
     await api.set_env("OPENAI_API_KEY", inputOpenAIapiKey.value);
     if (inputOpenAIapiKey.value) {
-      await api.set_env("OPENAI_API_BASE", inputOpenAIserver.value);
+      await api.set_env("OPENAI_BASE_URL", inputOpenAIserver.value);
       await api.set_env("OPENAI_MODEL", inputOpenAImodel.value);
     }
   }
