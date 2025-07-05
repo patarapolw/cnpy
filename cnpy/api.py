@@ -37,10 +37,6 @@ class ServerGlobal:
 
     latest_stats: Stats
 
-    is_ai_translation_available = any(
-        (env.get("OPENAI_API_KEY"), env.get(f"{ENV_LOCAL_KEY_PREFIX}OLLAMA_MODEL"))
-    )
-
 
 def start():
     quiz.load_db()
@@ -515,7 +511,12 @@ with server:
         output = {
             "count": n,
             "new": n_new,
-            "isAIenabled": g.is_ai_translation_available,
+            "isAIenabled": any(
+                (
+                    env.get("OPENAI_API_KEY"),
+                    env.get(f"{ENV_LOCAL_KEY_PREFIX}OLLAMA_MODEL"),
+                )
+            ),
         }
 
         if g.v_quiz:
