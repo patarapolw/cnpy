@@ -369,6 +369,7 @@ with server:
                     v NOT IN (
                         SELECT v FROM vlist
                     ) AND
+                    v IN (SELECT simp FROM cedict) AND
                     srs IS NULL AND
                     json_extract([data], '$.wordfreq') < 6
                 ORDER BY
@@ -498,9 +499,7 @@ with server:
                     )
                 ) AND v NOT IN (
                     SELECT v FROM vlist WHERE skip IS NOT NULL
-                ) AND v IN (
-                    SELECT simp FROM cedict
-                )
+                ) AND v IN (SELECT simp FROM cedict)
                 """
             )
         ]
@@ -599,6 +598,7 @@ with server:
                 AND v NOT IN (
                     SELECT v FROM vlist WHERE skip IS NOT NULL
                 )
+                AND v IN (SELECT simp FROM cedict)
                 ORDER BY
                     json_extract([data], '$.count') DESC,
                     json_extract([data], '$.wordfreq') > {} DESC,
