@@ -502,6 +502,8 @@ with server:
                     )
                 ) AND v NOT IN (
                     SELECT v FROM vlist WHERE skip IS NOT NULL
+                ) AND v IN (
+                    SELECT simp FROM cedict
                 )
                 """
             )
