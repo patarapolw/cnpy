@@ -42,6 +42,12 @@ def upload_sync():
         """
     )
 
+    if settings_path.exists():
+        db.execute(
+            "INSERT OR REPLACE INTO settings (k, v) VALUES (?, ?)",
+            ("settings", settings_path.read_text("utf-8")),
+        )
+
     for r in db.execute("SELECT * FROM settings"):
         k: str = r["k"]
         if k.startswith(ENV_LOCAL_KEY_PREFIX):
