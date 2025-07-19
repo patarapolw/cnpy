@@ -2,19 +2,22 @@ import fsrs
 from regex import Regex
 import jieba
 import bottle
+import webview
 
 import json
 import datetime
 import random
 from typing import Callable, TypedDict, Any
 import threading
-import os
+import traceback
 
-from cnpy import quiz, cedict, sentence, ai
-from cnpy.db import db, radical_db
-from cnpy.stats import make_stats
+from cnpy import quiz, cedict, sentence, ai, settings, sync
+from cnpy.db import db, radical_db, db_version
+from cnpy.stats import make_stats, Stats
 from cnpy.tts import tts_audio
-from cnpy.dir import assets_root, user_root, web_root
+from cnpy.dir import assets_root, user_root, web_root, exe_root, settings_path
+from cnpy.env import env
+from cnpy.sync import ENV_LOCAL_KEY_PREFIX
 
 
 class UserSettings(TypedDict):
@@ -22,11 +25,9 @@ class UserSettings(TypedDict):
 
 
 class ServerGlobal:
-    web_log: Callable
-    web_close_log: Callable
     web_ready: Callable
+    win: webview.Window
 
-    settings_path = user_root / "settings.json"
     settings = UserSettings(
         levels=[],
     )
@@ -34,19 +35,19 @@ class ServerGlobal:
     levels: dict[str, list[str]] = {}
     v_quiz: Any = None
 
-    latest_stats = make_stats()
-
-    is_ai_translation_available = any(
-        (os.getenv("OPENAI_API_KEY"), os.getenv("OLLAMA_MODEL"))
-    )
+    latest_stats: Stats
 
 
 def start():
     quiz.load_db()
-    cedict.load_db(g.web_log)
-    sentence.load_db(g.web_log)
+    cedict.load_db(print)
+    sentence.load_db(print)
     ai.load_db()
+    settings.load_db()
 
+    sync.restore_sync()
+
+    db.execute(f"PRAGMA user_version={db_version}")
     g.web_ready()
 
     db.execute(
@@ -75,7 +76,7 @@ def fn_get_freq_min():
 
 
 def fn_save_settings():
-    g.settings_path.write_text(
+    settings_path.write_text(
         json.dumps(
             g.settings,
             ensure_ascii=False,
@@ -88,8 +89,8 @@ srs = fsrs.FSRS()
 g = ServerGlobal()
 server = bottle.Bottle()
 
-if g.settings_path.exists():
-    g.settings = json.loads(g.settings_path.read_text("utf-8"))
+if settings_path.exists():
+    g.settings = json.loads(settings_path.read_text("utf-8"))
 
 folder = assets_root / "zhquiz-level"
 for f in folder.glob("**/*.txt"):
@@ -110,7 +111,7 @@ with server:
 
     @bottle.get("/api/tts/<s>.mp3")
     def tts(s: str):
-        g.settings = json.loads(g.settings_path.read_text("utf-8"))
+        g.settings = json.loads(settings_path.read_text("utf-8"))
         p = tts_audio(s)
         if p:
             return bottle.static_file(p.name, root=p.parent)
@@ -123,16 +124,70 @@ with server:
     def get_settings():
         return g.settings
 
+    @bottle.post("/api/sync/setup")
+    def set_sync_db():
+        file_path = g.win.create_file_dialog(
+            webview.SAVE_DIALOG,
+            directory=str(exe_root),
+            save_filename="cnpy.db",
+            file_types=("cnpy SQLite database (*.db)",),
+        )
+        if file_path:
+            file_path = str(file_path)
+
+            db.execute(
+                "INSERT OR REPLACE INTO settings (k,v) VALUES (?,?)",
+                (sync.ENV_KEY_SYNC, file_path),
+            )
+            env[sync.ENV_KEY_SYNC] = file_path
+
+            sync.restore_sync()
+
+            return {"db": file_path}
+
+        return {"db": None}
+
+    @bottle.post("/api/sync/restore")
+    def sync_restore():
+        sync.restore_sync()
+
+    @bottle.post("/api/env/get/<k>")
+    def get_env(k: str):
+        try:
+            for r in db.execute("SELECT v FROM settings WHERE k = ? LIMIT 1", (k,)):
+                return {"v": r["v"]}
+        except Exception as e:
+            traceback.print_exc()
+            return {"v": env.get(k)}
+
+        return {"v": None}
+
+    @bottle.post("/api/env/set/<k>")
+    def set_env(k: str):
+        obj: Any = bottle.request.json
+        db.execute("INSERT OR REPLACE INTO settings (k,v) VALUES (?,?)", (k, obj["v"]))
+        env[k] = obj["v"]
+
+    ai_translation_response_dict: dict[str, str] = {}
+    meaning_quiz_response_dict: dict[str, str] = {}
+
     @bottle.post("/api/ai_translation/<v>")
     def ai_translation(v: str):
         obj: Any = bottle.request.json
         reset: bool = obj.get("reset", False)
         result_only: bool = obj.get("result_only", False)
+        meaning: str | None = obj.get("meaning", None)
 
         result = ""
+        global meaning_quiz_response_dict
 
         try:
-            if reset:
+            if meaning:
+                reset = True
+                result = meaning_quiz_response_dict.get(v, "")
+                if result:
+                    del meaning_quiz_response_dict[v]
+            elif reset:
                 db.execute(
                     "INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, "")
                 )
@@ -140,7 +195,10 @@ with server:
             elif r := db.execute(
                 "SELECT t FROM ai_dict WHERE v = ? LIMIT 1", (v,)
             ).fetchone():
-                result = r[0]
+                result: str = r[0]
+            elif tr := ai_translation_response_dict.get(v):
+                result = tr
+                del ai_translation_response_dict[v]
             else:
                 # Insert placeholder entry if not exists
                 db.execute("INSERT INTO ai_dict (v, t) VALUES (?, ?)", (v, ""))
@@ -148,16 +206,36 @@ with server:
                 reset = True
 
             if reset and result_only == False:
+                if meaning:
+                    result = ""
 
-                def run_async_in_thread():
+                def run_async_in_thread(d: dict):
                     try:
-                        ai.ai_translation(v)
+                        r = ai.ai_ask(v, meaning=meaning)
+                        d[v] = r
+                        if r and meaning:
+                            try:
+                                print(v, json.loads(r[r.index("{") : r.index("}") + 1]))
+                            except ValueError:
+                                traceback.print_exc()
+                                print(v, r)
                     except Exception as e:
-                        print(f"AI translation error {v}: {e}")
+                        traceback.print_exc()
+                        print(f"AI translation error {v}")
 
                 thread = threading.Thread(
                     target=run_async_in_thread,
-                    daemon=os.getenv("CNPY_WAIT_FOR_AI_RESULTS", "1") == "0",
+                    daemon=(
+                        env.get(f"{ENV_LOCAL_KEY_PREFIX}WAIT_FOR_AI_RESULTS") or "1"
+                    )
+                    == "0",
+                    args=(
+                        (
+                            meaning_quiz_response_dict
+                            if meaning
+                            else ai_translation_response_dict
+                        ),
+                    ),
                 )
                 thread.start()
         except Exception as e:
@@ -291,6 +369,7 @@ with server:
                     v NOT IN (
                         SELECT v FROM vlist
                     ) AND
+                    v IN (SELECT simp FROM cedict) AND
                     srs IS NULL AND
                     json_extract([data], '$.wordfreq') < 6
                 ORDER BY
@@ -334,7 +413,7 @@ with server:
                         )
 
                     if v in vs:
-                        g.web_log(f"{f.relative_to(path)} [L{i+1}]: {v} duplicated")
+                        print(f"{f.relative_to(path)} [L{i+1}]: {v} duplicated")
                         is_dup = True
                     else:
                         nodup_f_vs.append(v)
@@ -344,11 +423,14 @@ with server:
             if is_dup:
                 f.write_text("\n".join(nodup_f_vs), encoding="utf-8")
 
-        for lv in g.settings.get("levels", []):
+        levels = g.settings.get("levels", [])
+        levels.sort(reverse=True)
+
+        for lv in levels:
             for v in g.levels[f"{lv:02d}"]:
                 db.execute(
-                    "INSERT INTO vlist (v, created) VALUES (?,?) ON CONFLICT DO NOTHING",
-                    (v, now_str),
+                    "REPLACE INTO vlist (v, created, [data]) VALUES (?,?, json_object('level',?))",
+                    (v, now_str, lv),
                 )
                 vs.add(v)
 
@@ -417,7 +499,7 @@ with server:
                     )
                 ) AND v NOT IN (
                     SELECT v FROM vlist WHERE skip IS NOT NULL
-                )
+                ) AND v IN (SELECT simp FROM cedict)
                 """
             )
         ]
@@ -428,7 +510,12 @@ with server:
         output = {
             "count": n,
             "new": n_new,
-            "isAIenabled": g.is_ai_translation_available,
+            "isAIenabled": any(
+                (
+                    env.get("OPENAI_API_KEY"),
+                    env.get(f"{ENV_LOCAL_KEY_PREFIX}OLLAMA_MODEL"),
+                )
+            ),
         }
 
         if g.v_quiz:
@@ -449,7 +536,7 @@ with server:
         result = []
         r_last = []
         max_review = limit * 2 - review_counter
-        max_new = int(os.getenv("CNPY_MAX_NEW", "10"))
+        max_new = int(env.get("CNPY_MAX_NEW") or "10")
         for r in all_items:
             if len(result) >= limit:
                 break
@@ -511,6 +598,7 @@ with server:
                 AND v NOT IN (
                     SELECT v FROM vlist WHERE skip IS NOT NULL
                 )
+                AND v IN (SELECT simp FROM cedict)
                 ORDER BY
                     json_extract([data], '$.count') DESC,
                     json_extract([data], '$.wordfreq') > {} DESC,
@@ -609,8 +697,7 @@ with server:
 
     @bottle.post("/api/update_dict")
     def update_dict():
-        cedict.reset_db(lambda s: g.web_log(s, height=300))
-        g.web_close_log()
+        cedict.reset_db(print)
 
     @bottle.post("/api/mark/<v>/<t>")
     def mark(v: str, t: str):
@@ -637,11 +724,11 @@ with server:
 
         card_json = json.dumps(card.to_dict())
         if not db.execute(
-            "UPDATE quiz SET srs = ? WHERE v = ?",
+            "UPDATE quiz SET srs = ?, modified = datetime() WHERE v = ?",
             (card_json, v),
         ).rowcount:
             db.execute(
-                "INSERT INTO quiz (v, srs) VALUES (?, ?)",
+                "INSERT INTO quiz (v, srs, modified) VALUES (?, ?, datetime())",
                 (v, card_json),
             )
 
@@ -667,13 +754,14 @@ with server:
         if not db.execute(
             """
             UPDATE quiz SET
-                [data] = json_set(IFNULL([data], '{}'), '$.notes', ?)
+                [data] = json_set(IFNULL([data], '{}'), '$.notes', ?),
+                modified = datetime()
             WHERE v = ?
             """,
             (notes, v),
         ).rowcount:
             db.execute(
-                "INSERT INTO quiz (v, [data]) VALUES (?, json_object('notes', ?))",
+                "INSERT INTO quiz (v, [data], modified) VALUES (?, json_object('notes', ?), datetime())",
                 (v, notes),
             )
 

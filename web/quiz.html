@@ -48,7 +48,7 @@
       <div
         contenteditable=""
         id="type-input"
-        class="hide-showcase"
+        class="hide-showcase typing-checker"
         autocomplete="off"
         autocorrect="off"
         autocapitalize="off"
@@ -61,6 +61,23 @@
         target="modal"
         title="Specify valid Pinyin"
       ></a>
+
+      <details id="meaning-quiz" class="if-checked" data-checked="">
+        <summary>...</summary>
+        <div class="meaning-input-container">
+          <div
+            contenteditable=""
+            class="typing-checker"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            data-checked=""
+          ></div>
+        </div>
+        <div id="meaning-explanation" lang="zh-CN"></div>
+      </details>
+
       <div
         id="check-buttons-area"
         class="buttons if-checked hide-showcase"
@@ -93,45 +110,45 @@
         </button>
       </div>
 
+      <div class="external-links if-checked" data-checked="">
+        <a
+          href="https://en.wiktionary.org/wiki/__voc__#Chinese"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Wiktionary</a
+        >
+        /
+        <a
+          href="https://www.mdbg.net/chinese/dictionary?page=worddict&wdrst=0&wdqb=__voc__&email="
+          target="_blank"
+          rel="noopener noreferrer"
+          >MDBG</a
+        >
+        /
+        <a
+          href="https://www.zdic.net/hans/__voc__"
+          target="_blank"
+          rel="noopener noreferrer"
+          >zdic</a
+        >
+        /
+        <a
+          href="https://youglish.com/pronounce/__voc__/chinese"
+          target="_blank"
+          rel="noopener noreferrer"
+          >YouGlish</a
+        >
+        /
+        <a
+          href="https://duckduckgo.com/?t=ffab&q=__voc__&ia=web"
+          target="_blank"
+          rel="noopener noreferrer"
+          >DuckDuckGo</a
+        >
+      </div>
+
       <details id="dictionary-entries" class="if-checked" data-checked="">
         <summary>Dictionary</summary>
-        <div class="external-links">
-          <a
-            href="https://en.wiktionary.org/wiki/__voc__#Chinese"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Wiktionary</a
-          >
-          /
-          <a
-            href="https://www.mdbg.net/chinese/dictionary?page=worddict&wdrst=0&wdqb=__voc__&email="
-            target="_blank"
-            rel="noopener noreferrer"
-            >MDBG</a
-          >
-          /
-          <a
-            href="https://www.zdic.net/hans/__voc__"
-            target="_blank"
-            rel="noopener noreferrer"
-            >zdic</a
-          >
-          /
-          <a
-            href="https://youglish.com/pronounce/__voc__/chinese"
-            target="_blank"
-            rel="noopener noreferrer"
-            >YouGlish</a
-          >
-          /
-          <a
-            href="https://duckduckgo.com/?t=ffab&q=__voc__&ia=web"
-            target="_blank"
-            rel="noopener noreferrer"
-            >DuckDuckGo</a
-          >
-        </div>
-
         <template>
           <blockquote class="if-checked-details">
             <header>

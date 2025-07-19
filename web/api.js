@@ -171,11 +171,51 @@ export const api = {
   /**
    *
    * @param {string} v
-   * @param {{ reset?: boolean; result_only?: boolean }} opts
+   * @param {{ reset?: boolean; result_only?: boolean; meaning?: string }} opts
    * @returns {Promise<{result: string}>}
    */
   async ai_translation(v, opts = {}) {
     return fetchAPI(`/api/ai_translation/${v}`, opts).then((r) => r.json());
+  },
+  /**
+   * @typedef {'OPENAI_API_KEY'
+   * | 'OPENAI_BASE_URL'
+   * | 'OPENAI_MODEL'
+   * | 'CNPY_MAX_NEW'
+   * | 'CNPY_LOCAL_OLLAMA_MODEL'
+   * | 'CNPY_LOCAL_OLLAMA_HOST'
+   * | 'CNPY_LOCAL_WAIT_FOR_AI_RESULTS'
+   * | 'CNPY_LOCAL_TTS_VOICE'
+   * | 'CNPY_LOCAL_SYNC_DATABASE'
+   * } EnvKey
+   *
+   * @param {EnvKey} k
+   * @returns {Promise<string>}
+   */
+  async get_env(k) {
+    return fetchAPI(`/api/env/get/${k}`)
+      .then((r) => r.json())
+      .then((r) => r.v || "");
+  },
+  /**
+   *
+   * @param {EnvKey} k
+   * @param {string} v
+   */
+  async set_env(k, v) {
+    return fetchAPI(`/api/env/set/${k}`, { v });
+  },
+  /**
+   *
+   * @returns {Promise<string | null>}
+   */
+  async set_sync_db() {
+    return fetchAPI("/api/sync/setup")
+      .then((r) => r.json())
+      .then((r) => r.db);
+  },
+  async sync_restore() {
+    return fetchAPI("/api/sync/restore");
   },
 };
 

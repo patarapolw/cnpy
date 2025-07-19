@@ -4,8 +4,11 @@ import platform
 import sys
 
 import PyInstaller.__main__
+from dotenv import dotenv_values
 
 from prepare_assets import dump_cedict_and_wordfreq
+
+env = dotenv_values()
 
 APP_NAME = "cnpy"
 VERSION = sys.argv[1] if len(sys.argv) > 1 else ""
@@ -30,7 +33,8 @@ if __name__ == "__main__":
     PyInstaller.__main__.run(pyi_args)
     # PyInstaller.building.build_main.main(None, "cnpy.spec")  # type: ignore
 
-    dump_cedict_and_wordfreq(True)
+    if not env.get("CNPY_LOCAL_BUILD_SKIP_DOWNLOAD"):
+        dump_cedict_and_wordfreq(True)
 
     for f in Path().glob("*.md"):
         shutil.copy(f, dist_path)

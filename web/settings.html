@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings</title>
+
+    <link rel="stylesheet" href="./settings/settings.css" />
+  </head>
+  <body>
+    <fieldset>
+      <legend>Dictionaries</legend>
+
+      <button type="button" id="update-cedict">Update CC-CEDICT</button>
+    </fieldset>
+
+    <fieldset id="quiz-settings">
+      <legend>Quiz settings</legend>
+
+      <form>
+        <input type="checkbox" name="has-new" id="has-new" checked />
+        <label for="has-new">New items per session</label>
+      </form>
+
+      <form id="tts">
+        <label>Text-to-speech voice:</label>
+
+        <span>
+          <input type="radio" name="tts-type" id="tts-type-browser" value="" />
+          <label for="tts-type-browser">
+            <a
+              href="https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis/getVoices"
+              target="_blank"
+              rel="noopener noreferrer"
+              >web browser</a
+            >
+          </label>
+        </span>
+
+        <span>
+          <input
+            type="radio"
+            name="tts-type"
+            id="tts-type-gtts"
+            value="gtts"
+            checked
+          />
+          <label for="tts-type-gtts">
+            <a
+              href="https://github.com/pndurette/gTTS?tab=readme-ov-file#disclaimer"
+              target="_blank"
+              rel="noopener noreferrer"
+              >gTTS</a
+            >
+          </label>
+        </span>
+
+        <span>
+          <input
+            type="radio"
+            name="tts-type"
+            id="tts-type-emoti"
+            value="emoti"
+          />
+          <label for="tts-type-emoti">
+            <a
+              href="https://github.com/netease-youdao/EmotiVoice"
+              target="_blank"
+              rel="noopener noreferrer"
+              >emoti-voice</a
+            >
+          </label>
+        </span>
+      </form>
+
+      <form class="hideable-option">
+        <label for="voice-name">Voice:</label>
+        <input type="text" name="voice-name" id="voice-name" />
+      </form>
+    </fieldset>
+
+    <fieldset>
+      <legend>AI engine (LLM)</legend>
+
+      <fieldset id="llm-online">
+        <legend>Online</legend>
+
+        <form>
+          <label for="openai-api-key">
+            <a
+              href="https://platform.openai.com/docs/api-reference/introduction"
+              target="_blank"
+              rel="noopener noreferrer"
+              >OpenAPI</a
+            >
+            API key (<a
+              href="https://api-docs.deepseek.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              >DeepSeek</a
+            >
+            compatible):
+          </label>
+          <input type="text" name="openai-api-key" id="openai-api-key" />
+        </form>
+
+        <form class="hideable-option">
+          <label for="openai-model"
+            >OpenAI
+            <a
+              href="https://platform.openai.com/docs/models"
+              target="_blank"
+              rel="noopener noreferrer"
+              >model</a
+            >:</label
+          >
+          <input
+            type="text"
+            name="openai-model"
+            id="openai-model"
+            placeholder="deepseek-chat"
+          />
+        </form>
+
+        <form class="hideable-option">
+          <label for="openai-server">OpenAI server:</label>
+          <input
+            type="text"
+            name="openai-server"
+            id="openai-server"
+            placeholder="https://api.deepseek.com"
+          />
+        </form>
+      </fieldset>
+
+      <fieldset id="llm-local">
+        <legend>Local</legend>
+
+        <form id="llm-engine">
+          <label>Engine:</label>
+
+          <span>
+            <input
+              type="radio"
+              name="llm-engine"
+              id="llm-none"
+              value=""
+              checked
+            />
+            <label for="llm-none">None (disable)</label>
+          </span>
+
+          <span>
+            <input
+              type="radio"
+              name="llm-engine"
+              id="llm-ollama"
+              value="ollama"
+            />
+            <label for="ollama">
+              <a
+                href="https://ollama.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Ollama</a
+              >
+            </label>
+          </span>
+        </form>
+
+        <form class="hideable-option">
+          <label for="llm-model">Model:</label>
+          <input type="text" name="llm-model" id="llm-model" />
+        </form>
+
+        <form class="hideable-option">
+          <label for="llm-server">Server:</label>
+          <input
+            type="text"
+            name="llm-server"
+            id="llm-server"
+            placeholder="(local)"
+          />
+        </form>
+      </fieldset>
+    </fieldset>
+
+    <fieldset id="sync">
+      <legend>Sync</legend>
+
+      <form>
+        <label for="sync-database">Sync database:</label>
+        <input type="text" name="sync-database" id="sync-database" readonly />
+      </form>
+
+      <button type="button" name="restore">Restore</button>
+      <button type="button" name="remove">Remove sync</button>
+    </fieldset>
+
+    <footer>
+      <button type="button" id="save">Save</button>
+    </footer>
+
+    <script type="module" src="./settings/settings.js"></script>
+  </body>
+</html>

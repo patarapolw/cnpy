@@ -21,8 +21,6 @@ if __name__ == "__main__":
     )
     t_server.run()
 
-    g.web_log = print
     g.web_ready = lambda: None
-    g.web_close_log = lambda: None
 
     start()

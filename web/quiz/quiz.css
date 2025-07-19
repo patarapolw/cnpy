@@ -31,6 +31,7 @@ details,
 p,
 .nav,
 .count,
+.external-links,
 [contenteditable] {
   font-family: Arial, Helvetica, sans-serif;
 }
@@ -107,7 +108,7 @@ a.internal-link:visited {
   cursor: default;
 }
 
-#type-input {
+.typing-checker {
   text-align: center;
   border: 2px solid black;
   border-radius: 3px;
@@ -115,17 +116,32 @@ a.internal-link:visited {
   min-width: calc(200px - 3em);
 }
 
-#type-input[data-checked="right"] {
+.typing-checker[data-checked="right"] {
   caret-color: transparent;
   background-color: greenyellow;
 }
 
-#type-input[data-checked="wrong"] {
+.typing-checker[data-checked="wrong"] {
   caret-color: transparent;
   background-color: lightcoral;
 }
 
-#type-input[data-checked="warn"] {
+.typing-checker[data-checked="maybe"] {
+  caret-color: transparent;
+  background-color: palegoldenrod;
+}
+
+.meaning-input-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.meaning-input-container .typing-checker {
+  caret-color: auto !important;
+}
+
+.type-input[data-checked="warn"] {
   animation: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
   transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
@@ -191,6 +207,22 @@ a.internal-link:visited {
 details {
   width: 80vw;
   text-align: left;
+}
+
+#meaning-quiz {
+  text-align: center;
+}
+
+#meaning-quiz {
+  display: none;
+}
+
+[data-ai] #meaning-quiz:not([data-checked=""]):not([data-checked="wrong"]) {
+  display: block;
+}
+
+#meaning-explanation {
+  margin-top: 0.5em;
 }
 
 summary {

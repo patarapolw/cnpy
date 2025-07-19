@@ -26,10 +26,7 @@ export function openInModal(url, title) {
     overlay.id = "modal-overlay";
     overlay.addEventListener("click", () => {
       // Close the modal when the overlay is clicked
-      document.body.removeChild(modalContainer);
-      document.body.removeChild(overlay);
-      modalContainer = null;
-      overlay = null;
+      closeModal();
     });
     document.body.appendChild(overlay);
 
@@ -57,10 +54,7 @@ export function openInModal(url, title) {
     closeButton.id = "modal-close-button";
     closeButton.innerText = "Close";
     closeButton.addEventListener("click", () => {
-      document.body.removeChild(modalContainer);
-      document.body.removeChild(overlay);
-      modalContainer = null; // Reset the modal container
-      overlay = null; // Reset the overlay
+      closeModal();
     });
     modalContainer.appendChild(closeButton);
   }
@@ -110,10 +104,7 @@ export function openInModal(url, title) {
 
       // If no tabs are left, remove the modal and overlay
       if (tabBar.children.length === 0) {
-        document.body.removeChild(modalContainer);
-        document.body.removeChild(overlay);
-        modalContainer = null;
-        overlay = null;
+        closeModal();
       }
     });
 
@@ -158,6 +149,20 @@ export function openInModal(url, title) {
   tab.addEventListener("click", () => {
     tab.clickTab();
   });
+}
+
+export function closeModal() {
+  // Check if the function is called from within an iframe
+  if (window.self !== window.top) {
+    // Call the function in the parent window
+    window.parent.closeModal();
+    return;
+  }
+
+  document.body.removeChild(modalContainer);
+  document.body.removeChild(overlay);
+  modalContainer = null; // Reset the modal container
+  overlay = null; // Reset the overlay
 }
 
 // Add styles to the document
@@ -243,4 +248,4 @@ style.textContent = /* css */ `
 `;
 document.head.appendChild(style);
 
-window.openInModal = openInModal;
+Object.assign(window, { openInModal, closeModal });

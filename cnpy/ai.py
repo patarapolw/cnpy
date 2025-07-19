@@ -1,30 +1,47 @@
 import time
-import os
 
 from openai import OpenAI
 from ollama import Client
-from dotenv import load_dotenv
 
 from cnpy.db import db
-from cnpy.dir import exe_root
+from cnpy.env import env
+from cnpy.sync import ENV_LOCAL_KEY_PREFIX
 
-# Load environment variables from .env file
-load_dotenv(dotenv_path=exe_root / ".env")
 
-local_ai_model = os.getenv("OLLAMA_MODEL", "")
-can_local_ai_translation = bool(local_ai_model)
+def get_local_model():
+    return env.get(f"{ENV_LOCAL_KEY_PREFIX}OLLAMA_MODEL") or ""
 
-can_online_ai_translation = bool(os.getenv("OPENAI_API_KEY"))
 
-AI_QUESTION = os.getenv("CNPY_AI_QUESTION", '"{v}"是')
+def get_can_local():
+    return bool(get_local_model())
+
+
+def get_can_online():
+    return bool(env.get("OPENAI_API_KEY") or "")
+
+
+Q_TRANSLATION = '"{v}"是什么？有什么读法（注音在内），用法，关联词/句子？'
+Q_MEANING = """
+You are a Chinese translation checker.
+You will be given a vocabulary and a meaning in another language. Determine if the meaning matches.
+Misspellings are considered acceptable. If wrong, give a more proper translation.
+
+Answer in JSON:
+{{
+  "correct": true, // false if wrong, null if it depends / not sure
+  "explanation": "" // give explanation in English why right or wrong, and also other possible meanings of the vocabulary
+}}
+
+Is "{m}" a correct meaning for "{v}" in Chinese?
+""".strip()
 
 
 ollama_client: Client | None = None
 
 
-def local_ai_translation(v: str) -> str | None:
+def ollama_ai_ask(s: str) -> str | None:
     """
-    Translate a string using local AI.
+    Ask a question using Ollama.
 
     Notes:
         - This function requires the Ollama library to be installed and configured.
@@ -33,44 +50,39 @@ def local_ai_translation(v: str) -> str | None:
         - https://ollama.com for installation instructions.
 
     Args:
-        v (str): The string to translate.
+        s (str): The string to ask.
 
     Returns:
-        str | None: The translated string, or None if the translation fails.
+        str | None: The answered string, or None if fails.
     """
-    start = time.time()
     result = None
 
     try:
-        print("Using local AI translation for:", v)
-
         global ollama_client
         if not ollama_client:
             ollama_client = Client(
-                # host=None,  # Use environment variable OLLAMA_HOST
+                # Use environment variable CNPY_LOCAL_OLLAMA_HOST
+                host=env.get(f"{ENV_LOCAL_KEY_PREFIX}OLLAMA_HOST")
             )
 
         response = ollama_client.chat(
-            model=local_ai_model,
-            messages=[{"role": "user", "content": AI_QUESTION.format(v=v)}],
+            model=get_local_model(),
+            messages=[{"role": "user", "content": s}],
         )
 
-        # Print completion details after awaiting the response
-        print(f"{v} completed local AI response")
         result = response.message.content
     except Exception as e:
-        print(f"Error in ai_translation {v}: {e}")
+        print(f"Error in ollama_ai `{s}`: {e}")
 
-    print(f"{v} local AI translation took {time.time() - start:.1f} seconds")
     return result
 
 
 openai_client: OpenAI | None = None
 
 
-def online_ai_translation(v: str) -> str | None:
+def online_ai_ask(s: str) -> str | None:
     """
-    Translate a string using online AI.
+    Ask a question using online AI.
 
     Notes:
         - This function requires `OPENAI_API_KEY` to be set in the environment.
@@ -82,75 +94,96 @@ def online_ai_translation(v: str) -> str | None:
           Set `OPENAI_BASE_URL` to `https://api.openai.com/v1` in the `.env` file and set `OPENAI_MODEL` as appropriate.
 
     Args:
-        v (str): The string to translate.
+        v (str): The string to ask.
 
     Returns:
-        str | None: The translated string, or None if the translation fails.
+        str | None: The answered string, or None if fails.
     """
-    start = time.time()
     result = None
 
     try:
-        print("Using online AI translation for:", v)
-
         global openai_client
         if not openai_client:
             openai_client = OpenAI(
-                base_url=os.getenv("OPENAI_BASE_URL", "https://api.deepseek.com"),
+                base_url=env.get("OPENAI_BASE_URL") or "https://api.deepseek.com",
                 # api_key=None,  # Use environment variable OPENAI_API_KEY
             )
 
+        model = env.get("OPENAI_MODEL") or "deepseek-chat"
+        temperature = env.get("OPENAI_TEMPERATURE")
+        if not temperature and model == "deepseek-chat":
+            temperature = "1.3"
+
         response = openai_client.chat.completions.create(
-            model=os.getenv("OPENAI_MODEL", "deepseek-chat"),
-            messages=[{"role": "user", "content": AI_QUESTION.format(v=v)}],
+            model=model,
+            messages=[{"role": "user", "content": s}],
             temperature=float(
-                os.getenv("OPENAI_TEMPERATURE", "1.3")
+                temperature or "1"
             ),  # Adjust temperature according to documentation
             stream=False,
         )
 
-        # Print completion details after awaiting the response
-        print(f"{v} completed online AI response")
         result = response.choices[0].message.content
     except Exception as e:
-        print(f"Error in ai_translation {v}: {e}")
+        print(f"Error in online_ai `{s}`: {e}")
 
-    print(f"{v} online AI translation took {time.time() - start:.1f} seconds")
     return result
 
 
-def ai_translation(v: str) -> str | None:
+def ai_ask(v: str, meaning: str | None = "") -> str | None:
     """
-    Translate a string using AI.
+    Ask AI with a question type
 
-    This function first attempts to use online AI translation. If that fails,
-    it falls back to local AI translation. If both methods fail, it returns None.
-    The translated string is cached in the database for future use.
+    This function first attempts to use local AI. If that fails,
+    it falls back to online AI. If both methods fail, it returns None.
+    In case of translation, the result string is cached in the database for future use.
 
     Args:
-        v (str): The string to translate.
+        v (str): The string of vocab to ask.
+        meaning (str | None): The string of user supplied meaning to the vocab
 
     Returns:
-        str | None: The translated string, or None if all translation methods fail.
+        str | None: The answered string, or None if all methods fail.
     """
-    # Try online AI translation first
-    if can_online_ai_translation:
-        t = online_ai_translation(v)
-        if t:
-            db.execute("INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, t))
-            db.commit()
-            return t
+    t: str | None = None
+    prompt = Q_MEANING.format(v=v, m=meaning) if meaning else Q_TRANSLATION.format(v=v)
 
-    # If online translation fails, fall back to local translation
-    if can_local_ai_translation:
-        t = local_ai_translation(v)
-        if t:
-            db.execute("INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, t))
-            db.commit()
-            return t
+    start = time.time()
 
-    # If both online and local translation fail, return None
-    return None
+    name = f"{v} meaning" if meaning else f"{v} translation"
+    is_ai_run = False
+
+    def do_local():
+        if get_can_local():
+            nonlocal is_ai_run
+            is_ai_run = True
+
+            print(f"{name}: using local AI")
+            return ollama_ai_ask(prompt)
+
+    def do_online():
+        if get_can_online():
+            nonlocal is_ai_run
+            is_ai_run = True
+
+            print(f"{name}: using online AI")
+            return online_ai_ask(prompt)
+
+    if meaning:
+        t = do_local() or do_online()
+    else:
+        t = do_online() or do_local()
+
+    if is_ai_run:
+        print(f"{name}: AI response took {time.time() - start:.1f} seconds")
+
+    if t and not meaning:
+        print(f"{v}: saving AI translation")
+        db.execute("INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, t))
+        db.commit()
+
+    # If both online and local fail, return None
+    return t or None
 
 
 def load_db():
@@ -180,7 +213,7 @@ def _test_speed(n=5):
     for r in db.execute(f"SELECT v FROM vlist ORDER BY RANDOM() LIMIT {n}"):
         v = r[0]
         print(">", v)
-        translation = ai_translation(v)
+        translation = ai_ask(v)
         print(translation)
 
 
@@ -188,5 +221,5 @@ if __name__ == "__main__":
     # Load the database
     load_db()
 
-    # Test the speed of the AI translation
+    # Test the speed of the AI ask
     _test_speed()

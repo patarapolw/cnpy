@@ -20,6 +20,8 @@ assets_root = exe_root / "assets"
 user_root = exe_root / "user"
 web_root = exe_root / "web"
 
+settings_path = user_root / "settings.json"
+
 if __name__ == "__main__":
     print(f"frozen: {is_frozen}")
     print("bundle dir is", bundle_dir)
