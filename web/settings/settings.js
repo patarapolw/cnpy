@@ -103,7 +103,6 @@ const saveRunners = [];
 
   function checkAPIkey() {
     fieldsetOpenAI.classList.toggle("hide-options", !inputOpenAIapiKey.value);
-    console.log(fieldsetOpenAI.className);
   }
 
   async function init() {
@@ -242,6 +241,48 @@ const saveRunners = [];
     check();
   }
   init();
+}
+
+////////////////////
+
+{
+  /** @type {HTMLFieldSetElement} */
+  const fieldSetAnki = document.querySelector("fieldset#anki");
+
+  /** @type {HTMLInputElement} */
+  const checkboxIsAnkiConnect = fieldSetAnki.querySelector(
+    "input#is-anki-connect"
+  );
+
+  /** @type {HTMLInputElement} */
+  const inputAnkiConnectServer = fieldSetAnki.querySelector(
+    'input[name="anki-connect-server"]'
+  );
+
+  checkboxIsAnkiConnect.onchange = () => {
+    check();
+  };
+
+  function check() {
+    fieldSetAnki.classList.toggle(
+      "hide-options",
+      !checkboxIsAnkiConnect.checked
+    );
+  }
+
+  async function init() {
+    check();
+  }
+  init();
+
+  async function save() {
+    await api.set_env(
+      "IS_ANKI_CONNECT",
+      checkboxIsAnkiConnect.checked ? "1" : ""
+    );
+    await api.set_env("ANKI_CONNECT_URL", inputAnkiConnectServer.value);
+  }
+  saveRunners.push(save);
 }
 
 ////////////////////

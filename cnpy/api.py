@@ -3,6 +3,7 @@ from regex import Regex
 import jieba
 import bottle
 import webview
+import requests
 
 import json
 import datetime
@@ -123,6 +124,13 @@ with server:
     @bottle.post("/api/get_settings")
     def get_settings():
         return g.settings
+
+    @bottle.post("/api/anki")
+    def anki_connect():
+        return requests.post(
+            env.get("ANKI_CONNECT_URL") or "http://localhost:8765",
+            json=bottle.request.json,
+        ).json()
 
     @bottle.post("/api/sync/setup")
     def set_sync_db():

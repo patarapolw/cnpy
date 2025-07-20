@@ -187,6 +187,8 @@ export const api = {
    * | 'CNPY_LOCAL_WAIT_FOR_AI_RESULTS'
    * | 'CNPY_LOCAL_TTS_VOICE'
    * | 'CNPY_LOCAL_SYNC_DATABASE'
+   * | 'IS_ANKI_CONNECT'
+   * | 'ANKI_CONNECT_URL'
    * } EnvKey
    *
    * @param {EnvKey} k
@@ -216,6 +218,19 @@ export const api = {
   },
   async sync_restore() {
     return fetchAPI("/api/sync/restore");
+  },
+  /**
+   * Forward API request to AnkiConnect
+   * @see https://git.sr.ht/~foosoft/anki-connect/
+   *
+   * @param {string} action
+   * @param {Record<string, any>} [params]
+   * @returns {Promise<{ result: any | null; error: string | null }>}
+   */
+  async anki(action, params) {
+    return fetchAPI("/api/anki", { action, params, version: 6 }).then((r) =>
+      r.json()
+    );
   },
 };
 
