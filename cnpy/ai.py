@@ -23,7 +23,11 @@ def get_can_online():
     return bool(env.get("OPENAI_API_KEY") or "")
 
 
-Q_TRANSLATION = "这词是什么？有什么读法（注音在内），用法，关联词/句子？"
+Q_TRANSLATION_SYSTEM = """
+You are a monolingual Chinese dictionary with Pinyin and Bopomofo reading / encyclopedia / colloquial language reference.
+In case of multiple readings, list results separately by readings.
+"""
+Q_TRANSLATION = '"{v}"是什么？'
 
 Q_MEANING = """
 You are an AI language expert specializing in modern Mandarin Chinese linguistics.
@@ -43,7 +47,7 @@ Respond in this JSON format:
   "explanation": "..."
 }
 ```
-""".strip()
+"""
 
 Q_MEANING_WITH_CLOZE = """
 You are an AI language expert specializing in modern Mandarin Chinese linguistics.
@@ -76,7 +80,7 @@ Respond in this JSON format:
   ]
 }
 ```
-""".strip()
+"""
 
 
 ollama_client: Client | None = None
@@ -197,8 +201,8 @@ def ai_ask(v: str, meaning: str | None = "") -> str | None:
         str | None: The answered string, or None if all methods fail.
     """
     t: str | None = None
-    q_system = Q_TRANSLATION
-    q_user = v
+    q_system = Q_TRANSLATION_SYSTEM
+    q_user = Q_TRANSLATION.format(v=v)
     name = f"{v} translation"
     cloze = []
 
