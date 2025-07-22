@@ -23,7 +23,7 @@ def get_can_online():
     return bool(env.get("OPENAI_API_KEY") or "")
 
 
-Q_TRANSLATION = '"{v}"是什么？有什么读法（注音在内），用法，关联词/句子？'
+Q_TRANSLATION = "这词是什么？有什么读法（注音在内），用法，关联词/句子？"
 
 Q_MEANING = """
 You are an AI language expert specializing in modern Mandarin Chinese linguistics.
@@ -43,8 +43,6 @@ Respond in this JSON format:
   "explanation": "..."
 }
 ```
-
-Is "{m}" a correct meaning for "{v}" in Chinese?
 """.strip()
 
 Q_MEANING_WITH_CLOZE = """
@@ -66,27 +64,25 @@ Regardless of correctness, generate at least one cloze test sentence per distinc
 Respond in this JSON format:
 
 ```json
-{{
+{
   "correct": true | false | null,
   "explanation": "...",
   "cloze": [
-    {{
+    {
       "question": "...",
       "alt": ["...", "...", "..."],
       "explanation": "..."
-    }}
+    }
   ]
-}}
+}
 ```
-
-Is "{m}" a correct meaning for "{v}" in Chinese?
 """.strip()
 
 
 ollama_client: Client | None = None
 
 
-def ollama_ai_ask(s: str) -> str | None:
+def ollama_ai_ask(q_system: str, q_user: str) -> str | None:
     """
     Ask a question using Ollama.
 
@@ -97,7 +93,8 @@ def ollama_ai_ask(s: str) -> str | None:
         - https://ollama.com for installation instructions.
 
     Args:
-        s (str): The string to ask.
+        q_system (str): The string defining system role.
+        q_user (str): The string to ask.
 
     Returns:
         str | None: The answered string, or None if fails.
@@ -114,12 +111,15 @@ def ollama_ai_ask(s: str) -> str | None:
 
         response = ollama_client.chat(
             model=get_local_model(),
-            messages=[{"role": "user", "content": s}],
+            messages=[
+                {"role": "system", "content": q_system},
+                {"role": "user", "content": q_user},
+            ],
         )
 
         result = response.message.content
     except Exception as e:
-        print(f"Error in ollama_ai `{s}`: {e}")
+        print(f"Error in ollama_ai `{q_user}`: {e}")
 
     return result
 
@@ -127,7 +127,7 @@ def ollama_ai_ask(s: str) -> str | None:
 openai_client: OpenAI | None = None
 
 
-def online_ai_ask(s: str) -> str | None:
+def online_ai_ask(q_system: str, q_user: str) -> str | None:
     """
     Ask a question using online AI.
 
@@ -141,7 +141,8 @@ def online_ai_ask(s: str) -> str | None:
           Set `OPENAI_BASE_URL` to `https://api.openai.com/v1` in the `.env` file and set `OPENAI_MODEL` as appropriate.
 
     Args:
-        v (str): The string to ask.
+        q_system (str): The string defining system role.
+        q_user (str): The string to ask.
 
     Returns:
         str | None: The answered string, or None if fails.
@@ -163,7 +164,10 @@ def online_ai_ask(s: str) -> str | None:
 
         response = openai_client.chat.completions.create(
             model=model,
-            messages=[{"role": "user", "content": s}],
+            messages=[
+                {"role": "system", "content": q_system},
+                {"role": "user", "content": q_user},
+            ],
             temperature=float(
                 temperature or "1"
             ),  # Adjust temperature according to documentation
@@ -172,7 +176,7 @@ def online_ai_ask(s: str) -> str | None:
 
         result = response.choices[0].message.content
     except Exception as e:
-        print(f"Error in online_ai `{s}`: {e}")
+        print(f"Error in online_ai `{q_user}`: {e}")
 
     return result
 
@@ -193,16 +197,18 @@ def ai_ask(v: str, meaning: str | None = "") -> str | None:
         str | None: The answered string, or None if all methods fail.
     """
     t: str | None = None
-    prompt = Q_TRANSLATION.format(v=v)
+    q_system = Q_TRANSLATION
+    q_user = v
     name = f"{v} translation"
     cloze = []
 
     if meaning:
-        prompt = Q_MEANING_WITH_CLOZE.format(v=v, m=meaning)
+        q_system = Q_MEANING_WITH_CLOZE
+        q_user = f'Is "{meaning}" a correct meaning for "{v}" in Chinese?'
         name = f"{v} meaning"
 
         for r in db.execute("SELECT arr FROM ai_cloze WHERE v = ? LIMIT 1", (v,)):
-            prompt = Q_MEANING.format(v=v, m=meaning)
+            q_user = Q_MEANING.format(v=v, m=meaning)
             cloze = json.loads(r["arr"])
 
     start = time.time()
@@ -215,7 +221,7 @@ def ai_ask(v: str, meaning: str | None = "") -> str | None:
             is_ai_run = True
 
             print(f"{name}: using local AI")
-            return ollama_ai_ask(prompt)
+            return ollama_ai_ask(q_system, q_user)
 
     def do_online():
         if get_can_online():
@@ -223,7 +229,7 @@ def ai_ask(v: str, meaning: str | None = "") -> str | None:
             is_ai_run = True
 
             print(f"{name}: using online AI")
-            return online_ai_ask(prompt)
+            return online_ai_ask(q_system, q_user)
 
     if meaning:
         t = do_local() or do_online()
