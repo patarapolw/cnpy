@@ -161,9 +161,6 @@ export async function searchVoc(v, ps) {
 export async function searchComponent(c, ps) {
   const u = new URL(location.href);
   u.pathname = "/search.html";
-  u.searchParams.set(
-    "q",
-    JSON.stringify({ c, p: ps ? joinPinyinForRegex(ps) : undefined })
-  );
+  u.searchParams.set("q", JSON.stringify({ c }));
   openInModal(u.pathname + u.search, `c:${c}`);
 }
