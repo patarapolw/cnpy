@@ -221,12 +221,7 @@ with server:
                     try:
                         r = ai.ai_ask(v, meaning=meaning)
                         d[v] = r
-                        if r and meaning:
-                            try:
-                                print(v, json.loads(r[r.index("{") : r.index("}") + 1]))
-                            except ValueError:
-                                traceback.print_exc()
-                                print(v, r)
+                        # valid json or not is checked in ai.py
                     except Exception as e:
                         traceback.print_exc()
                         print(f"AI translation error {v}")

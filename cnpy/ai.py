@@ -1,4 +1,7 @@
 import time
+import json
+import traceback
+import pprint
 
 from openai import OpenAI
 from ollama import Client
@@ -21,16 +24,60 @@ def get_can_online():
 
 
 Q_TRANSLATION = '"{v}"是什么？有什么读法（注音在内），用法，关联词/句子？'
-Q_MEANING = """
-You are a Chinese translation checker.
-You will be given a vocabulary and a meaning in another language. Determine if the meaning matches.
-Misspellings are considered acceptable. If wrong, give a more proper translation.
 
-Answer in JSON:
+Q_MEANING = """
+You are an AI language expert specializing in modern Mandarin Chinese linguistics.
+Your task is to evaluate whether a provided meaning accurately matches a given Chinese word.
+
+* If the meaning is **clearly correct**, return `"correct": true`.
+* If the meaning is **clearly wrong**, return `"correct": false`.
+* If the meaning is **ambiguous, partially correct, or depends on context**, return `"correct": null`.
+
+Then, explain why the meaning is correct, incorrect, or partially accurate. Include nuances and common uses.
+
+Respond in this JSON format:
+
+```json
+{
+  "correct": true | false | null,
+  "explanation": "..."
+}
+```
+
+Is "{m}" a correct meaning for "{v}" in Chinese?
+""".strip()
+
+Q_MEANING_WITH_CLOZE = """
+You are an AI language expert specializing in modern Mandarin Chinese linguistics.
+Your task is to evaluate whether a provided meaning accurately matches a given Chinese word.
+
+* If the meaning is **clearly correct**, return `"correct": true`.
+* If the meaning is **clearly wrong**, return `"correct": false`.
+* If the meaning is **ambiguous, partially correct, or depends on context**, return `"correct": null`.
+
+Then, explain why the meaning is correct, incorrect, or partially accurate. Include nuances and common uses.
+
+Regardless of correctness, generate at least one cloze test sentence per distinct usage sense of the word:
+
+* The blank should be best filled by the Chinese headword.
+* Provide 2–3 plausible but incorrect alternatives for each.
+* Explain why the headword is the most appropriate choice among the options.
+
+Respond in this JSON format:
+
+```json
 {{
-  "correct": true, // false if wrong, null if it depends / not sure
-  "explanation": "" // give explanation in English why right or wrong, and also other possible meanings of the vocabulary
+  "correct": true | false | null,
+  "explanation": "...",
+  "cloze": [
+    {{
+      "question": "...",
+      "alt": ["...", "...", "..."],
+      "explanation": "..."
+    }}
+  ]
 }}
+```
 
 Is "{m}" a correct meaning for "{v}" in Chinese?
 """.strip()
@@ -146,11 +193,20 @@ def ai_ask(v: str, meaning: str | None = "") -> str | None:
         str | None: The answered string, or None if all methods fail.
     """
     t: str | None = None
-    prompt = Q_MEANING.format(v=v, m=meaning) if meaning else Q_TRANSLATION.format(v=v)
+    prompt = Q_TRANSLATION.format(v=v)
+    name = f"{v} translation"
+    cloze = []
+
+    if meaning:
+        prompt = Q_MEANING_WITH_CLOZE.format(v=v, m=meaning)
+        name = f"{v} meaning"
+
+        for r in db.execute("SELECT arr FROM ai_cloze WHERE v = ? LIMIT 1", (v,)):
+            prompt = Q_MEANING.format(v=v, m=meaning)
+            cloze = json.loads(r["arr"])
 
     start = time.time()
 
-    name = f"{v} meaning" if meaning else f"{v} translation"
     is_ai_run = False
 
     def do_local():
@@ -177,13 +233,45 @@ def ai_ask(v: str, meaning: str | None = "") -> str | None:
     if is_ai_run:
         print(f"{name}: AI response took {time.time() - start:.1f} seconds")
 
-    if t and not meaning:
+    if not t:
+        return None
+
+    if meaning:
+        try:
+            # Like find(), but raise ValueError when the substring is not found.
+            # @see https://docs.python.org/3/library/stdtypes.html#str.index
+            i_opening = t.index("{")
+
+            i_closing = t.rfind("}")
+            if i_closing == -1:
+                raise ValueError("Closing '}' not found in AI response")
+
+            r = t[i_opening : i_closing + 1]
+            obj = json.loads(r)
+
+            if cloze:
+                obj["cloze"] = cloze
+            else:
+                cloze = obj["cloze"]
+                print(f"{v}: saving AI cloze")
+                db.execute(
+                    "INSERT OR REPLACE INTO ai_cloze (v, arr) VALUES (?, ?)",
+                    (v, json.dumps(cloze, ensure_ascii=False)),
+                )
+
+            t = json.dumps(obj, ensure_ascii=False)
+
+            obj["v"] = v
+            pprint.pprint(obj)
+        except ValueError:
+            traceback.print_exc()
+            print(v, t)
+    else:
         print(f"{v}: saving AI translation")
         db.execute("INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, t))
         db.commit()
 
-    # If both online and local fail, return None
-    return t or None
+    return t
 
 
 def load_db():
@@ -192,12 +280,20 @@ def load_db():
 
     This function creates the `ai_dict` table if it does not exist and removes
     placeholder entries from the table.
+
+    This function creates the `ai_cloze` table if it does not exist.
     """
-    db.execute(
+    db.executescript(
         """
         CREATE TABLE IF NOT EXISTS ai_dict (
             v TEXT NOT NULL,
             t TEXT NOT NULL,
+            PRIMARY KEY (v)
+        );
+
+        CREATE TABLE IF NOT EXISTS ai_cloze (
+            v   TEXT NOT NULL,
+            arr JSON NOT NULL,
             PRIMARY KEY (v)
         );
         """
