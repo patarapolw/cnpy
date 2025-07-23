@@ -265,6 +265,11 @@ def ai_ask(v: str, meaning: str | None = "") -> str | None:
                 obj["cloze"] = cloze
             else:
                 cloze = obj["cloze"]
+                for r in cloze:
+                    q: str = r["question"]
+                    if "_" not in q:
+                        r["question"] = q.replace(v, "__")
+
                 print(f"{v}: saving AI cloze")
                 db.execute(
                     "INSERT OR REPLACE INTO ai_cloze (v, arr) VALUES (?, ?)",
