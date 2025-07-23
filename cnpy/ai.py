@@ -25,6 +25,7 @@ def get_can_online():
 
 Q_TRANSLATION_SYSTEM = """
 You are a monolingual Chinese dictionary with Pinyin and Bopomofo reading / encyclopedia / colloquial language reference.
+Avoid giving reading or meaning in examples, only giving for the headword.
 In case of multiple readings, list results separately by readings.
 """
 Q_TRANSLATION = '"{v}"是什么？'
@@ -214,6 +215,7 @@ def ai_ask(v: str, meaning: str | None = "") -> str | None:
         for r in db.execute("SELECT arr FROM ai_cloze WHERE v = ? LIMIT 1", (v,)):
             q_user = Q_MEANING.format(v=v, m=meaning)
             cloze = json.loads(r["arr"])
+            print(f"{v}: reusing AI cloze")
 
     start = time.time()
 
