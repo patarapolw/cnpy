@@ -32,11 +32,11 @@ while batch:
     shuffle(batch)
     to_del = set()
 
-    for r in batch:
+    for i, r in enumerate(batch):
         v1 = input(r["q"]["question"] + " ")
         if v1 == r["v"]:
             print("Correct")
-            to_del.add(r["v"])
+            del batch[i]
         elif v1 in r["q"]["alt"]:
             print(f"Not really: {r['v']}")
         else:
@@ -52,5 +52,3 @@ while batch:
                 (r["v"],),
             ):
                 pp(dict(d))
-
-    batch = [r for r in batch if r["v"] not in to_del]

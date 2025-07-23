@@ -5,6 +5,7 @@ import pprint
 
 from openai import OpenAI
 from ollama import Client
+from regex import Regex
 
 from cnpy.db import db
 from cnpy.env import env
@@ -264,17 +265,25 @@ def ai_ask(v: str, meaning: str | None = "") -> str | None:
             if cloze:
                 obj["cloze"] = cloze
             else:
+                is_no_chinese = False
+                re_han = Regex(r"\p{Han}")
+
                 cloze = obj["cloze"]
                 for r in cloze:
                     q: str = r["question"]
+                    if not re_han.match(q):
+                        is_no_chinese = True
+                        break
+
                     if "_" not in q:
                         r["question"] = q.replace(v, "__")
 
-                print(f"{v}: saving AI cloze")
-                db.execute(
-                    "INSERT OR REPLACE INTO ai_cloze (v, arr) VALUES (?, ?)",
-                    (v, json.dumps(cloze, ensure_ascii=False)),
-                )
+                if not is_no_chinese:
+                    print(f"{v}: saving AI cloze")
+                    db.execute(
+                        "INSERT OR REPLACE INTO ai_cloze (v, arr) VALUES (?, ?)",
+                        (v, json.dumps(cloze, ensure_ascii=False)),
+                    )
 
             t = json.dumps(obj, ensure_ascii=False)
 
