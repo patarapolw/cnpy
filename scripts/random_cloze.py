@@ -3,8 +3,9 @@ from pathlib import Path
 import json
 from pprint import pp
 from random import shuffle
+import sys
 
-COUNT = 3
+COUNT = int(sys.argv[1]) if len(sys.argv) > 1 else 5
 
 
 db = sqlite3.connect(
@@ -32,7 +33,7 @@ while batch:
     to_del = set()
 
     for r in batch:
-        v1 = input(r["q"]["question"])
+        v1 = input(r["q"]["question"] + " ")
         if v1 == r["v"]:
             print("Correct")
             to_del.add(r["v"])
