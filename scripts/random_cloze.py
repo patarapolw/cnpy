@@ -22,11 +22,14 @@ batch = [
             json_each.value q,
             v
         FROM ai_cloze, json_each(arr)
-        ORDER BY RANDOM()
-        LIMIT {COUNT};
+        ORDER BY ROWID DESC
+        LIMIT 1000;
         """
     )
 ]
+
+shuffle(batch)
+batch = batch[:COUNT]
 
 while batch:
     shuffle(batch)
