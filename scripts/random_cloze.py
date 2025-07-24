@@ -31,6 +31,9 @@ batch = [
 shuffle(batch)
 batch = batch[:COUNT]
 
+shuffle(batch)
+batch = batch[:COUNT]
+
 while batch:
     shuffle(batch)
     to_del = set()
