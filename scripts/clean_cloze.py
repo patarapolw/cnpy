@@ -6,10 +6,13 @@ from regex import Regex
 # Delete words that aren't in the IME
 # Or when one of the sentences seem too odd
 # New cloze can still be generated in any case
-TO_DELETE = {
+NOT_IN_IME = [
     "畏怯",
     "藉由",
-}
+]
+
+# Deleter container for broken entries
+BROKEN_ENTRIES = []
 
 db = sqlite3.connect("user/main.db")
 db.row_factory = sqlite3.Row
@@ -24,23 +27,27 @@ for row in db.execute(
     v = row["v"]
     arr: list[dict] = json.loads(row["arr"])
     is_no_bar = False
-    is_no_chinese = False
 
-    if v in TO_DELETE:
-        is_no_chinese = True
+    is_no = {}
+
+    if v in NOT_IN_IME:
+        is_no["IME"] = True
+
+    if v in BROKEN_ENTRIES:
+        is_no["proper entry"] = True
 
     for r in arr:
         q: str = r["question"]
         if not re_han.search(q):
-            is_no_chinese = True
+            is_no["Hanzi"] = True
             break
 
         if "_" not in q:
             is_no_bar = True
             r["question"] = q.replace(v, "__")
 
-    if is_no_chinese:
-        print(v, "no chinese")
+    if is_no:
+        print(v, f"no {",".join(is_no.keys())}")
         db.execute("DELETE FROM ai_cloze WHERE v = ?", (v,))
     elif is_no_bar:
         print(v, "no __")
