@@ -214,7 +214,7 @@ def ai_ask(v: str, meaning: str | None = "") -> str | None:
         name = f"{v} meaning"
 
         for r in db.execute("SELECT arr FROM ai_cloze WHERE v = ? LIMIT 1", (v,)):
-            q_user = Q_MEANING.format(v=v, m=meaning)
+            q_system = Q_MEANING
             cloze = json.loads(r["arr"])
             print(f"{v}: reusing AI cloze")
 

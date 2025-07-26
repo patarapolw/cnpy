@@ -8,6 +8,7 @@ from regex import Regex
 # New cloze can still be generated in any case
 TO_DELETE = {
     "畏怯",
+    "藉由",
 }
 
 db = sqlite3.connect("user/main.db")
