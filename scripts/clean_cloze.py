@@ -11,13 +11,19 @@ NOT_IN_IME = [
     "藉由",
 ]
 
+re_han = Regex(r"\p{Han}+")
+
 # Deleter container for broken entries
-BROKEN_ENTRIES = []
+BROKEN_ENTRIES = [
+    m.group(0)
+    for m in re_han.finditer(
+        """
+        """
+    )
+]
 
 db = sqlite3.connect("user/main.db")
 db.row_factory = sqlite3.Row
-
-re_han = Regex(r"\p{Han}")
 
 for row in db.execute(
     """
@@ -43,10 +49,16 @@ for row in db.execute(
             break
 
         if "_" not in q:
+            if v not in q:
+                is_no["v in question"] = True
+                break
+
             is_no_bar = True
             r["question"] = q.replace(v, "__")
 
     if is_no:
+        # dict() or {} with no key, is interpreted by Python as False.
+        # at least 1 key is interpreted as True.
         print(v, f"no {",".join(is_no.keys())}")
         db.execute("DELETE FROM ai_cloze WHERE v = ?", (v,))
     elif is_no_bar:
