@@ -1,15 +1,17 @@
 {
   "name": "cnpy",
-  "version": "2.2.0",
+  "version": "2.3.0-preview",
   "description": "Pinyin SRS that repeats until everything right",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "start": "pnpm run py app.py",
     "dev": "pnpm run py app.py --debug",
-    "prepare": "pnpm run py prepare_assets.py",
-    "prebuild": "pipenv clean",
+    "cloze:start": "pnpm run py scripts/random_cloze.py",
+    "cloze:clean": "pnpm run py scripts/clean_cloze.py",
     "build": "pnpm run py build.py %npm_package_version%",
+    "prebuild": "pipenv clean",
+    "prepare": "pnpm run py prepare_assets.py",
     "py": "pipenv run python"
   },
   "keywords": [],
