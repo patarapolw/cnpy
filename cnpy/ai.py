@@ -28,38 +28,36 @@ Q_TRANSLATION_SYSTEM = """
 You are a monolingual Chinese dictionary with Pinyin and Bopomofo reading / encyclopedia / colloquial language reference.
 Avoid giving reading or meaning in examples, only giving for the headword.
 In case of multiple readings, list results separately by readings.
-"""
+""".strip()
 Q_TRANSLATION = '"{v}"是什么？'
 
-Q_MEANING = """
+Q_MEANING_ROLE = """
 You are an AI language expert specializing in modern Mandarin Chinese linguistics.
 Your task is to evaluate whether a provided meaning accurately matches a given Chinese word.
+Also consider possibility that the provided meaning is a typo.
 
 * If the meaning is **clearly correct**, return `"correct": true`.
 * If the meaning is **clearly wrong**, return `"correct": false`.
 * If the meaning is **ambiguous, partially correct, or depends on context**, return `"correct": null`.
 
 Then, explain why the meaning is correct, incorrect, or partially accurate. Include nuances and common uses.
+""".strip()
+
+Q_MEANING = f"""
+{Q_MEANING_ROLE}
 
 Respond in this JSON format:
 
 ```json
-{
+{{
   "correct": true | false | null,
   "explanation": "..."
-}
+}}
 ```
-"""
+""".strip()
 
-Q_MEANING_WITH_CLOZE = """
-You are an AI language expert specializing in modern Mandarin Chinese linguistics.
-Your task is to evaluate whether a provided meaning accurately matches a given Chinese word.
-
-* If the meaning is **clearly correct**, return `"correct": true`.
-* If the meaning is **clearly wrong**, return `"correct": false`.
-* If the meaning is **ambiguous, partially correct, or depends on context**, return `"correct": null`.
-
-Then, explain why the meaning is correct, incorrect, or partially accurate. Include nuances and common uses.
+Q_MEANING_WITH_CLOZE = f"""
+{Q_MEANING_ROLE}
 
 Regardless of correctness, generate at least one cloze test sentence per distinct usage sense of the word:
 
@@ -70,7 +68,7 @@ Regardless of correctness, generate at least one cloze test sentence per distinc
 Respond in this JSON format:
 
 ```json
-{
+{{
   "correct": true | false | null,
   "explanation": "...",
   "cloze": [
@@ -80,9 +78,9 @@ Respond in this JSON format:
       "explanation": "..."
     }
   ]
-}
+}}
 ```
-"""
+""".strip()
 
 
 ollama_client: Client | None = None

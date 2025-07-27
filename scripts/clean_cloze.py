@@ -9,6 +9,7 @@ from regex import Regex
 NOT_IN_IME = [
     "畏怯",
     "藉由",
+    "流岚",
 ]
 
 re_han = Regex(r"\p{Han}+")
