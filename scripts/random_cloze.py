@@ -54,4 +54,6 @@ while batch:
                 """,
                 (r["v"],),
             ):
-                pp(dict(d))
+                d = dict(d)
+                d["english"] = json.loads(d["english"])
+                pp(d)
