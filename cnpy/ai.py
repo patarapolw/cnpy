@@ -59,7 +59,8 @@ Respond in this JSON format:
 Q_MEANING_WITH_CLOZE = f"""
 {Q_MEANING_ROLE}
 
-Regardless of correctness, generate at least one cloze test sentence per distinct usage sense of the word:
+Regardless of correctness, generate at least one cloze test sentence per distinct usage sense of the word.
+Make enough cloze test sentences to cover all distinct usage senses of the word.
 
 * The blank should be best filled by the Chinese headword.
 * Provide 2–3 plausible but incorrect alternatives for each.
@@ -211,10 +212,11 @@ def ai_ask(v: str, meaning: str | None = "") -> str | None:
         q_user = f'Is "{meaning}" a correct meaning for "{v}" in Chinese?'
         name = f"{v} meaning"
 
-        for r in db.execute("SELECT arr FROM ai_cloze WHERE v = ? LIMIT 1", (v,)):
-            q_system = Q_MEANING
-            cloze = json.loads(r["arr"])
-            print(f"{v}: reusing AI cloze")
+        if not env.get(f"{ENV_LOCAL_KEY_PREFIX}ALWAYS_NEW_CLOZE"):
+            for r in db.execute("SELECT arr FROM ai_cloze WHERE v = ? LIMIT 1", (v,)):
+                q_system = Q_MEANING
+                cloze = json.loads(r["arr"])
+                print(f"{v}: reusing AI cloze")
 
     start = time.time()
 

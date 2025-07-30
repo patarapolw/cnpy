@@ -34,6 +34,10 @@ if __name__ == "__main__":
     g.web_ready = lambda: win.load_url("/dashboard.html")
     g.win = win
 
-    webview.start(lambda: start(), debug=is_debug)
+    webview.start(
+        lambda: start(),
+        debug=is_debug,
+        private_mode=False,
+    )
 
     db.commit()
