@@ -60,7 +60,7 @@ Q_MEANING_WITH_CLOZE = f"""
 {Q_MEANING_ROLE}
 
 Regardless of correctness, generate at least one cloze test sentence per distinct usage sense of the word.
-Make enough cloze test sentences to cover all distinct usage senses of the word.
+Make enough cloze test sentences to cover all distinct usage senses of the word, as well as homographs bearing the same Hanzi.
 
 * The blank should be best filled by the Chinese headword.
 * Provide 2–3 plausible but incorrect alternatives for each.
