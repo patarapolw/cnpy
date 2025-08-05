@@ -25,3 +25,7 @@ footer {
   bottom: 1em;
   right: 1em;
 }
+
+#anki {
+  display: none;
+}
