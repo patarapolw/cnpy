@@ -221,6 +221,14 @@ details {
   display: block;
 }
 
+.meaning-cloze {
+  margin-bottom: 0.5em;
+}
+
+.meaning-cloze button {
+  display: none;
+}
+
 #meaning-explanation {
   margin-top: 0.5em;
 }

@@ -185,6 +185,7 @@ with server:
         reset: bool = obj.get("reset", False)
         result_only: bool = obj.get("result_only", False)
         meaning: str | None = obj.get("meaning", None)
+        cloze: str | None = obj.get("cloze", None)
 
         result = ""
         global meaning_quiz_response_dict
@@ -219,7 +220,7 @@ with server:
 
                 def run_async_in_thread(d: dict):
                     try:
-                        r = ai.ai_ask(v, meaning=meaning)
+                        r = ai.ai_ask(v, meaning=meaning, cloze=cloze)
                         d[v] = r
                         # valid json or not is checked in ai.py
                     except Exception as e:
@@ -692,10 +693,20 @@ with server:
                 if len(r) > 1 and r != v:
                     segments.append(r)
 
+        cloze = None
+        for r in db.execute("SELECT arr FROM ai_cloze WHERE v = ? LIMIT 1", (v,)):
+            arr = r["arr"]
+            try:
+                cloze = random.choice(json.loads(arr))["question"]
+            except Exception as e:
+                traceback.print_exc()
+                print(arr)
+
         return {
             "cedict": dict_entries,
             "sentences": sentences[:5],
             "segments": segments,
+            "cloze": cloze,
         }
 
     @bottle.post("/api/update_dict")

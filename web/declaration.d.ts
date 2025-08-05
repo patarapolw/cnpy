@@ -34,6 +34,7 @@ interface State {
     cedict: ICedict[];
     sentences: ISentence[];
     segments: string[];
+    cloze: string | null;
   };
 
   i: number;
