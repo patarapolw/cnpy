@@ -106,6 +106,7 @@ export const api = {
    *  cedict: ICedict[];
    *  sentences: ISentence[];
    *  segments: string[];
+   *  cloze: string | null;
    * }>}
    */
   async vocab_details(v) {
@@ -171,7 +172,12 @@ export const api = {
   /**
    *
    * @param {string} v
-   * @param {{ reset?: boolean; result_only?: boolean; meaning?: string }} opts
+   * @param {{
+   *  reset?: boolean;
+   *  result_only?: boolean;
+   *  meaning?: string;
+   *  cloze?: string;
+   * }} opts
    * @returns {Promise<{result: string}>}
    */
   async ai_translation(v, opts = {}) {

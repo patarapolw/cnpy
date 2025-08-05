@@ -128,7 +128,7 @@ a.internal-link:visited {
 
 .typing-checker[data-checked="maybe"] {
   caret-color: transparent;
-  background-color: palegoldenrod;
+  background-color: yellow;
 }
 
 .meaning-input-container {
@@ -219,6 +219,14 @@ details {
 
 [data-ai] #meaning-quiz:not([data-checked=""]):not([data-checked="wrong"]) {
   display: block;
+}
+
+.meaning-cloze {
+  margin-bottom: 0.5em;
+}
+
+.meaning-cloze button {
+  display: none;
 }
 
 #meaning-explanation {

@@ -186,7 +186,7 @@ def online_ai_ask(q_system: str, q_user: str) -> str | None:
     return result
 
 
-def ai_ask(v: str, meaning: str | None = "") -> str | None:
+def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> str | None:
     """
     Ask AI with a question type
 
@@ -205,18 +205,22 @@ def ai_ask(v: str, meaning: str | None = "") -> str | None:
     q_system = Q_TRANSLATION_SYSTEM
     q_user = Q_TRANSLATION.format(v=v)
     name = f"{v} translation"
-    cloze = []
+    cloze_results = []
 
     if meaning:
-        q_system = Q_MEANING_WITH_CLOZE
-        q_user = f'Is "{meaning}" a correct meaning for "{v}" in Chinese?'
         name = f"{v} meaning"
+        q_system = Q_MEANING_WITH_CLOZE
 
         if not env.get(f"{ENV_LOCAL_KEY_PREFIX}ALWAYS_NEW_CLOZE"):
             for r in db.execute("SELECT arr FROM ai_cloze WHERE v = ? LIMIT 1", (v,)):
                 q_system = Q_MEANING
-                cloze = json.loads(r["arr"])
+                cloze_results = json.loads(r["arr"])
                 print(f"{v}: reusing AI cloze")
+
+        q_user = f'Is "{meaning}" a correct meaning for "{v}" in Chinese?'
+        if cloze:
+            q_user = f'Is "{meaning}" a correct meaning for "{v}" in sentence "{cloze}" in Chinese?'
+            print(q_user)
 
     start = time.time()
 
@@ -262,14 +266,14 @@ def ai_ask(v: str, meaning: str | None = "") -> str | None:
             r = t[i_opening : i_closing + 1]
             obj = json.loads(r)
 
-            if cloze:
-                obj["cloze"] = cloze
+            if cloze_results:
+                obj["cloze"] = cloze_results
             else:
                 is_no_chinese = False
                 re_han = Regex(r"\p{Han}")
 
-                cloze = obj["cloze"]
-                for r in cloze:
+                cloze_results = obj["cloze"]
+                for r in cloze_results:
                     q: str = r["question"]
                     if not re_han.match(q):
                         is_no_chinese = True
@@ -282,7 +286,7 @@ def ai_ask(v: str, meaning: str | None = "") -> str | None:
                     print(f"{v}: saving AI cloze")
                     db.execute(
                         "INSERT OR REPLACE INTO ai_cloze (v, arr) VALUES (?, ?)",
-                        (v, json.dumps(cloze, ensure_ascii=False)),
+                        (v, json.dumps(cloze_results, ensure_ascii=False)),
                     )
 
             t = json.dumps(obj, ensure_ascii=False)

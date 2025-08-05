@@ -22,7 +22,7 @@ const state = {
   due: -1,
   new: 0,
   review_counter: 0,
-  vocabDetails: { cedict: [], sentences: [], segments: [] },
+  vocabDetails: { cedict: [], sentences: [], segments: [], cloze: null },
   pendingList: [],
   lastIsRight: null,
   lastIsFuzzy: false,
@@ -50,6 +50,14 @@ const elNotes = /** @type {HTMLDivElement} */ (
 const elNotesTextarea = /** @type {HTMLTextAreaElement} */ (
   elNotes.querySelector("textarea")
 );
+
+const elMeaningCloze = /** @type {HTMLDivElement} */ (
+  document.getElementById("meaning-cloze")
+);
+const elMeaningClozeSentence = elMeaningCloze.querySelector(
+  ".meaning-cloze-sentence"
+);
+
 const elMeaningQuiz = /** @type {HTMLDetailsElement} */ (
   document.getElementById("meaning-quiz")
 );
@@ -80,12 +88,14 @@ elMeaningInput.addEventListener("keypress", async (ev) => {
       const { v } = state.vocabList[state.i];
       const meaning = elMeaningInput.innerText.trim();
 
+      const { cloze } = state.vocabDetails;
+
       elMeaningInput.setAttribute(ATTR_DATA_CHECKED, "");
       elMeaningExplanation.textContent = "";
 
       if (meaning) {
         try {
-          let { result } = await api.ai_translation(v, { meaning });
+          let { result } = await api.ai_translation(v, { meaning, cloze });
 
           while (!result) {
             elMeaningExplanation.textContent += ".";
@@ -121,6 +131,8 @@ elMeaningInput.addEventListener("keypress", async (ev) => {
           elMeaningExplanation.textContent = "";
         }
       }
+      break;
+    default:
       elMeaningInput.oninput = null;
   }
 });
@@ -781,6 +793,11 @@ function doNext(ev) {
       }
     }
 
+    const { cloze } = state.vocabDetails;
+    if (cloze) {
+      elMeaningClozeSentence.textContent = cloze;
+    }
+
     elDictEntries.open = false;
     elSentences.open = state.vocabDetails.sentences.length > 0;
 
@@ -878,6 +895,8 @@ function softCleanup() {
   elCompare.innerText = "";
   elCompare.href = "";
   elCompare.onclick = () => false;
+
+  elMeaningClozeSentence.textContent = "";
 
   document.querySelectorAll(".if-checked-details").forEach((el) => el.remove());
 }
