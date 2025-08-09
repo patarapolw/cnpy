@@ -6,13 +6,15 @@ from regex import Regex
 # Delete words that aren't in the IME
 # Or when one of the sentences seem too odd
 # New cloze can still be generated in any case
-NOT_IN_IME = [
-    "畏怯",
-    "藉由",
-    "流岚",
-]
+NOT_IN_IME = []
 
 re_han = Regex(r"\p{Han}+")
+
+# a space followed by alphabets (having upper/lower cases) or "English" punctuations (!-~)
+# ending with an "English" period (not Chinese ones like 。)
+# e.g. ' "Émanuel".'
+# includes (brackets of sentence meaning.)
+re_en = Regex(r" [\p{L&}\p{M}!-~]+\.")
 
 # Deleter container for broken entries
 BROKEN_ENTRIES = [
@@ -36,6 +38,9 @@ for row in db.execute(
     is_no_bar = False
 
     is_no = {}
+    is_has = {}
+
+    questions = []
 
     if v in NOT_IN_IME:
         is_no["IME"] = True
@@ -45,8 +50,13 @@ for row in db.execute(
 
     for r in arr:
         q: str = r["question"]
+        questions.append(q)
         if not re_han.search(q):
             is_no["Hanzi"] = True
+            break
+
+        if re_en.search(q):
+            is_has["English"] = True
             break
 
         if "_" not in q:
@@ -57,10 +67,16 @@ for row in db.execute(
             is_no_bar = True
             r["question"] = q.replace(v, "__")
 
-    if is_no:
+    if is_no or is_has:
         # dict() or {} with no key, is interpreted by Python as False.
         # at least 1 key is interpreted as True.
-        print(v, f"no {",".join(is_no.keys())}")
+        if is_no:
+            print(v, f"no {",".join(is_no.keys())}")
+        if is_has:
+            print(v, f'has {",".join(is_has.keys())}')
+        for q in questions:
+            print(q)
+
         db.execute("DELETE FROM ai_cloze WHERE v = ?", (v,))
     elif is_no_bar:
         print(v, "no __")

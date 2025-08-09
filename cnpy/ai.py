@@ -269,20 +269,31 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> str |
             if cloze_results:
                 obj["cloze"] = cloze_results
             else:
-                is_no_chinese = False
+                is_english = False
                 re_han = Regex(r"\p{Han}")
+
+                # a space followed by alphabets (having upper/lower cases) or "English" punctuations (!-~)
+                # ending with an "English" period (not Chinese ones like 。)
+                # e.g. ' "Émanuel".'
+                # includes (brackets of sentence meaning.)
+                re_en = Regex(r" [\p{L&}\p{M}!-~]+\.")
 
                 cloze_results = obj["cloze"]
                 for r in cloze_results:
                     q: str = r["question"]
-                    if not re_han.match(q):
-                        is_no_chinese = True
+                    if not re_han.match(q) or re_en.match(q):
+                        is_english = True
+                        print(f"{v} (malformed q): {q}")
                         break
 
                     if "_" not in q:
-                        r["question"] = q.replace(v, "__")
+                        q = q.replace(v, "__")
+                        if "_" not in q:
+                            print(f"{v} (no cloze deletion): {q}")
+                            break
+                        r["question"] = q
 
-                if not is_no_chinese:
+                if not is_english:
                     print(f"{v}: saving AI cloze")
                     db.execute(
                         "INSERT OR REPLACE INTO ai_cloze (v, arr) VALUES (?, ?)",
@@ -292,7 +303,7 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> str |
             t = json.dumps(obj, ensure_ascii=False)
 
             obj["v"] = v
-            pprint.pprint(obj)
+            pprint.pp(obj, sort_dicts=False)
         except ValueError:
             traceback.print_exc()
             print(v, t)

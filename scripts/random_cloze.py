@@ -1,7 +1,7 @@
 import sqlite3
 from pathlib import Path
 import json
-from pprint import pp
+import pprint
 from random import shuffle
 import sys
 
@@ -56,4 +56,4 @@ while batch:
             ):
                 d = dict(d)
                 d["english"] = json.loads(d["english"])
-                pp(d)
+                pprint.pp(d, sort_dicts=False)
