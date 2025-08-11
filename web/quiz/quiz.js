@@ -76,17 +76,21 @@ elMeaningQuiz.ontoggle = () => {
 
 const ATTR_DATA_CHECKED = "data-checked";
 
+let isElMeaningInputEdited = true;
+
+elMeaningInput.addEventListener("input", (ev) => {
+  isElMeaningInputEdited = true;
+});
+
 elMeaningInput.addEventListener("keypress", async (ev) => {
   switch (ev.key) {
     case "Enter":
       ev.preventDefault();
-      elMeaningInput.oninput = (ev) => {
-        ev.preventDefault();
-        return false;
-      };
+
+      const meaning = elMeaningInput.innerText.trim();
+      if (!isElMeaningInputEdited || !meaning) return;
 
       const { v } = state.vocabList[state.i];
-      const meaning = elMeaningInput.innerText.trim();
 
       const { cloze } = state.vocabDetails;
 
@@ -131,9 +135,6 @@ elMeaningInput.addEventListener("keypress", async (ev) => {
           elMeaningExplanation.textContent = "";
         }
       }
-      break;
-    default:
-      elMeaningInput.oninput = null;
   }
 });
 

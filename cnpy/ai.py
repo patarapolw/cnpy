@@ -20,6 +20,10 @@ def get_can_local():
     return bool(get_local_model())
 
 
+def get_online_model():
+    return env.get("OPENAI_MODEL") or "deepseek-chat"
+
+
 def get_can_online():
     return bool(env.get("OPENAI_API_KEY") or "")
 
@@ -84,9 +88,6 @@ Respond in this JSON format:
 """.strip()
 
 
-ollama_client: Client | None = None
-
-
 def ollama_ai_ask(q_system: str, q_user: str) -> str | None:
     """
     Ask a question using Ollama.
@@ -107,12 +108,11 @@ def ollama_ai_ask(q_system: str, q_user: str) -> str | None:
     result = None
 
     try:
-        global ollama_client
-        if not ollama_client:
-            ollama_client = Client(
-                # Use environment variable CNPY_LOCAL_OLLAMA_HOST
-                host=env.get(f"{ENV_LOCAL_KEY_PREFIX}OLLAMA_HOST")
-            )
+        # todo: OpenAI compatibility (https://github.com/ollama/ollama/blob/main/docs/openai.md)
+        ollama_client = Client(
+            # Use environment variable CNPY_LOCAL_OLLAMA_HOST
+            host=env.get(f"{ENV_LOCAL_KEY_PREFIX}OLLAMA_HOST")
+        )
 
         response = ollama_client.chat(
             model=get_local_model(),
@@ -127,9 +127,6 @@ def ollama_ai_ask(q_system: str, q_user: str) -> str | None:
         print(f"Error in ollama_ai `{q_user}`: {e}")
 
     return result
-
-
-openai_client: OpenAI | None = None
 
 
 def online_ai_ask(q_system: str, q_user: str) -> str | None:
@@ -155,14 +152,21 @@ def online_ai_ask(q_system: str, q_user: str) -> str | None:
     result = None
 
     try:
-        global openai_client
-        if not openai_client:
-            openai_client = OpenAI(
-                base_url=env.get("OPENAI_BASE_URL") or "https://api.deepseek.com",
-                # api_key=None,  # Use environment variable OPENAI_API_KEY
-            )
+        model = get_online_model()
+        base_url = env.get("OPENAI_BASE_URL")
 
-        model = env.get("OPENAI_MODEL") or "deepseek-chat"
+        if not base_url:
+            base_url = "https://api.openai.com/v1"
+            if model.startswith("deepseek-"):
+                base_url = "https://api.deepseek.com"
+            elif model.startswith("gemini-"):
+                base_url = "https://generativelanguage.googleapis.com/v1beta/openai/"
+
+        openai_client = OpenAI(
+            base_url=base_url,
+            api_key=env.get("OPENAI_API_KEY"),
+        )
+
         temperature = env.get("OPENAI_TEMPERATURE")
         if not temperature and model == "deepseek-chat":
             temperature = "1.3"
