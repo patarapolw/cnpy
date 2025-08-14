@@ -224,7 +224,6 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> str |
         q_user = f'Is "{meaning}" a correct meaning for "{v}" in Chinese?'
         if cloze:
             q_user = f'Is "{meaning}" a correct meaning for "{v}" in sentence "{cloze}" in Chinese?'
-            print(q_user)
 
     start = time.time()
 
@@ -304,6 +303,7 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> str |
                         (v, json.dumps(cloze_results, ensure_ascii=False)),
                     )
 
+            obj["q_user"] = q_user
             t = json.dumps(obj, ensure_ascii=False)
 
             obj["v"] = v
