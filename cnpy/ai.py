@@ -44,7 +44,7 @@ Also consider possibility that the provided meaning is a typo.
 * If the meaning is **clearly wrong**, return `"correct": false`.
 * If the meaning is **ambiguous, partially correct, or depends on context**, return `"correct": null`.
 
-Then, explain why the meaning is correct, incorrect, or partially accurate. Include nuances and common uses.
+Then, explain why the meaning is correct, incorrect, or partially accurate. Include the Pinyin of the given Chinese word in the given meaning context. Include nuances and common uses.
 """.strip()
 
 Q_MEANING = f"""
@@ -64,11 +64,13 @@ Q_MEANING_WITH_CLOZE = f"""
 {Q_MEANING_ROLE}
 
 Regardless of correctness, generate at least one cloze test sentence per distinct usage sense of the word.
-Make enough cloze test sentences to cover all distinct usage senses of the word, as well as homographs bearing the same Hanzi.
+Make **sufficient number of** cloze test sentences to cover **all** distinct usage senses of the word, as well as homographs bearing the same Hanzi.
 
 * The blank should be best filled by the Chinese headword.
+* The headword **must** be the same as the original Chinese word.
 * Provide 2–3 plausible but incorrect alternatives for each.
 * Explain why the headword is the most appropriate choice among the options.
+* Reading and meaning **must not be included** inside the cloze test sentences and Chinese words.
 
 Respond in this JSON format:
 
@@ -79,6 +81,7 @@ Respond in this JSON format:
   "cloze": [
     {{
       "question": "...",
+      "headword": "...",
       "alt": ["...", "...", "..."],
       "explanation": "..."
     }}
@@ -284,6 +287,11 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> str |
                 cloze_results = obj["cloze"]
                 for r in cloze_results:
                     q: str = r["question"]
+                    headword: str = r["headword"]
+
+                    if headword != v:
+                        print(f"{v} (q for {headword}): {q}")
+
                     if not re_han.match(q) or re_en.match(q):
                         is_english = True
                         print(f"{v} (malformed q): {q}")

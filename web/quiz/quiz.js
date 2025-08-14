@@ -86,9 +86,11 @@ elMeaningInput.addEventListener("keypress", async (ev) => {
   switch (ev.key) {
     case "Enter":
       ev.preventDefault();
+      elMeaningInput.blur();
 
       const meaning = elMeaningInput.innerText.trim();
       if (!isElMeaningInputEdited || !meaning) return;
+      isElMeaningInputEdited = false;
 
       const { v } = state.vocabList[state.i];
 
