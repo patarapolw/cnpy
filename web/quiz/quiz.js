@@ -162,7 +162,7 @@ elMeaningInput.addEventListener("keypress", async (ev) => {
             // @ts-ignore
             const { toastElement } = Toastify({
               node,
-              duration: 5000,
+              duration: (correct ? 5 : 20) * 1000,
               close: true,
               gravity: "bottom",
               position: "right",
@@ -170,10 +170,10 @@ elMeaningInput.addEventListener("keypress", async (ev) => {
                 fontFamily: "sans-serif",
                 // color: "black",
                 background: correct
-                  ? "green"
+                  ? "#2A8B2F"
                   : correct === null
-                  ? "#ff7b00"
-                  : "red",
+                  ? "#BF6800"
+                  : "#D91E18",
               },
             }).showToast();
             toastElement.lang = "zh-CN";
