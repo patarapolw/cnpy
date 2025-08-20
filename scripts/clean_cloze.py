@@ -50,9 +50,15 @@ for row in db.execute(
 
     for r in arr:
         q: str = r["question"]
+        alt: list[str] = r["alt"]
+
         questions.append(q)
         if not re_han.search(q):
             is_no["Hanzi"] = True
+            break
+
+        if v in alt:
+            is_has[f"{v} in {alt}"] = True
             break
 
         if re_en.search(q):

@@ -68,7 +68,7 @@ Make **sufficient number of** cloze test sentences to cover **all** distinct usa
 
 * The blank should be best filled by the Chinese headword.
 * The headword **must** be the same as the original Chinese word.
-* Provide 2–3 plausible but incorrect alternatives for each.
+* Provide 2–3 plausible but incorrect alternatives for each. Alternatives are different from each other and from the headword.
 * Explain why the headword is the most appropriate choice among the options.
 * Reading and meaning **must not be included** inside the cloze test sentences and Chinese words.
 
@@ -275,7 +275,7 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> str |
             if cloze_results:
                 obj["cloze"] = cloze_results
             else:
-                is_english = False
+                errors: set[str] = set()
                 re_han = Regex(r"\p{Han}")
 
                 # a space followed by alphabets (having upper/lower cases) or "English" punctuations (!-~)
@@ -288,23 +288,36 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> str |
                 for r in cloze_results:
                     q: str = r["question"]
                     headword: str = r["headword"]
+                    alt: list[str] = r["alt"]
 
                     if headword != v:
-                        print(f"{v} (q for {headword}): {q}")
+                        e = f"q for {headword}"
+                        errors.add(e)
+                        print(f"{v} ({e}): {q}")
+                        break
+
+                    if v in alt:
+                        e = f"{v} in {alt}"
+                        errors.add(e)
+                        print(f"{v} ({e}): {q}")
+                        break
 
                     if not re_han.match(q) or re_en.match(q):
-                        is_english = True
-                        print(f"{v} (malformed q): {q}")
+                        e = f"malformed q"
+                        errors.add(e)
+                        print(f"{v} ({e}): {q}")
                         break
 
                     if "_" not in q:
                         q = q.replace(v, "__")
                         if "_" not in q:
-                            print(f"{v} (no cloze deletion): {q}")
+                            e = f"no cloze deletion"
+                            errors.add(e)
+                            print(f"{v} ({e}): {q}")
                             break
                         r["question"] = q
 
-                if not is_english:
+                if not errors:
                     print(f"{v}: saving AI cloze")
                     db.execute(
                         "INSERT OR REPLACE INTO ai_cloze (v, arr) VALUES (?, ?)",
