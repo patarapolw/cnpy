@@ -5,6 +5,7 @@ import webview
 
 from cnpy.db import db
 from cnpy.api import server, g, start
+from cnpy.sync import upload_sync
 
 
 if __name__ == "__main__":
@@ -41,3 +42,4 @@ if __name__ == "__main__":
     )
 
     db.commit()
+    upload_sync()

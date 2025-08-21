@@ -1,6 +1,5 @@
 import sqlite3
 from pathlib import Path
-import atexit
 
 from cnpy.env import env
 from cnpy.db import db
@@ -89,9 +88,6 @@ def upload_sync():
 
     sync_db.commit()
     print(f"uploaded sync to {sync_db_path}")
-
-
-atexit.register(upload_sync)
 
 
 def restore_sync():

@@ -38,6 +38,8 @@ class ServerGlobal:
 
     latest_stats: Stats
 
+    online_api_processes: list[threading.Thread] = []
+
 
 def start():
     quiz.load_db()
@@ -84,6 +86,16 @@ def fn_save_settings():
             indent=2,
         )
     )
+
+
+def create_ai_ask_process(d: dict, v: str, meaning: str, cloze: str):
+    try:
+        r = ai.ai_ask(v, meaning=meaning, cloze=cloze)
+        d[v] = r
+        # valid json or not is checked in ai.py
+    except Exception as e:
+        traceback.print_exc()
+        print(f"AI translation error {v}")
 
 
 srs = fsrs.FSRS()
@@ -218,30 +230,24 @@ with server:
                 if meaning:
                     result = ""
 
-                def run_async_in_thread(d: dict):
-                    try:
-                        r = ai.ai_ask(v, meaning=meaning, cloze=cloze)
-                        d[v] = r
-                        # valid json or not is checked in ai.py
-                    except Exception as e:
-                        traceback.print_exc()
-                        print(f"AI translation error {v}")
-
-                thread = threading.Thread(
-                    target=run_async_in_thread,
+                process = threading.Thread(
+                    target=create_ai_ask_process,
                     daemon=(
-                        env.get(f"{ENV_LOCAL_KEY_PREFIX}WAIT_FOR_AI_RESULTS") or "1"
-                    )
-                    == "0",
+                        env.get(f"{ENV_LOCAL_KEY_PREFIX}WAIT_FOR_AI_RESULTS") != "1"
+                    ),
                     args=(
                         (
                             meaning_quiz_response_dict
                             if meaning
                             else ai_translation_response_dict
                         ),
+                        v,
+                        meaning,
+                        cloze,
                     ),
                 )
-                thread.start()
+                g.online_api_processes.append(process)
+                process.start()
         except Exception as e:
             print(f"AI translation error {v}: {e}")
 

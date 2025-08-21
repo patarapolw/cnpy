@@ -1,9 +1,11 @@
 import sys
+import os
 from threading import Thread
 import atexit
 
 from cnpy.db import db
 from cnpy.api import server, start, g
+from cnpy.sync import upload_sync
 
 
 if __name__ == "__main__":
@@ -13,7 +15,11 @@ if __name__ == "__main__":
         if arg == "--debug":
             is_debug = True
 
-    atexit.register(lambda: db.commit())
+    def on_close():
+        db.commit()
+        upload_sync()
+
+    atexit.register(on_close)
 
     t_server = Thread(
         target=lambda: server.run(port=5000, debug=True),
