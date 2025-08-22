@@ -183,7 +183,7 @@ def online_ai_ask(q_system: str, q_user: str) -> str | None:
             messages=[
                 (
                     {"role": "user", "content": q_system}
-                    if model_type == "google"
+                    if model.startswith("gemma-")
                     else {"role": "system", "content": q_system}
                 ),
                 {"role": "user", "content": q_user},
