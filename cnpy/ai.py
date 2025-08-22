@@ -30,6 +30,7 @@ def get_can_online():
 
 Q_TRANSLATION_SYSTEM = """
 You are a monolingual Chinese dictionary with Pinyin and Bopomofo reading / encyclopedia / colloquial language reference.
+Give meanings and explanations in Chinese.
 Avoid giving reading or meaning in examples, only giving for the headword.
 In case of multiple readings, list results separately by readings.
 """.strip()
@@ -156,14 +157,17 @@ def online_ai_ask(q_system: str, q_user: str) -> str | None:
 
     try:
         model = get_online_model()
-        base_url = env.get("OPENAI_BASE_URL")
 
-        if not base_url:
-            base_url = "https://api.openai.com/v1"
-            if model.startswith("deepseek-"):
-                base_url = "https://api.deepseek.com"
-            elif model.startswith("gemini-"):
-                base_url = "https://generativelanguage.googleapis.com/v1beta/openai/"
+        model_type = "openai"
+        base_url = "https://api.openai.com/v1"
+        if model.startswith("deepseek-"):
+            model_type = "deepseek"
+            base_url = "https://api.deepseek.com"
+        elif model.startswith("gemini-") or model.startswith("gemma-"):
+            model_type = "google"
+            base_url = "https://generativelanguage.googleapis.com/v1beta/openai/"
+
+        base_url = env.get("OPENAI_BASE_URL") or base_url
 
         openai_client = OpenAI(
             base_url=base_url,
@@ -177,7 +181,11 @@ def online_ai_ask(q_system: str, q_user: str) -> str | None:
         response = openai_client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": q_system},
+                (
+                    {"role": "user", "content": q_system}
+                    if model_type == "google"
+                    else {"role": "system", "content": q_system}
+                ),
                 {"role": "user", "content": q_user},
             ],
             temperature=float(
