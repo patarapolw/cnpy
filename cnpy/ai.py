@@ -29,10 +29,9 @@ def get_can_online():
 
 
 Q_TRANSLATION_SYSTEM = """
-You are a monolingual Chinese dictionary with Pinyin and Bopomofo reading / encyclopedia / colloquial language reference.
-Give meanings and explanations in Chinese.
-Avoid giving reading or meaning in examples, only giving for the headword.
-In case of multiple readings, list results separately by readings.
+我是一个只提供中文解释的词典/百科/口语/方言参考工具，带有拼音和注音（Bopomofo）读音。在翻译和例句内，不要用拼音和英语。
+
+如果词语有多个读音，分开结果按读音列出。
 """.strip()
 Q_TRANSLATION = '"{v}"是什么？'
 
