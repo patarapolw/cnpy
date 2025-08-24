@@ -235,6 +235,8 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> str |
         q_user = f'Is "{meaning}" a correct meaning for "{v}" in Chinese?'
         if cloze:
             q_user = f'Is "{meaning}" a correct meaning for "{v}" in sentence "{cloze}" in Chinese?'
+        else:
+            cloze_results = []
 
     start = time.time()
 

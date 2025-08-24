@@ -184,6 +184,14 @@ export const api = {
     return fetchAPI(`/api/ai_translation/${v}`, opts).then((r) => r.json());
   },
   /**
+   *
+   * @param {string} v
+   * @returns
+   */
+  async ai_cloze_delete(v) {
+    return fetchAPI(`/api/ai_cloze/delete/${v}`);
+  },
+  /**
    * @typedef {'OPENAI_API_KEY'
    * | 'OPENAI_BASE_URL'
    * | 'OPENAI_MODEL'

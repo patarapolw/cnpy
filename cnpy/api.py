@@ -254,6 +254,10 @@ with server:
         # print(f"{v} -> {result[:5]}...")
         return {"result": result}
 
+    @bottle.post("/api/ai_cloze/delete/<v>")
+    def ai_cloze_delete(v: str):
+        db.execute("DELETE FROM ai_cloze WHERE v = ?", (v,))
+
     @bottle.post("/api/search")
     def search():
         obj: Any = bottle.request.json

@@ -226,6 +226,11 @@ details {
 }
 
 .meaning-cloze button {
+  border-radius: 50%;
+  border: 1px solid gray;
+}
+
+.meaning-cloze-sentence:empty + * {
   display: none;
 }
 

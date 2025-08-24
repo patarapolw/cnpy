@@ -57,6 +57,9 @@ const elMeaningCloze = /** @type {HTMLDivElement} */ (
 const elMeaningClozeSentence = elMeaningCloze.querySelector(
   ".meaning-cloze-sentence"
 );
+const elMeaningClozeDeleteButton = /** @type {HTMLButtonElement} */ (
+  elMeaningCloze.querySelector(".meaning-cloze-delete")
+);
 
 const elMeaningQuiz = /** @type {HTMLDetailsElement} */ (
   document.getElementById("meaning-quiz")
@@ -77,6 +80,18 @@ elMeaningQuiz.ontoggle = () => {
 const ATTR_DATA_CHECKED = "data-checked";
 
 let isElMeaningInputEdited = true;
+
+elMeaningClozeDeleteButton.addEventListener("click", async (ev) => {
+  ev.preventDefault();
+  const { v } = state.vocabList[state.i] || {};
+  if (!v) return;
+
+  state.vocabDetails.cloze = null;
+
+  // Ensure deletion first before displaying (emptying) in the UI
+  await api.ai_cloze_delete(v);
+  elMeaningClozeSentence.textContent = "";
+});
 
 elMeaningInput.addEventListener("input", (ev) => {
   isElMeaningInputEdited = true;
@@ -145,7 +160,11 @@ elMeaningInput.addEventListener("keypress", async (ev) => {
           if (getIsCurrentVocab()) {
             elMeaningExplanation.textContent = explanation;
             elMeaningInput.setAttribute(ATTR_DATA_CHECKED, attrValue);
-          } else {
+
+            if (correct) return;
+          }
+
+          {
             const node = document.createElement("div");
             node.lang = "zh-CN";
 
@@ -955,10 +974,6 @@ function softCleanup() {
 
 async function newVocab() {
   elInput.innerText = "";
-  elInput.oninput = null;
-  elInput.focus();
-
-  elMeaningInput.oninput = null;
 
   softCleanup();
 
@@ -969,6 +984,10 @@ async function newVocab() {
     await newVocabList();
     return;
   }
+
+  const { v } = state.vocabList[state.i];
+  elVocab.innerText = v;
+  elVocab.onclick = null;
 
   ctxmenu.update(
     "#counter .center",
@@ -1025,11 +1044,12 @@ async function newVocab() {
     el.setAttribute(ATTR_DATA_CHECKED, "");
   });
 
-  const { v } = state.vocabList[state.i];
-
   state.vocabDetails = await api.vocab_details(v);
-  elVocab.innerText = v;
-  elVocab.onclick = null;
+
+  elInput.oninput = null;
+  elInput.focus();
+
+  elMeaningInput.oninput = null;
 
   document.querySelectorAll(".external-links a").forEach((a) => {
     if (!(a instanceof HTMLAnchorElement)) return;
