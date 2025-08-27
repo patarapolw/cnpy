@@ -38,6 +38,15 @@ def upload_sync():
             skip        INT,            -- boolean
             [data]      JSON
         );
+
+        CREATE TABLE IF NOT EXISTS ai_cloze (
+            v   TEXT NOT NULL,
+            arr JSON NOT NULL,
+            modified TEXT,
+            PRIMARY KEY (v)
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_ai_cloze_modified ON ai_cloze (modified);
         """
     )
 
@@ -82,6 +91,21 @@ def upload_sync():
             """
             INSERT INTO vlist
                 (v, created, skip, [data]) VALUES (:v,:created,:skip,:data)
+            """,
+            dict(r),
+        )
+
+    for r in db.execute("SELECT * FROM ai_cloze"):
+        sync_db.execute(
+            """
+            INSERT INTO ai_cloze (v, arr, modified) VALUES (:v, :arr, :modified)
+            ON CONFLICT (v) DO UPDATE SET
+                arr = :arr, modified = :modified
+            WHERE v = :v
+            AND (
+                modified IS NULL OR
+                :modified > modified
+            )
             """,
             dict(r),
         )

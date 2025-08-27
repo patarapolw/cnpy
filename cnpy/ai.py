@@ -329,7 +329,7 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> str |
                 if not errors:
                     print(f"{v}: saving AI cloze")
                     db.execute(
-                        "INSERT OR REPLACE INTO ai_cloze (v, arr) VALUES (?, ?)",
+                        "INSERT OR REPLACE INTO ai_cloze (v, arr, modified) VALUES (?, ?, datetime())",
                         (v, json.dumps(cloze_results, ensure_ascii=False)),
                     )
 
@@ -369,8 +369,21 @@ def load_db():
         CREATE TABLE IF NOT EXISTS ai_cloze (
             v   TEXT NOT NULL,
             arr JSON NOT NULL,
+            modified TEXT,
             PRIMARY KEY (v)
         );
+        """
+    )
+
+    if db.execute("PRAGMA user_version").fetchone()[0] < 2:
+        if not db.execute(
+            "SELECT 1 FROM pragma_table_info('ai_cloze') WHERE name = 'modified'"
+        ).fetchmany(1):
+            db.executescript("ALTER TABLE ai_cloze ADD COLUMN modified TEXT")
+
+    db.executescript(
+        """
+        CREATE INDEX IF NOT EXISTS idx_ai_cloze_modified ON ai_cloze (modified);
         """
     )
 
