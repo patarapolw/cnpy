@@ -864,11 +864,6 @@ function doNext(ev) {
       }
     }
 
-    const { cloze } = state.vocabDetails;
-    if (cloze) {
-      elMeaningClozeSentence.textContent = cloze;
-    }
-
     elDictEntries.open = false;
     elSentences.open = state.vocabDetails.sentences.length > 0;
 
@@ -908,7 +903,12 @@ function doNext(ev) {
       return false;
     };
 
-    elMeaningQuiz.open = false;
+    const { cloze } = state.vocabDetails;
+    if (cloze) {
+      elMeaningClozeSentence.textContent = cloze;
+    }
+
+    elMeaningQuiz.open = !!cloze;
 
     elMeaningInput.innerText = "";
     elMeaningInput.setAttribute(ATTR_DATA_CHECKED, "");
