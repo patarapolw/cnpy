@@ -54,8 +54,8 @@ const elNotesTextarea = /** @type {HTMLTextAreaElement} */ (
 const elMeaningCloze = /** @type {HTMLDivElement} */ (
   document.getElementById("meaning-cloze")
 );
-const elMeaningClozeSentence = elMeaningCloze.querySelector(
-  ".meaning-cloze-sentence"
+const elMeaningClozeSentence = /** @type {HTMLDivElement} */ (
+  elMeaningCloze.querySelector(".meaning-cloze-sentence")
 );
 const elMeaningClozeDeleteButton = /** @type {HTMLButtonElement} */ (
   elMeaningCloze.querySelector(".meaning-cloze-delete")
@@ -158,7 +158,7 @@ elMeaningInput.addEventListener("keypress", async (ev) => {
           // .replace(/\(.+?\)/g, "");
 
           if (getIsCurrentVocab()) {
-            elMeaningExplanation.textContent = explanation;
+            elMeaningExplanation.innerText = explanation;
             elMeaningInput.setAttribute(ATTR_DATA_CHECKED, attrValue);
 
             if (correct) return;
@@ -905,12 +905,12 @@ function doNext(ev) {
 
     const { cloze } = state.vocabDetails;
     if (cloze) {
-      elMeaningClozeSentence.textContent = cloze;
+      elMeaningClozeSentence.innerText = cloze;
     }
 
     elMeaningQuiz.open = !!cloze;
 
-    elMeaningInput.innerText = "";
+    elMeaningInput.textContent = "";
     elMeaningInput.setAttribute(ATTR_DATA_CHECKED, "");
     elMeaningExplanation.textContent = "";
   }
