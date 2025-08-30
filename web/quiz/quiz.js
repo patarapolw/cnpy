@@ -101,7 +101,7 @@ elMeaningInput.addEventListener("keypress", async (ev) => {
   switch (ev.key) {
     case "Enter":
       ev.preventDefault();
-      elMeaningInput.blur();
+      elInput.focus();
 
       const meaning = elMeaningInput.innerText.trim();
       if (!isElMeaningInputEdited || !meaning) return;
@@ -906,6 +906,7 @@ function doNext(ev) {
     const { cloze } = state.vocabDetails;
     if (cloze) {
       elMeaningClozeSentence.innerText = cloze;
+      if (state.lastIsRight) elMeaningInput.focus();
     }
 
     elMeaningQuiz.open = !!cloze;
