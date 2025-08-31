@@ -103,12 +103,33 @@ const saveRunners = [];
 
   function checkAPIkey() {
     fieldsetOpenAI.classList.toggle("hide-options", !inputOpenAIapiKey.value);
+
+    inputOpenAImodel.placeholder = "";
+    inputOpenAIserver.placeholder = "";
+
+    if (inputOpenAIapiKey.value.startsWith("sk-")) {
+      inputOpenAImodel.placeholder = "deepseek-chat";
+    }
+
+    const model = inputOpenAImodel.value || inputOpenAImodel.placeholder;
+
+    if (model.startsWith("deepseek-")) {
+      inputOpenAIserver.placeholder = "https://api.deepseek.com";
+    } else if (model.startsWith("gemini-") || model.startsWith("gemma-")) {
+      inputOpenAIserver.placeholder =
+        "https://generativelanguage.googleapis.com/v1beta/openai/";
+    } else if (model.startsWith("gpt-") || model.startsWith("chatgpt-")) {
+      inputOpenAIserver.placeholder = "https://api.openai.com/v1";
+    }
   }
 
   async function init() {
     inputOpenAIapiKey.value =
       (await api.get_env("OPENAI_API_KEY")) ?? inputOpenAIapiKey.value;
     inputOpenAIapiKey.addEventListener("input", () => {
+      checkAPIkey();
+    });
+    inputOpenAImodel.addEventListener("input", () => {
       checkAPIkey();
     });
 
