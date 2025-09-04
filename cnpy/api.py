@@ -53,6 +53,15 @@ def start():
     db.execute(f"PRAGMA user_version={db_version}")
     g.web_ready()
 
+    ### Run after restore sync
+
+    db.execute(
+        """
+        DELETE FROM revlog_meaning
+        WHERE unixepoch('now') - unixepoch(created) > 60*60*24
+        """
+    )
+
     db.execute(
         """
         DELETE FROM revlog

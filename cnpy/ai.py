@@ -281,6 +281,20 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> str |
             r = t[i_opening : i_closing + 1]
             obj = json.loads(r)
 
+            correct: bool | None = obj["correct"]
+            explanation: str = obj["explanation"]
+
+            db.execute(
+                "INSERT INTO revlog_meaning (v, correct, explanation, answer, cloze) VALUES (?,?,?,?,?)",
+                (
+                    v,
+                    5 if correct is None else int(correct),
+                    explanation,
+                    meaning,
+                    cloze or "",
+                ),
+            )
+
             if cloze_results:
                 obj["cloze"] = cloze_results
             else:
@@ -372,6 +386,20 @@ def load_db():
             modified TEXT,
             PRIMARY KEY (v)
         );
+
+        CREATE TABLE IF NOT EXISTS revlog_meaning (
+            v           TEXT NOT NULL,
+            created     TEXT NOT NULL DEFAULT (datetime()),
+            correct     INTEGER NOT NULL,
+            explanation TEXT NOT NULL,
+            answer      TEXT NOT NULL,
+            cloze       TEXT NOT NULL
+            -- PRIMARY KEY (ROWID)
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_revlog_meaning_v       ON revlog_meaning (v);
+        CREATE INDEX IF NOT EXISTS idx_revlog_meaning_created ON revlog_meaning (created);
+        CREATE INDEX IF NOT EXISTS idx_revlog_meaning_correct ON revlog_meaning (correct);
         """
     )
 
