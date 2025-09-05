@@ -58,14 +58,14 @@ def start():
     db.execute(
         """
         DELETE FROM revlog_meaning
-        WHERE unixepoch('now') - unixepoch(created) > 60*60*24
+        WHERE unixepoch('now') - unixepoch(created) > 60*60*24 *30 -- 30 days
         """
     )
 
     db.execute(
         """
         DELETE FROM revlog
-        WHERE unixepoch('now') - unixepoch(created) > 60*60*24
+        WHERE unixepoch('now') - unixepoch(created) > 60*60*24 *30 -- 30 days
         """
     )
 
