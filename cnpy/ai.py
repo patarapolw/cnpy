@@ -325,7 +325,7 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> str |
                         print(f"{v} ({e}): {q}")
                         break
 
-                    if not re_han.match(q) or re_en.match(q):
+                    if not re_han.search(q) or re_en.search(q):
                         e = f"malformed q"
                         errors.add(e)
                         print(f"{v} ({e}): {q}")
