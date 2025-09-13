@@ -7,11 +7,11 @@
   "scripts": {
     "start": "pnpm run py app.py",
     "dev": "pnpm run py app.py --debug",
-    "cloze:start": "pnpm run py scripts/random_cloze.py",
-    "cloze:clean": "pnpm run py scripts/clean_cloze.py",
     "build": "pnpm run py build.py %npm_package_version%",
     "prebuild": "pipenv clean",
     "prepare": "pnpm run py prepare_assets.py",
+    "cloze:start": "pnpm run py scripts/random_cloze.py",
+    "cloze:clean": "pnpm run py scripts/clean_cloze.py",
     "py": "pipenv run python"
   },
   "keywords": [],
