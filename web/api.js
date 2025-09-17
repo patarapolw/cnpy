@@ -106,6 +106,7 @@ export const api = {
    *  cedict: ICedict[];
    *  sentences: ISentence[];
    *  segments: string[];
+   *  cloze: string | null;
    * }>}
    */
   async vocab_details(v) {
@@ -171,11 +172,24 @@ export const api = {
   /**
    *
    * @param {string} v
-   * @param {{ reset?: boolean; result_only?: boolean; meaning?: string }} opts
+   * @param {{
+   *  reset?: boolean;
+   *  result_only?: boolean;
+   *  meaning?: string;
+   *  cloze?: string;
+   * }} opts
    * @returns {Promise<{result: string}>}
    */
   async ai_translation(v, opts = {}) {
     return fetchAPI(`/api/ai_translation/${v}`, opts).then((r) => r.json());
+  },
+  /**
+   *
+   * @param {string} v
+   * @returns
+   */
+  async ai_cloze_delete(v) {
+    return fetchAPI(`/api/ai_cloze/delete/${v}`);
   },
   /**
    * @typedef {'OPENAI_API_KEY'
@@ -187,6 +201,8 @@ export const api = {
    * | 'CNPY_LOCAL_WAIT_FOR_AI_RESULTS'
    * | 'CNPY_LOCAL_TTS_VOICE'
    * | 'CNPY_LOCAL_SYNC_DATABASE'
+   * | 'IS_ANKI_CONNECT'
+   * | 'ANKI_CONNECT_URL'
    * } EnvKey
    *
    * @param {EnvKey} k
@@ -216,6 +232,19 @@ export const api = {
   },
   async sync_restore() {
     return fetchAPI("/api/sync/restore");
+  },
+  /**
+   * Forward API request to AnkiConnect
+   * @see https://git.sr.ht/~foosoft/anki-connect/
+   *
+   * @param {string} action
+   * @param {Record<string, any>} [params]
+   * @returns {Promise<{ result: any | null; error: string | null }>}
+   */
+  async anki(action, params) {
+    return fetchAPI("/api/anki", { action, params, version: 6 }).then((r) =>
+      r.json()
+    );
   },
 };
 

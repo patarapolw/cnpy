@@ -1,6 +1,6 @@
 ---
-title: '[App] Hanzi typing SRS with 60 levels and a different studying method'
-url: https://community.wanikani.com/t/app-hanzi-typing-srs-with-60-levels-and-a-different-studying-method/69163
+title: '[App] Chinese typing SRS with 60 levels and built-in dictionary and Hanzi breakdown'
+url: https://community.wanikani.com/t/x/69163
 ---
 
 Also, in search for SRS that works, and so I have deviated from the ways of Anki. I think it can be made to include Japanese, but it's unlikely for me to go that far.
@@ -9,13 +9,16 @@ Also, in search for SRS that works, and so I have deviated from the ways of Anki
 
 ### Features and principles
 
-- Reading only
+- Reading SRS only. (Optional meaning quiz with LLM API key, non-SRS.)
 - Multiple answer input (`;` separated), with options to require multiple important readings
 - No real synonyms. Warning shake at best. All answers must exist in the dictionary.
 - Typing and auto mark as right/wrong. No changing from wrong-to-right or vice versa.
-- Undo (via keyboard shortcut) is sent to the end of review, rather than immediate retyping. Middle button "not sure" is there for half-wrong (Esc shortcut).
-- Wrap up every 20 items, but can be done earlier. (F1, and I sometimes wrap-up at 10 items. No need for otherwise decision paralysis.)
+- Mark as repeat with <kbd>Esc</kbd> (midway between right and wrong).
+- Undo (via <kbd>Ctrl</kbd> + <kbd>Z</kbd>) is sent to the end of review, rather than immediate retyping.
+- Skip current vocab with <kbd>F1</kbd> if you don't want to do similar vocabs immediately. It will come back in the next batch anyway.
+- Wrap up every 20 items, but can be done earlier. (<kbd>F4</kbd>, and I sometimes wrap-up at 10 items. No need for otherwise decision paralysis.)
 - Restudy (drill) wrong items after wrap up.
+- New vocab (10) after some reviews (40), but before backlog is cleared. New vocab can be turned off in Settings.
 - Search for inclusive vocabularies, and put studied items first. (Personal preference for hiding reading only if due in 1 hour. Tomorrow or later reviews don't worth hiding reading.)
 - Hanzi [break-down](https://github.com/cjkvi/cjkvi-ids) and build-up. Also put studied items first.
 - Vocab and Hanzi searching can include reading alongside to narrow the search
@@ -25,7 +28,7 @@ Also, in search for SRS that works, and so I have deviated from the ways of Anki
 - You can start from a mid level. It's just a vocabulary list. Go down level if you feel like it.
 - Counting of "known" Hanzi
 - Custom vocab list, and custom skip list
-- Online text parser
+- Text parser
 
 ![Hanzi list up|686x500](upload://vVtoeHruN92GJE5yOmml2uWhWOX.png)
 
@@ -59,8 +62,8 @@ Also with history,
 
 ![text analyzer|690x411](upload://zZiO56hzo9rykdxf1CoARjBAwJl.jpeg)
 
-Currently, it's a [desktop app](https://github.com/patarapolw/cnpy/releases), and it's kinda unlikely that I would make it into a website or include Japanese (as it doesn't have much benefit to myself). Anyway, [contributions](https://github.com/patarapolw/cnpy) welcome.
+Currently, it's a desktop app, and it's kinda unlikely that I would make it into a website or include Japanese (as it doesn't have much benefit to myself). Anyway, [contributions](https://github.com/patarapolw/cnpy) welcome.
 
-Download the zip file, unzip, and open the exe file.
+[Download](https://github.com/patarapolw/cnpy/releases) the zip file, unzip, and open the exe file.
 
 Also, Happy Chinese New Year :tada: :dragon_face:

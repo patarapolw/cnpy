@@ -3,6 +3,7 @@ from regex import Regex
 import jieba
 import bottle
 import webview
+import requests
 
 import json
 import datetime
@@ -37,6 +38,8 @@ class ServerGlobal:
 
     latest_stats: Stats
 
+    online_api_processes: list[threading.Thread] = []
+
 
 def start():
     quiz.load_db()
@@ -50,10 +53,19 @@ def start():
     db.execute(f"PRAGMA user_version={db_version}")
     g.web_ready()
 
+    ### Run after restore sync
+
+    db.execute(
+        """
+        DELETE FROM revlog_meaning
+        WHERE unixepoch('now') - unixepoch(created) > 60*60*24 *30 -- 30 days
+        """
+    )
+
     db.execute(
         """
         DELETE FROM revlog
-        WHERE unixepoch('now') - unixepoch(created) > 60*60*24
+        WHERE unixepoch('now') - unixepoch(created) > 60*60*24 *30 -- 30 days
         """
     )
 
@@ -83,6 +95,16 @@ def fn_save_settings():
             indent=2,
         )
     )
+
+
+def create_ai_ask_process(d: dict, v: str, meaning: str, cloze: str):
+    try:
+        r = ai.ai_ask(v, meaning=meaning, cloze=cloze)
+        d[v] = r
+        # valid json or not is checked in ai.py
+    except Exception as e:
+        traceback.print_exc()
+        print(f"AI translation error {v}")
 
 
 srs = fsrs.FSRS()
@@ -123,6 +145,13 @@ with server:
     @bottle.post("/api/get_settings")
     def get_settings():
         return g.settings
+
+    @bottle.post("/api/anki")
+    def anki_connect():
+        return requests.post(
+            env.get("ANKI_CONNECT_URL") or "http://localhost:8765",
+            json=bottle.request.json,
+        ).json()
 
     @bottle.post("/api/sync/setup")
     def set_sync_db():
@@ -177,6 +206,7 @@ with server:
         reset: bool = obj.get("reset", False)
         result_only: bool = obj.get("result_only", False)
         meaning: str | None = obj.get("meaning", None)
+        cloze: str | None = obj.get("cloze", None)
 
         result = ""
         global meaning_quiz_response_dict
@@ -209,40 +239,33 @@ with server:
                 if meaning:
                     result = ""
 
-                def run_async_in_thread(d: dict):
-                    try:
-                        r = ai.ai_ask(v, meaning=meaning)
-                        d[v] = r
-                        if r and meaning:
-                            try:
-                                print(v, json.loads(r[r.index("{") : r.index("}") + 1]))
-                            except ValueError:
-                                traceback.print_exc()
-                                print(v, r)
-                    except Exception as e:
-                        traceback.print_exc()
-                        print(f"AI translation error {v}")
-
-                thread = threading.Thread(
-                    target=run_async_in_thread,
+                process = threading.Thread(
+                    target=create_ai_ask_process,
                     daemon=(
-                        env.get(f"{ENV_LOCAL_KEY_PREFIX}WAIT_FOR_AI_RESULTS") or "1"
-                    )
-                    == "0",
+                        env.get(f"{ENV_LOCAL_KEY_PREFIX}WAIT_FOR_AI_RESULTS") != "1"
+                    ),
                     args=(
                         (
                             meaning_quiz_response_dict
                             if meaning
                             else ai_translation_response_dict
                         ),
+                        v,
+                        meaning,
+                        cloze,
                     ),
                 )
-                thread.start()
+                g.online_api_processes.append(process)
+                process.start()
         except Exception as e:
             print(f"AI translation error {v}: {e}")
 
         # print(f"{v} -> {result[:5]}...")
         return {"result": result}
+
+    @bottle.post("/api/ai_cloze/delete/<v>")
+    def ai_cloze_delete(v: str):
+        db.execute("DELETE FROM ai_cloze WHERE v = ?", (v,))
 
     @bottle.post("/api/search")
     def search():
@@ -689,10 +712,20 @@ with server:
                 if len(r) > 1 and r != v:
                     segments.append(r)
 
+        cloze = None
+        for r in db.execute("SELECT arr FROM ai_cloze WHERE v = ? LIMIT 1", (v,)):
+            arr = r["arr"]
+            try:
+                cloze = random.choice(json.loads(arr))["question"]
+            except Exception as e:
+                traceback.print_exc()
+                print(v, arr)
+
         return {
             "cedict": dict_entries,
             "sentences": sentences[:5],
             "segments": segments,
+            "cloze": cloze,
         }
 
     @bottle.post("/api/update_dict")

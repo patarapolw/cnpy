@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chinese Quiz</title>
 
+    <link rel="stylesheet" href="./_lib/toastify.min.css" />
     <link rel="stylesheet" href="./quiz/quiz.css" />
   </head>
 
@@ -64,6 +65,12 @@
 
       <details id="meaning-quiz" class="if-checked" data-checked="">
         <summary>...</summary>
+        <div id="meaning-cloze" class="meaning-cloze">
+          <span class="meaning-cloze-sentence" lang="zh-CN"></span>
+          <span>
+            <button type="button" class="meaning-cloze-delete">🗶</button>
+          </span>
+        </div>
         <div class="meaning-input-container">
           <div
             contenteditable=""
@@ -237,6 +244,7 @@
 
     <script src="./_lib/showdown.min.js"></script>
     <script src="./_lib/ctxmenu.min.js"></script>
+    <script src="./_lib/toastify.min.js"></script>
     <script type="module" src="./quiz/quiz.js"></script>
   </body>
 </html>

@@ -103,13 +103,33 @@ const saveRunners = [];
 
   function checkAPIkey() {
     fieldsetOpenAI.classList.toggle("hide-options", !inputOpenAIapiKey.value);
-    console.log(fieldsetOpenAI.className);
+
+    inputOpenAImodel.placeholder = "";
+    inputOpenAIserver.placeholder = "";
+
+    if (inputOpenAIapiKey.value.startsWith("sk-")) {
+      inputOpenAImodel.placeholder = "deepseek-chat";
+    }
+
+    const model = inputOpenAImodel.value || inputOpenAImodel.placeholder;
+
+    if (model.startsWith("deepseek-")) {
+      inputOpenAIserver.placeholder = "https://api.deepseek.com";
+    } else if (model.startsWith("gemini-") || model.startsWith("gemma-")) {
+      inputOpenAIserver.placeholder =
+        "https://generativelanguage.googleapis.com/v1beta/openai/";
+    } else if (model.startsWith("gpt-") || model.startsWith("chatgpt-")) {
+      inputOpenAIserver.placeholder = "https://api.openai.com/v1";
+    }
   }
 
   async function init() {
     inputOpenAIapiKey.value =
       (await api.get_env("OPENAI_API_KEY")) ?? inputOpenAIapiKey.value;
     inputOpenAIapiKey.addEventListener("input", () => {
+      checkAPIkey();
+    });
+    inputOpenAImodel.addEventListener("input", () => {
       checkAPIkey();
     });
 
@@ -242,6 +262,48 @@ const saveRunners = [];
     check();
   }
   init();
+}
+
+////////////////////
+
+{
+  /** @type {HTMLFieldSetElement} */
+  const fieldSetAnki = document.querySelector("fieldset#anki");
+
+  /** @type {HTMLInputElement} */
+  const checkboxIsAnkiConnect = fieldSetAnki.querySelector(
+    "input#is-anki-connect"
+  );
+
+  /** @type {HTMLInputElement} */
+  const inputAnkiConnectServer = fieldSetAnki.querySelector(
+    'input[name="anki-connect-server"]'
+  );
+
+  checkboxIsAnkiConnect.onchange = () => {
+    check();
+  };
+
+  function check() {
+    fieldSetAnki.classList.toggle(
+      "hide-options",
+      !checkboxIsAnkiConnect.checked
+    );
+  }
+
+  async function init() {
+    check();
+  }
+  init();
+
+  async function save() {
+    await api.set_env(
+      "IS_ANKI_CONNECT",
+      checkboxIsAnkiConnect.checked ? "1" : ""
+    );
+    await api.set_env("ANKI_CONNECT_URL", inputAnkiConnectServer.value);
+  }
+  saveRunners.push(save);
 }
 
 ////////////////////

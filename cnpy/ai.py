@@ -1,7 +1,11 @@
 import time
+import json
+import traceback
+import pprint
 
 from openai import OpenAI
 from ollama import Client
+from regex import Regex
 
 from cnpy.db import db
 from cnpy.env import env
@@ -16,30 +20,78 @@ def get_can_local():
     return bool(get_local_model())
 
 
+def get_online_model():
+    return env.get("OPENAI_MODEL") or "deepseek-chat"
+
+
 def get_can_online():
     return bool(env.get("OPENAI_API_KEY") or "")
 
 
-Q_TRANSLATION = '"{v}"是什么？有什么读法（注音在内），用法，关联词/句子？'
-Q_MEANING = """
-You are a Chinese translation checker.
-You will be given a vocabulary and a meaning in another language. Determine if the meaning matches.
-Misspellings are considered acceptable. If wrong, give a more proper translation.
+Q_TRANSLATION_SYSTEM = """
+你是一个中文参考工具，提供词语的词典释义、百科知识、口语及方言用法，并附带拼音和注音（注音符号）。
+若词语存在多音字，请按不同读音分别列出释义。
+所有翻译和例句中，禁止使用拼音或英文解释。
+""".strip()
+Q_TRANSLATION = '"{v}"是什么？'
 
-Answer in JSON:
+Q_MEANING_ROLE = """
+You are an AI language expert specializing in modern Mandarin Chinese linguistics.
+Your task is to evaluate whether a provided meaning accurately matches a given Chinese word.
+Also consider possibility that the provided meaning is a typo.
+
+* If the meaning is **clearly correct**, return `"correct": true`.
+* If the meaning is **clearly wrong**, return `"correct": false`.
+* If the meaning is **ambiguous, partially correct, or depends on context**, return `"correct": null`.
+
+Then, explain why the meaning is correct, incorrect, or partially accurate. Include the Pinyin of the given Chinese word in the given meaning context. Include nuances and common uses.
+""".strip()
+
+Q_MEANING = f"""
+{Q_MEANING_ROLE}
+
+Respond in this JSON format:
+
+```json
 {{
-  "correct": true, // false if wrong, null if it depends / not sure
-  "explanation": "" // give explanation in English why right or wrong, and also other possible meanings of the vocabulary
+  "correct": true | false | null,
+  "explanation": "..."
 }}
+```
+""".strip()
 
-Is "{m}" a correct meaning for "{v}" in Chinese?
+Q_MEANING_WITH_CLOZE = f"""
+{Q_MEANING_ROLE}
+
+Regardless of correctness, generate at least one cloze test sentence per distinct usage sense of the word.
+Make **sufficient number of** cloze test sentences to cover **all** distinct usage senses of the word, as well as homographs bearing the same Hanzi.
+
+* The blank should be best filled by the Chinese headword.
+* The headword **must** be the same as the original Chinese word.
+* Provide 2–3 plausible but incorrect alternatives for each. Alternatives are different from each other and from the headword.
+* Explain why the headword is the most appropriate choice among the options.
+* Reading and meaning **must not be included** inside the cloze test sentences and Chinese words.
+
+Respond in this JSON format:
+
+```json
+{{
+  "correct": true | false | null,
+  "explanation": "...",
+  "cloze": [
+    {{
+      "question": "...",
+      "headword": "...",
+      "alt": ["...", "...", "..."],
+      "explanation": "..."
+    }}
+  ]
+}}
+```
 """.strip()
 
 
-ollama_client: Client | None = None
-
-
-def ollama_ai_ask(s: str) -> str | None:
+def ollama_ai_ask(q_system: str, q_user: str) -> str | None:
     """
     Ask a question using Ollama.
 
@@ -50,7 +102,8 @@ def ollama_ai_ask(s: str) -> str | None:
         - https://ollama.com for installation instructions.
 
     Args:
-        s (str): The string to ask.
+        q_system (str): The string defining system role.
+        q_user (str): The string to ask.
 
     Returns:
         str | None: The answered string, or None if fails.
@@ -58,29 +111,28 @@ def ollama_ai_ask(s: str) -> str | None:
     result = None
 
     try:
-        global ollama_client
-        if not ollama_client:
-            ollama_client = Client(
-                # Use environment variable CNPY_LOCAL_OLLAMA_HOST
-                host=env.get(f"{ENV_LOCAL_KEY_PREFIX}OLLAMA_HOST")
-            )
+        # todo: OpenAI compatibility (https://github.com/ollama/ollama/blob/main/docs/openai.md)
+        ollama_client = Client(
+            # Use environment variable CNPY_LOCAL_OLLAMA_HOST
+            host=env.get(f"{ENV_LOCAL_KEY_PREFIX}OLLAMA_HOST")
+        )
 
         response = ollama_client.chat(
             model=get_local_model(),
-            messages=[{"role": "user", "content": s}],
+            messages=[
+                {"role": "system", "content": q_system},
+                {"role": "user", "content": q_user},
+            ],
         )
 
         result = response.message.content
     except Exception as e:
-        print(f"Error in ollama_ai `{s}`: {e}")
+        print(f"Error in ollama_ai `{q_user}`: {e}")
 
     return result
 
 
-openai_client: OpenAI | None = None
-
-
-def online_ai_ask(s: str) -> str | None:
+def online_ai_ask(q_system: str, q_user: str) -> str | None:
     """
     Ask a question using online AI.
 
@@ -94,7 +146,8 @@ def online_ai_ask(s: str) -> str | None:
           Set `OPENAI_BASE_URL` to `https://api.openai.com/v1` in the `.env` file and set `OPENAI_MODEL` as appropriate.
 
     Args:
-        v (str): The string to ask.
+        q_system (str): The string defining system role.
+        q_user (str): The string to ask.
 
     Returns:
         str | None: The answered string, or None if fails.
@@ -102,21 +155,38 @@ def online_ai_ask(s: str) -> str | None:
     result = None
 
     try:
-        global openai_client
-        if not openai_client:
-            openai_client = OpenAI(
-                base_url=env.get("OPENAI_BASE_URL") or "https://api.deepseek.com",
-                # api_key=None,  # Use environment variable OPENAI_API_KEY
-            )
+        model = get_online_model()
 
-        model = env.get("OPENAI_MODEL") or "deepseek-chat"
+        model_type = "openai"
+        base_url = "https://api.openai.com/v1"
+        if model.startswith("deepseek-"):
+            model_type = "deepseek"
+            base_url = "https://api.deepseek.com"
+        elif model.startswith("gemini-") or model.startswith("gemma-"):
+            model_type = "google"
+            base_url = "https://generativelanguage.googleapis.com/v1beta/openai/"
+
+        base_url = env.get("OPENAI_BASE_URL") or base_url
+
+        openai_client = OpenAI(
+            base_url=base_url,
+            api_key=env.get("OPENAI_API_KEY"),
+        )
+
         temperature = env.get("OPENAI_TEMPERATURE")
         if not temperature and model == "deepseek-chat":
             temperature = "1.3"
 
         response = openai_client.chat.completions.create(
             model=model,
-            messages=[{"role": "user", "content": s}],
+            messages=[
+                (
+                    {"role": "user", "content": q_system}
+                    if model.startswith("gemma-")
+                    else {"role": "system", "content": q_system}
+                ),
+                {"role": "user", "content": q_user},
+            ],
             temperature=float(
                 temperature or "1"
             ),  # Adjust temperature according to documentation
@@ -125,12 +195,12 @@ def online_ai_ask(s: str) -> str | None:
 
         result = response.choices[0].message.content
     except Exception as e:
-        print(f"Error in online_ai `{s}`: {e}")
+        print(f"Error in online_ai `{q_user}`: {e}")
 
     return result
 
 
-def ai_ask(v: str, meaning: str | None = "") -> str | None:
+def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> str | None:
     """
     Ask AI with a question type
 
@@ -146,11 +216,29 @@ def ai_ask(v: str, meaning: str | None = "") -> str | None:
         str | None: The answered string, or None if all methods fail.
     """
     t: str | None = None
-    prompt = Q_MEANING.format(v=v, m=meaning) if meaning else Q_TRANSLATION.format(v=v)
+    q_system = Q_TRANSLATION_SYSTEM
+    q_user = Q_TRANSLATION.format(v=v)
+    name = f"{v} translation"
+    cloze_results = []
+
+    if meaning:
+        name = f"{v} meaning"
+        q_system = Q_MEANING_WITH_CLOZE
+
+        if not env.get(f"{ENV_LOCAL_KEY_PREFIX}ALWAYS_NEW_CLOZE"):
+            for r in db.execute("SELECT arr FROM ai_cloze WHERE v = ? LIMIT 1", (v,)):
+                q_system = Q_MEANING
+                cloze_results = json.loads(r["arr"])
+                print(f"{v}: reusing AI cloze")
+
+        q_user = f'Is "{meaning}" a correct meaning for "{v}" in Chinese?'
+        if cloze:
+            q_user = f'Is "{meaning}" a correct meaning for "{v}" in sentence "{cloze}" in Chinese?'
+        else:
+            cloze_results = []
 
     start = time.time()
 
-    name = f"{v} meaning" if meaning else f"{v} translation"
     is_ai_run = False
 
     def do_local():
@@ -159,7 +247,7 @@ def ai_ask(v: str, meaning: str | None = "") -> str | None:
             is_ai_run = True
 
             print(f"{name}: using local AI")
-            return ollama_ai_ask(prompt)
+            return ollama_ai_ask(q_system, q_user)
 
     def do_online():
         if get_can_online():
@@ -167,7 +255,7 @@ def ai_ask(v: str, meaning: str | None = "") -> str | None:
             is_ai_run = True
 
             print(f"{name}: using online AI")
-            return online_ai_ask(prompt)
+            return online_ai_ask(q_system, q_user)
 
     if meaning:
         t = do_local() or do_online()
@@ -177,13 +265,102 @@ def ai_ask(v: str, meaning: str | None = "") -> str | None:
     if is_ai_run:
         print(f"{name}: AI response took {time.time() - start:.1f} seconds")
 
-    if t and not meaning:
+    if not t:
+        return None
+
+    if meaning:
+        try:
+            # Like find(), but raise ValueError when the substring is not found.
+            # @see https://docs.python.org/3/library/stdtypes.html#str.index
+            i_opening = t.index("{")
+
+            i_closing = t.rfind("}")
+            if i_closing == -1:
+                raise ValueError("Closing '}' not found in AI response")
+
+            r = t[i_opening : i_closing + 1]
+            obj = json.loads(r)
+
+            correct: bool | None = obj["correct"]
+            explanation: str = obj["explanation"]
+
+            db.execute(
+                "INSERT INTO revlog_meaning (v, correct, explanation, answer, cloze) VALUES (?,?,?,?,?)",
+                (
+                    v,
+                    5 if correct is None else int(correct),
+                    explanation,
+                    meaning,
+                    cloze or "",
+                ),
+            )
+
+            if cloze_results:
+                obj["cloze"] = cloze_results
+            else:
+                errors: set[str] = set()
+                re_han = Regex(r"\p{Han}")
+
+                # a space followed by alphabets (having upper/lower cases) or "English" punctuations (!-~)
+                # ending with an "English" period (not Chinese ones like 。)
+                # e.g. ' "Émanuel".'
+                # includes (brackets of sentence meaning.)
+                re_en = Regex(r" [\p{L&}\p{M}!-~]+\.")
+
+                cloze_results = obj["cloze"]
+                for r in cloze_results:
+                    q: str = r["question"]
+                    headword: str = r["headword"]
+                    alt: list[str] = r["alt"]
+
+                    if headword != v:
+                        e = f"q for {headword}"
+                        errors.add(e)
+                        print(f"{v} ({e}): {q}")
+                        break
+
+                    if v in alt:
+                        e = f"{v} in {alt}"
+                        errors.add(e)
+                        print(f"{v} ({e}): {q}")
+                        break
+
+                    if not re_han.search(q) or re_en.search(q):
+                        e = f"malformed q"
+                        errors.add(e)
+                        print(f"{v} ({e}): {q}")
+                        break
+
+                    if "_" not in q:
+                        q = q.replace(v, "__")
+                        if "_" not in q:
+                            e = f"no cloze deletion"
+                            errors.add(e)
+                            print(f"{v} ({e}): {q}")
+                            break
+                        r["question"] = q
+
+                if not errors:
+                    print(f"{v}: saving AI cloze")
+                    db.execute(
+                        "INSERT OR REPLACE INTO ai_cloze (v, arr, modified) VALUES (?, ?, datetime())",
+                        (v, json.dumps(cloze_results, ensure_ascii=False)),
+                    )
+
+            obj["q_user"] = q_user
+            t = json.dumps(obj, ensure_ascii=False)
+
+            obj["v"] = v
+            pprint.pp(obj, sort_dicts=False)
+        except ValueError:
+            traceback.print_exc()
+            print(v, t)
+    else:
         print(f"{v}: saving AI translation")
         db.execute("INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, t))
         db.commit()
 
-    # If both online and local fail, return None
-    return t or None
+    return t
 
 
 def load_db():
@@ -192,14 +369,49 @@ def load_db():
 
     This function creates the `ai_dict` table if it does not exist and removes
     placeholder entries from the table.
+
+    This function creates the `ai_cloze` table if it does not exist.
     """
-    db.execute(
+    db.executescript(
         """
         CREATE TABLE IF NOT EXISTS ai_dict (
             v TEXT NOT NULL,
             t TEXT NOT NULL,
             PRIMARY KEY (v)
         );
+
+        CREATE TABLE IF NOT EXISTS ai_cloze (
+            v   TEXT NOT NULL,
+            arr JSON NOT NULL,
+            modified TEXT,
+            PRIMARY KEY (v)
+        );
+
+        CREATE TABLE IF NOT EXISTS revlog_meaning (
+            v           TEXT NOT NULL,
+            created     TEXT NOT NULL DEFAULT (datetime()),
+            correct     INTEGER NOT NULL,
+            explanation TEXT NOT NULL,
+            answer      TEXT NOT NULL,
+            cloze       TEXT NOT NULL
+            -- PRIMARY KEY (ROWID)
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_revlog_meaning_v       ON revlog_meaning (v);
+        CREATE INDEX IF NOT EXISTS idx_revlog_meaning_created ON revlog_meaning (created);
+        CREATE INDEX IF NOT EXISTS idx_revlog_meaning_correct ON revlog_meaning (correct);
+        """
+    )
+
+    if db.execute("PRAGMA user_version").fetchone()[0] < 2:
+        if not db.execute(
+            "SELECT 1 FROM pragma_table_info('ai_cloze') WHERE name = 'modified'"
+        ).fetchmany(1):
+            db.executescript("ALTER TABLE ai_cloze ADD COLUMN modified TEXT")
+
+    db.executescript(
+        """
+        CREATE INDEX IF NOT EXISTS idx_ai_cloze_modified ON ai_cloze (modified);
         """
     )
 

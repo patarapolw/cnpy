@@ -5,6 +5,7 @@ import webview
 
 from cnpy.db import db
 from cnpy.api import server, g, start
+from cnpy.sync import upload_sync
 
 
 if __name__ == "__main__":
@@ -34,6 +35,11 @@ if __name__ == "__main__":
     g.web_ready = lambda: win.load_url("/dashboard.html")
     g.win = win
 
-    webview.start(lambda: start(), debug=is_debug)
+    webview.start(
+        lambda: start(),
+        debug=is_debug,
+        private_mode=False,
+    )
 
     db.commit()
+    upload_sync()

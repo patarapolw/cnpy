@@ -61,7 +61,7 @@ elButtonSubmit.addEventListener("click", async (ev) => {
 elButtonReset.addEventListener("click", (ev) => {
   ev.preventDefault();
 
-  elAnalyzer.querySelector("textarea").value = "";
+  // elAnalyzer.querySelector("textarea").value = "";
 
   document
     .querySelectorAll("fieldset")

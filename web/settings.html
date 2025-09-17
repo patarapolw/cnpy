@@ -114,22 +114,12 @@
               >model</a
             >:</label
           >
-          <input
-            type="text"
-            name="openai-model"
-            id="openai-model"
-            placeholder="deepseek-chat"
-          />
+          <input type="text" name="openai-model" id="openai-model" />
         </form>
 
         <form class="hideable-option">
           <label for="openai-server">OpenAI server:</label>
-          <input
-            type="text"
-            name="openai-server"
-            id="openai-server"
-            placeholder="https://api.deepseek.com"
-          />
+          <input type="text" name="openai-server" id="openai-server" />
         </form>
       </fieldset>
 
@@ -195,6 +185,25 @@
 
       <button type="button" name="restore">Restore</button>
       <button type="button" name="remove">Remove sync</button>
+    </fieldset>
+
+    <fieldset id="anki">
+      <legend>Anki</legend>
+
+      <form>
+        <input type="checkbox" name="is-anki-connect" id="is-anki-connect" />
+        <label for="is-anki-connect">Enable Anki-Connect</label>
+      </form>
+
+      <form class="hideable-option">
+        <label for="anki-connect-server">Anki-Connect server:</label>
+        <input
+          type="text"
+          name="anki-connect-server"
+          id="anki-connect-server"
+          placeholder="http://localhost:8765"
+        />
+      </form>
     </fieldset>
 
     <footer>

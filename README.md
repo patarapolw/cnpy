@@ -13,8 +13,8 @@ No typo checking. No turning to Wrong or Right. However, there is a middle-way b
 - `F4` to End the current batch, and start the wrong drill or make a new batch.
 - `F1` / `F4` must be done before answering, that is, not because of not knowing the answer and no spoiler.
 - Mulitple answers if applicable, separated by `;` (whitespaces are ignored). Important readings can be forced to require. Uncommon readings can be disabled and made wrong.
-- Custom vocabularies can be added, and will be put to the end of Due queue (if the entries exist in [the dictionary](https://www.mdbg.net/chinese/dictionary))
-- Skip vocabularies can be set, if accidentally put to SRS, or considered practically uncommon.
+- Custom vocabularies can be added, and will be put to the end of Due queue (if the entries exist in [CC-CEDICT](#dictionaries))
+- Selected vocabularies can be permanently skipped, if accidentally put into SRS, or considered practically uncommon.
 
 ![Due Quiz](_README/due.png)
 
@@ -24,9 +24,19 @@ No typo checking. No turning to Wrong or Right. However, there is a middle-way b
 
 ![Repeat Quiz](_README/repeat.png)
 
-Note taking is powered bidirectionally by markdown (via [showdown.js](https://showdownjs.com/)). The content may be copy+pasted from websites in Dictionary links. AI dictionary may be configured by `.env` at the root of the project, to cover for monolingual definitions, colloquial usages, and grammar explanation.
+## Meaning quiz
+
+Meaning quiz is possible, but AI-generated, so not intended to be included in SRS score. LLM API key is required. (See [Configuration](#configuration).)
+
+![Meaning quiz](_README/meaning.png)
+
+## Note taking
+
+Note taking is powered bidirectionally by markdown (via [showdown.js](https://showdownjs.com/)). The content may be copy+pasted from websites in Dictionary links. AI dictionary may be configured to cover for monolingual definitions, colloquial usages, and grammar explanation. (See [Configuration](#configuration).)
 
 ![Notes](_README/notes.png)
+
+## Hanzi breakdown
 
 Right-click context menu to check for similar Hanzi and vocabularies. The context-menu is also for TTS (speech synthesis), extra menu and updating CC-CEDICT.
 
@@ -60,7 +70,7 @@ Native Chinese articles can be parsed, and optionally, added to new vocab list. 
 
 ## Statistics
 
-![Stats](_README/stats2.png)
+![Stats](_README/stats3.png)
 
 Technically, only [fsrs](https://pypi.org/project/fsrs/) `difficulty < 6` is counted as learned. Accuracy is `learned/started * 100%`.
 
@@ -70,6 +80,18 @@ Hanzi learned is calculated from
 2. Learned as a vocabulary with lone or single repeated Hanzi
 3. Used in at least 3 vocabularies
 
+## Configuration
+
+AI dictionary and TTS can be configured in Settings, accessible from the dashboard.
+
+![Settings](_README/settings.png)
+
+* Uncheck "New itmes per session" to do reviews to 0 first before adding new items.
+* [emoti-voice](https://github.com/netease-youdao/EmotiVoice?tab=readme-ov-file#quickstart) can be used instead of [gTTS](https://github.com/pndurette/gTTS?tab=readme-ov-file#disclaimer)
+* LLM API key and model names can be found at [DeepSeek](https://api-docs.deepseek.com/) / [ChatGPT](https://platform.openai.com/docs/models) / [Google](https://aistudio.google.com/). Possibly paid. (Google may have free `gemma-3` models.)
+* Install [ollama](https://ollama.com) to use offline AI LLM.
+* Sync database will be copied to the selected file location, e.g. Google Drive, Dropbox.
+
 ## Dictionaries
 
 Vocabularies are from [CC-CEDICT](https://www.mdbg.net/chinese/dictionary?page=cc-cedict) at [MDBG Chinese Dictionary](https://www.mdbg.net/chinese/dictionary).
@@ -77,12 +99,3 @@ Vocabularies are from [CC-CEDICT](https://www.mdbg.net/chinese/dictionary?page=c
 Sentences are from [Tatoeba project](https://tatoeba.org).
 
 Hanzi decomposition data are from [CJKV (Chinese Japanese Korean Vietnamese) Ideograph Database](https://github.com/cjkvi/cjkvi-ids).
-
-## Configuration
-
-AI dictionary and TTS can be configured by `.env` put beside the exe or Python root.
-
-* Set `CNPY_MAX_NEW=0` to do reviews to 0 first before adding new items.
-* Set `TTS_VOICE=0` to use web TTS and disable [gTTS](https://github.com/pndurette/gTTS?tab=readme-ov-file#disclaimer)/emoti-voice. Run [emoti-voice](https://github.com/netease-youdao/EmotiVoice?tab=readme-ov-file#quickstart) and set `TTS_VOICE` to [a voice](https://github.com/netease-youdao/EmotiVoice/wiki/😊-voice-wiki-page) to use emoti-voice.
-* Set `OPENAI_API_KEY` , `OPENAI_API_BASE`, `OPENAI_MODEL` to use [DeepSeek](https://api-docs.deepseek.com/) / [ChatGPT](https://platform.openai.com/docs/models), etc.
-* Install [ollama](https://ollama.com) and set `OLLAMA_HOST`, `OLLAMA_MODEL` to use offline AI.
