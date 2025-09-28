@@ -316,19 +316,19 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> str |
                     if headword != v:
                         e = f"q for {headword}"
                         errors.add(e)
-                        print(f"{v} ({e}): {q}")
+                        print(f"Error: {v} ({e}): {q}")
                         break
 
                     if v in alt:
                         e = f"{v} in {alt}"
                         errors.add(e)
-                        print(f"{v} ({e}): {q}")
+                        print(f"Error: {v} ({e}): {q}")
                         break
 
                     if not re_han.search(q) or re_en.search(q):
                         e = f"malformed q"
                         errors.add(e)
-                        print(f"{v} ({e}): {q}")
+                        print(f"Error: {v} ({e}): {q}")
                         break
 
                     if "_" not in q:
@@ -336,7 +336,7 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> str |
                         if "_" not in q:
                             e = f"no cloze deletion"
                             errors.add(e)
-                            print(f"{v} ({e}): {q}")
+                            print(f"Error: {v} ({e}): {q}")
                             break
                         r["question"] = q
 
@@ -354,11 +354,13 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> str |
             pprint.pp(obj, sort_dicts=False)
         except ValueError:
             traceback.print_exc()
-            print(v, t)
+            print("Error:", v, t)
+            db.execute("DELETE FROM ai_dict WHERE v = ? AND t = ''", (v,))
     else:
         print(f"{v}: saving AI translation")
         db.execute("INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, t))
-        db.commit()
+
+    db.commit()
 
     return t
 
