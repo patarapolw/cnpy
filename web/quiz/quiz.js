@@ -178,39 +178,7 @@ elMeaningInput.addEventListener("keypress", async (ev) => {
           }
 
           if (isToast) {
-            const node = document.createElement("div");
-            node.lang = "zh-CN";
-
-            const h = document.createElement("div");
-            h.innerText = q_user;
-
-            const p = document.createElement("div");
-            p.style.fontSize = "0.8em";
-            p.innerText = explanation;
-
-            node.append(h, p);
-
-            /** @see https://github.com/apvarun/toastify-js?tab=readme-ov-file#documentation */
-            // @ts-ignore
-            const { toastElement } = Toastify({
-              node,
-              duration: (correct ? 5 : 20) * 1000,
-              close: true,
-              gravity: "bottom",
-              position: "right",
-              style: {
-                fontFamily: "sans-serif",
-                // color: "black",
-                background: correct
-                  ? "#2A8B2F"
-                  : correct === null
-                  ? "#BF6800"
-                  : "#D91E18",
-              },
-            }).showToast();
-            toastElement.lang = "zh-CN";
-            toastElement.setAttribute(ATTR_DATA_CHECKED, attrValue);
-
+            makeToast({ q_user, explanation, correct, attrValue });
             return;
           } else {
             newMeaningExplanationTimestamp = new Date();
@@ -222,6 +190,54 @@ elMeaningInput.addEventListener("keypress", async (ev) => {
       }
   }
 });
+
+Object.assign(window, { makeToast });
+
+function makeToast({ q_user, explanation, correct, attrValue }) {
+  // Check if the function is called from within an iframe
+  if (window.self !== window.top) {
+    //@ts-ignore
+    const { makeToast } = window.parent;
+    if (typeof makeToast !== "function") return;
+
+    // Call the function in the parent window
+    makeToast({ q_user, explanation, correct, attrValue });
+    return;
+  }
+
+  const node = document.createElement("div");
+  node.lang = "zh-CN";
+
+  const h = document.createElement("div");
+  h.innerText = q_user;
+
+  const p = document.createElement("div");
+  p.style.fontSize = "0.8em";
+  p.innerText = explanation;
+
+  node.append(h, p);
+
+  /** @see https://github.com/apvarun/toastify-js?tab=readme-ov-file#documentation */
+  // @ts-ignore
+  const { toastElement } = Toastify({
+    node,
+    duration: (correct ? 5 : 20) * 1000,
+    close: true,
+    gravity: "bottom",
+    position: "right",
+    style: {
+      fontFamily: "sans-serif",
+      // color: "black",
+      background: correct
+        ? "#2A8B2F"
+        : correct === null
+        ? "#BF6800"
+        : "#D91E18",
+    },
+  }).showToast();
+  toastElement.lang = "zh-CN";
+  toastElement.setAttribute(ATTR_DATA_CHECKED, attrValue);
+}
 
 elInput.addEventListener("keypress", (ev) => {
   switch (ev.key) {
