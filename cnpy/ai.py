@@ -70,7 +70,7 @@ Make **sufficient number of** cloze test sentences to cover **all** distinct usa
 * The headword **must** be the same as the original Chinese word.
 * Provide 2–3 plausible but incorrect alternatives for each. Alternatives are different from each other and from the headword.
 * Explain why the headword is the most appropriate choice among the options.
-* Reading and meaning **must not be included** inside the cloze test sentences and Chinese words.
+* Reading and meaning **must not be included** inside the cloze questions and cloze alts.
 
 Respond in this JSON format:
 
