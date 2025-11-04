@@ -319,11 +319,16 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> str |
                         print(f"Error: {v} ({e}): {q}")
                         break
 
-                    if v in alt:
+                    filtered_alt = [s for s in alt if s != v]
+
+                    if not alt:
                         e = f"{v} in {alt}"
                         errors.add(e)
                         print(f"Error: {v} ({e}): {q}")
                         break
+
+                    alt = filtered_alt
+                    r["alt"] = alt
 
                     if not re_han.search(q) or re_en.search(q):
                         e = f"malformed q"
