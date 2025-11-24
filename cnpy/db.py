@@ -6,7 +6,7 @@ import jieba
 from cnpy.dir import user_root, assets_root
 
 db_filename = user_root / "main.db"
-db_version: int = 3
+db_version: int = 4
 
 
 db = sqlite3.connect(

@@ -2,6 +2,7 @@ import time
 import json
 import traceback
 import pprint
+import sys
 
 from openai import OpenAI
 from ollama import Client
@@ -276,7 +277,12 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> str |
 
             i_closing = t.rfind("}")
             if i_closing == -1:
-                raise ValueError("Closing '}' not found in AI response")
+                msg = "Closing '}' not found in AI response"
+                db.execute(
+                    "INSERT INTO ai_error (v,error,output) VALUES (?,?,?)",
+                    (v, msg, t),
+                )
+                raise ValueError(msg)
 
             r = t[i_opening : i_closing + 1]
             obj = json.loads(r)
@@ -351,6 +357,11 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> str |
                         "INSERT OR REPLACE INTO ai_cloze (v, arr, modified) VALUES (?, ?, datetime())",
                         (v, json.dumps(cloze_results, ensure_ascii=False)),
                     )
+                else:
+                    db.execute(
+                        "INSERT INTO ai_error (v,error,output) VALUES (?,?,?)",
+                        (v, json.dumps(list(errors), ensure_ascii=False), t),
+                    )
 
             obj["q_user"] = q_user
             t = json.dumps(obj, ensure_ascii=False)
@@ -361,6 +372,11 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> str |
             traceback.print_exc()
             print("Error:", v, t)
             db.execute("DELETE FROM ai_dict WHERE v = ? AND t = ''", (v,))
+
+            db.execute(
+                "INSERT INTO ai_error (v,error,output) VALUES (?,?,?)",
+                (v, str(sys.exception()), t),
+            )
     else:
         print(f"{v}: saving AI translation")
         db.execute("INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, t))
@@ -407,6 +423,13 @@ def load_db():
         CREATE INDEX IF NOT EXISTS idx_revlog_meaning_v       ON revlog_meaning (v);
         CREATE INDEX IF NOT EXISTS idx_revlog_meaning_created ON revlog_meaning (created);
         CREATE INDEX IF NOT EXISTS idx_revlog_meaning_correct ON revlog_meaning (correct);
+
+        CREATE TABLE IF NOT EXISTS ai_error (
+            v           TEXT NOT NULL,
+            error       TEXT NOT NULL,
+            output      TEXT NOT NULL,
+            created     TEXT NOT NULL DEFAULT (datetime())
+        );
         """
     )
 
