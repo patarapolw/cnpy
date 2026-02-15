@@ -30,6 +30,8 @@ Meaning quiz is possible, but AI-generated, so not intended to be included in SR
 
 ![Meaning quiz](_README/meaning.png)
 
+![Meaning quiz log](_README/meaning-revlog.png)
+
 ## Note taking
 
 Note taking is powered bidirectionally by markdown (via [showdown.js](https://showdownjs.com/)). The content may be copy+pasted from websites in Dictionary links. AI dictionary may be configured to cover for monolingual definitions, colloquial usages, and grammar explanation. (See [Configuration](#configuration).)
