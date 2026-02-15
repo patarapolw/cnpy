@@ -88,9 +88,6 @@ async function loadHistory(start = liStart) {
     const elWhy = li.querySelector(".why");
     elWhy.innerHTML = converter.makeHtml(obj.explanation);
 
-    // TODO: make LLM meaning check more permissive for at least giving explanation and correctness, even without valid cloze
-    // TODO: when cloze generation fails, show error logs in UI
-
     obj.sentences.map((sent) => {
       const details = document.createElement("details");
       const summary = document.createElement("summary");

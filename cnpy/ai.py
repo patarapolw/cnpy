@@ -270,6 +270,9 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> str |
         return None
 
     if meaning:
+        # TODO: permissive LLM prompt that give explanation even with malformed JSON response
+        # TODO: when cloze generation fails, show error logs in UI
+
         try:
             # Like find(), but raise ValueError when the substring is not found.
             # @see https://docs.python.org/3/library/stdtypes.html#str.index

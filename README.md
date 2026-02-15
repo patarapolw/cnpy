@@ -30,7 +30,7 @@ Meaning quiz is possible, but AI-generated, so not intended to be included in SR
 
 ![Meaning quiz](_README/meaning.png)
 
-![Meaning quiz log](_README/meaning-revlog.png)
+![Meaning quiz log](_README/meaning-revlog2.png)
 
 ## Note taking
 
