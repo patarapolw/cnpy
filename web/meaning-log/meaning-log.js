@@ -13,6 +13,14 @@ const btnPrev = document.querySelector("button#prev");
 /** @type {HTMLButtonElement} */
 const btnNext = document.querySelector("button#next");
 
+const converter = new showdown.Converter({
+  parseImgDimensions: true,
+  tables: true,
+  strikethrough: true,
+  // openLinksInNewWindow: true,
+  emoji: true,
+});
+
 async function loadHistory(start = liStart) {
   const r = await api.ai_revlog_meaning(start, liSize);
 
@@ -21,17 +29,59 @@ async function loadHistory(start = liStart) {
     return;
   }
 
-  ol.querySelectorAll("li").forEach((li) => li.remove());
+  const now_millisec = +new Date();
+  const timeHeaders = new Set();
+
+  ol.querySelectorAll(".vocab, .time-group").forEach((el) => el.remove());
   ol.start = start + 1;
 
   r.result.map((obj) => {
+    let header = "";
+
+    const created_millisec = +new Date(obj.created);
+
+    let days_elapsed = Math.floor(
+      (now_millisec - created_millisec) / (1000 * 60 * 60 * 24),
+    );
+    if (days_elapsed < 7) {
+      header = `${days_elapsed} days ago`;
+
+      if (days_elapsed === 0) {
+        header = "Today";
+      } else if (days_elapsed === 1) {
+        header = "Yesterday";
+      }
+    }
+
+    if (!header) {
+      const weeks_elapsed = Math.floor(days_elapsed / 7);
+      if (weeks_elapsed < 4) {
+        header = weeks_elapsed < 2 ? `Last week` : `${weeks_elapsed} weeks ago`;
+      }
+    }
+
+    if (!header) {
+      const months_elapsed = Math.floor(days_elapsed / 30);
+      header =
+        months_elapsed < 2 ? `Last month` : `${months_elapsed} months ago`;
+    }
+
+    if (!timeHeaders.has(header)) {
+      timeHeaders.add(header);
+
+      const h = document.createElement("h4");
+      h.className = "time-group";
+      h.textContent = header;
+      ol.appendChild(h);
+    }
+
     const li = document.importNode(templ.content, true);
 
-    li.querySelector(".vocab").textContent = obj.v;
+    li.querySelector(".item").textContent = obj.v;
     li.querySelector(".result").textContent = obj.answer;
     li.querySelector(".result").className =
       obj.correct === null ? "maybe" : obj.correct ? "right" : "wrong";
-    li.querySelector(".why").textContent = obj.explanation;
+    li.querySelector(".why").innerHTML = converter.makeHtml(obj.explanation);
 
     ol.appendChild(li);
   });

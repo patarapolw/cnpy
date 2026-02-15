@@ -15,17 +15,19 @@
     <main>
       <ol>
         <template>
-          <li>
-            <span class="vocab"></span>
+          <li class="vocab">
+            <span class="item"></span>
             <ul>
               <li><span class="result"></span></li>
               <li><span class="why"></span></li>
               <template>
                 <ul>
-                  <span class="sentence"></span>
-                  <ul>
-                    <li><span class="why"></span></li>
-                  </ul>
+                  <li class="sentence">
+                    <span class="item"></span>
+                    <ul>
+                      <li><span class="why"></span></li>
+                    </ul>
+                  </li>
                 </ul>
               </template>
             </ul>
@@ -34,6 +36,7 @@
       </ol>
     </main>
 
+    <script src="./_lib/showdown.min.js"></script>
     <script type="module" src="./meaning-log/meaning-log.js"></script>
   </body>
 </html>
