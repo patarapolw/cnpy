@@ -275,6 +275,28 @@ with server:
     def ai_cloze_delete(v: str):
         db.execute("DELETE FROM ai_cloze WHERE v = ?", (v,))
 
+    @bottle.post("/api/ai_revlog_meaning")
+    def ai_revlog_meaning():
+        obj: Any = bottle.request.json
+        start: int = obj.get("start")
+        limit: int = obj.get("limit", 10)
+
+        out = []
+        for r in db.execute(
+            f"SELECT * FROM revlog_meaning ORDER BY created DESC LIMIT {limit} OFFSET {start}"
+        ):
+            r = dict(r)
+            c = r["correct"]
+            if c == 5:
+                c = None
+            else:
+                c = bool(c)
+            r["correct"] = c
+
+            out.append(r)
+
+        return {"result": out}
+
     @bottle.post("/api/search")
     def search():
         obj: Any = bottle.request.json

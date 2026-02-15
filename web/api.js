@@ -73,7 +73,7 @@ export const api = {
    */
   async due_vocab_list(review_counter = 0) {
     return fetchAPI(`/api/due_vocab_list/${review_counter}`).then((r) =>
-      r.json()
+      r.json(),
     );
   },
   /**
@@ -192,6 +192,26 @@ export const api = {
     return fetchAPI(`/api/ai_cloze/delete/${v}`);
   },
   /**
+   *
+   * @param {number} start
+   * @param {number} [limit]
+   * @returns {Promise<{
+   *   result: {
+   *     v: string;
+   *     created: string;
+   *     correct: boolean | null;
+   *     explanation: string;
+   *     answer: string;
+   *     cloze: string; // can be ''
+   *   }[]
+   * }>}
+   */
+  async ai_revlog_meaning(start, limit) {
+    return fetchAPI("/api/ai_revlog_meaning", { start, limit }).then((r) =>
+      r.json(),
+    );
+  },
+  /**
    * @typedef {'OPENAI_API_KEY'
    * | 'OPENAI_BASE_URL'
    * | 'OPENAI_MODEL'
@@ -243,7 +263,7 @@ export const api = {
    */
   async anki(action, params) {
     return fetchAPI("/api/anki", { action, params, version: 6 }).then((r) =>
-      r.json()
+      r.json(),
     );
   },
 };

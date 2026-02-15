@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meaning Answer Log</title>
+    <link rel="stylesheet" href="./meaning-log/meaning-log.css" />
+  </head>
+  <body>
+    <nav>
+      <button id="prev" disabled="disabled">Prev</button>
+      <button id="next">Next</button>
+    </nav>
+
+    <main>
+      <ol>
+        <template>
+          <li>
+            <span class="vocab"></span>
+            <ul>
+              <li><span class="result"></span></li>
+              <li><span class="why"></span></li>
+              <template>
+                <ul>
+                  <span class="sentence"></span>
+                  <ul>
+                    <li><span class="why"></span></li>
+                  </ul>
+                </ul>
+              </template>
+            </ul>
+          </li>
+        </template>
+      </ol>
+    </main>
+
+    <script type="module" src="./meaning-log/meaning-log.js"></script>
+  </body>
+</html>

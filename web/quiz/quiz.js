@@ -231,8 +231,8 @@ function makeToast({ q_user, explanation, correct, attrValue }) {
       background: correct
         ? "#2A8B2F"
         : correct === null
-        ? "#BF6800"
-        : "#D91E18",
+          ? "#BF6800"
+          : "#D91E18",
     },
   }).showToast();
   toastElement.lang = "zh-CN";
@@ -363,6 +363,11 @@ ctxmenu.attach("#counter .right", [
     style: "text-align: left",
   },
   {
+    text: "Meaning revlog",
+    action: () => openInModal("./meaning-log.html", "Meaning revlog"),
+    style: "text-align: left",
+  },
+  {
     text: "Update CC-CEDICT",
     action: () => api.update_dict(),
     style: "text-align: left",
@@ -421,7 +426,7 @@ elNotesTextarea.addEventListener("paste", (ev) => {
     if (!el.hasAttribute("lang") && !el.hasAttribute("style")) {
       if (
         ![...el.childNodes].some(
-          (n) => n.nodeType === Node.TEXT_NODE || n instanceof HTMLSpanElement
+          (n) => n.nodeType === Node.TEXT_NODE || n instanceof HTMLSpanElement,
         )
       ) {
         el.replaceWith(...el.childNodes);
@@ -734,7 +739,7 @@ function doNext(ev) {
         new Set(dictPinyin.map((p) => p.toLocaleLowerCase())).size +
         (mustPinyin?.length || 0) +
         (warnPinyin?.length || 0)
-      ).toString()
+      ).toString(),
     );
     elCompare.href = `./pinyin-select.html?v=${currentItem.v}`;
     elCompare.onclick = (ev) => {
@@ -821,7 +826,7 @@ function doNext(ev) {
     );
     {
       const elTemplate = Array.from(elDictEntries.childNodes).find(
-        (el) => el instanceof HTMLTemplateElement
+        (el) => el instanceof HTMLTemplateElement,
       );
 
       if (elTemplate) {
@@ -845,11 +850,11 @@ function doNext(ev) {
                 const li = document.createElement("li");
                 li.innerText = ens.join("; ");
                 return li;
-              })
+              }),
             );
 
             return el;
-          })
+          }),
         );
       }
     }
@@ -859,11 +864,11 @@ function doNext(ev) {
     );
     elSentences.setAttribute(
       "data-sentence-count",
-      state.vocabDetails.sentences.length.toString()
+      state.vocabDetails.sentences.length.toString(),
     );
     {
       const elTemplate = Array.from(elSentences.childNodes).find(
-        (el) => el instanceof HTMLTemplateElement
+        (el) => el instanceof HTMLTemplateElement,
       );
 
       if (elTemplate) {
@@ -890,7 +895,7 @@ function doNext(ev) {
             }
 
             return el;
-          })
+          }),
         );
       }
     }
@@ -900,7 +905,7 @@ function doNext(ev) {
 
     state.lastIsFuzzy = false;
     state.lastIsRight = inputPinyin.every((v) =>
-      pinyin.some((p) => comp_pinyin(p, v))
+      pinyin.some((p) => comp_pinyin(p, v)),
     );
 
     if (mustPinyin?.length) {
@@ -922,7 +927,7 @@ function doNext(ev) {
     document.querySelectorAll(`[${ATTR_DATA_CHECKED}]`).forEach((el) => {
       el.setAttribute(
         ATTR_DATA_CHECKED,
-        state.lastIsRight || showModeShowDetails ? "right" : "wrong"
+        state.lastIsRight || showModeShowDetails ? "right" : "wrong",
       );
     });
 
@@ -976,7 +981,7 @@ function mark(type) {
   /** @type {HTMLDivElement} */ (
     document.querySelector(`#progress [data-count-type="${type}"]`)
   ).style.width = `${((markCount / (state.total - state.skip)) * 100).toFixed(
-    1
+    1,
   )}%`;
 
   const currentItem = state.vocabList[state.i];
@@ -1068,7 +1073,7 @@ async function newVocab() {
         }))
         .reverse(),
     ],
-    { attributes: { lang: "zh-CN" } }
+    { attributes: { lang: "zh-CN" } },
   );
   ctxmenu.delete("#vocab");
 
@@ -1135,7 +1140,7 @@ async function newVocabList() {
             ],
           };
           return m;
-        })
+        }),
     );
   }
 
@@ -1308,7 +1313,7 @@ function makeNotes({ skipSave } = {}) {
     reset = true;
     elNotesTextarea.value = elNotesTextarea.value.slice(
       0,
-      elNotesTextarea.value.length - NEW_AI_TRANSLATION_STRING.length
+      elNotesTextarea.value.length - NEW_AI_TRANSLATION_STRING.length,
     );
     elNotesTextarea.value += AI_TRANSLATION_STRING;
   }
