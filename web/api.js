@@ -203,6 +203,11 @@ export const api = {
    *     explanation: string;
    *     answer: string;
    *     cloze: string; // can be ''
+   *     sentences: {
+   *       question: string;
+   *       alt: string[];
+   *       explanation: string;
+   *     }[];
    *   }[]
    * }>}
    */

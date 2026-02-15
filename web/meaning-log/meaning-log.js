@@ -77,15 +77,32 @@ async function loadHistory(start = liStart) {
 
     const li = document.importNode(templ.content, true);
 
-    li.querySelector(".item").textContent = obj.v;
-    li.querySelector(".result").textContent = obj.answer;
-    li.querySelector(".result").className =
-      obj.correct === null ? "maybe" : obj.correct ? "right" : "wrong";
-    li.querySelector(".why").innerHTML = converter.makeHtml(obj.explanation);
+    const elItem = li.querySelector(".item");
+    elItem.textContent = obj.v;
 
-    // TODO: append cloze examples
+    const elResult = li.querySelector(".result");
+    elResult.textContent = obj.answer;
+    elResult.className =
+      obj.correct === null ? "maybe" : obj.correct ? "right" : "wrong";
+
+    const elWhy = li.querySelector(".why");
+    elWhy.innerHTML = converter.makeHtml(obj.explanation);
+
     // TODO: make LLM meaning check more permissive for at least giving explanation and correctness, even without valid cloze
     // TODO: when cloze generation fails, show error logs in UI
+
+    obj.sentences.map((sent) => {
+      const details = document.createElement("details");
+      const summary = document.createElement("summary");
+      summary.innerText = sent.question;
+
+      const exp = document.createElement("div");
+      exp.innerHTML = converter.makeHtml(sent.explanation);
+
+      details.append(summary, exp);
+
+      elWhy.append(details);
+    });
 
     ol.appendChild(li);
   });

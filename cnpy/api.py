@@ -43,7 +43,7 @@ class ServerGlobal:
 
 DAYS_EXPIRE_REVLOG_MEANING = int(env.get("CNPY_DAYS_EXPIRE_REVLOG_MEANING") or "0")
 DAYS_EXPIRE_REVLOG = int(env.get("CNPY_DAYS_EXPIRE_REVLOG") or "0")
-DAYS_EXPIRE_AI_CLOZE = int(env.get("CNPY_DAYS_EXPIRE_AI_CLOZE") or "180")
+DAYS_EXPIRE_AI_CLOZE = int(env.get("CNPY_DAYS_EXPIRE_AI_CLOZE") or "30")
 
 
 def start():
@@ -76,7 +76,6 @@ def start():
             """
         )
 
-    print(DAYS_EXPIRE_AI_CLOZE)
     if DAYS_EXPIRE_AI_CLOZE > 0:
         db.execute(
             f"""
@@ -292,9 +291,17 @@ with server:
 
         out = []
         for r in db.execute(
-            f"SELECT * FROM revlog_meaning ORDER BY created DESC LIMIT {limit} OFFSET {start}"
+            f"""
+            SELECT *, (
+                SELECT arr FROM ai_cloze WHERE ai_cloze.v = revlog_meaning.v
+            ) sentences
+            FROM revlog_meaning
+            ORDER BY created DESC
+            LIMIT {limit} OFFSET {start}"""
         ):
             r = dict(r)
+            r["sentences"] = json.loads(r["sentences"] or "[]")
+
             c = r["correct"]
             if c == 5:
                 c = None
