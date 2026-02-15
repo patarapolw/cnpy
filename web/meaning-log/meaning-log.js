@@ -83,6 +83,10 @@ async function loadHistory(start = liStart) {
       obj.correct === null ? "maybe" : obj.correct ? "right" : "wrong";
     li.querySelector(".why").innerHTML = converter.makeHtml(obj.explanation);
 
+    // TODO: append cloze examples
+    // TODO: make LLM meaning check more permissive for at least giving explanation and correctness, even without valid cloze
+    // TODO: when cloze generation fails, show error logs in UI
+
     ol.appendChild(li);
   });
 
