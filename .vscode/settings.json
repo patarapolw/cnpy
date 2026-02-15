@@ -52,4 +52,6 @@
     },
     "code-runner.runInTerminal": true,
     "vue3snippets.enable-compile-vue-file-on-did-save-code": true,
+    "python-envs.defaultEnvManager": "ms-python.python:pipenv",
+    "python-envs.pythonProjects": [],
 }

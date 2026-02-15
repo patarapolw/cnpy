@@ -71,6 +71,14 @@ def start():
 
     db.execute(
         """
+        DELETE FROM ai_cloze
+        WHERE modified IS NULL
+        OR unixepoch('now') - unixepoch(modified) > 60*60*24 *180 -- 180 days
+        """
+    )
+
+    db.execute(
+        """
         UPDATE vlist SET skip = NULL
         """
     )
