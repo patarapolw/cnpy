@@ -41,6 +41,11 @@ class ServerGlobal:
     online_api_processes: list[threading.Thread] = []
 
 
+DAYS_EXPIRE_REVLOG_MEANING = int(env.get("CNPY_DAYS_EXPIRE_REVLOG_MEANING") or "0")
+DAYS_EXPIRE_REVLOG = int(env.get("CNPY_DAYS_EXPIRE_REVLOG") or "0")
+DAYS_EXPIRE_AI_CLOZE = int(env.get("CNPY_DAYS_EXPIRE_AI_CLOZE") or "180")
+
+
 def start():
     quiz.load_db()
     cedict.load_db(print)
@@ -55,27 +60,31 @@ def start():
 
     ### Run after restore sync
 
-    db.execute(
-        """
-        DELETE FROM revlog_meaning
-        WHERE unixepoch('now') - unixepoch(created) > 60*60*24 *30 -- 30 days
-        """
-    )
+    if DAYS_EXPIRE_REVLOG_MEANING > 0:
+        db.execute(
+            f"""
+            DELETE FROM revlog_meaning
+            WHERE unixepoch('now') - unixepoch(created) > 60*60*24 *{DAYS_EXPIRE_REVLOG_MEANING}
+            """
+        )
 
-    db.execute(
-        """
-        DELETE FROM revlog
-        WHERE unixepoch('now') - unixepoch(created) > 60*60*24 *30 -- 30 days
-        """
-    )
+    if DAYS_EXPIRE_REVLOG > 0:
+        db.execute(
+            f"""
+            DELETE FROM revlog
+            WHERE unixepoch('now') - unixepoch(created) > 60*60*24 *{DAYS_EXPIRE_REVLOG}
+            """
+        )
 
-    db.execute(
-        """
-        DELETE FROM ai_cloze
-        WHERE modified IS NULL
-        OR unixepoch('now') - unixepoch(modified) > 60*60*24 *180 -- 180 days
-        """
-    )
+    print(DAYS_EXPIRE_AI_CLOZE)
+    if DAYS_EXPIRE_AI_CLOZE > 0:
+        db.execute(
+            f"""
+            DELETE FROM ai_cloze
+            WHERE modified IS NULL
+            OR unixepoch('now') - unixepoch(modified) > 60*60*24 *{DAYS_EXPIRE_AI_CLOZE}
+            """
+        )
 
     db.execute(
         """
