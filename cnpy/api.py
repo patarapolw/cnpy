@@ -547,9 +547,31 @@ with server:
 
     @bottle.post("/api/due_vocab_list/<review_counter:int>")
     def due_vocab_list(review_counter: int):
-        limit = 20
+        obj: Any = bottle.request.json
+        v = obj.get("v")
+        max_new = obj.get("new", int(env.get("CNPY_MAX_NEW") or "10"))
+        limit = obj.get("limit", 20)
 
-        all_items = [
+        # TODO: prevent from triple fire from quiz.js at startup
+        # print(v)
+
+        all_items = []
+        if v:
+            for r in db.execute("SELECT * FROM quiz WHERE v = ? LIMIT 1", (v,)):
+                g.v_quiz = quiz.load_db_entry(r)
+
+            if g.v_quiz is None:
+                rs = db.execute(
+                    "SELECT * FROM quiz WHERE v IN (SELECT simp FROM cedict WHERE trad = ?)",
+                    (v,),
+                ).fetchall()
+
+                if len(rs) == 1:
+                    g.v_quiz = quiz.load_db_entry(rs[0])
+
+            all_items = [g.v_quiz]
+
+        all_items = all_items or [
             quiz.load_db_entry(r)
             for r in db.execute(
                 """
@@ -593,6 +615,7 @@ with server:
 
             output["result"] = [v]
             output["customItemSRS"] = v.get("srs")
+            output["count"] = 1
 
             return output
 
@@ -605,7 +628,7 @@ with server:
         result = []
         r_last = []
         max_review = limit * 2 - review_counter
-        max_new = int(env.get("CNPY_MAX_NEW") or "10")
+
         for r in all_items:
             if len(result) >= limit:
                 break

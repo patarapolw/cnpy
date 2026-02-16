@@ -45,7 +45,29 @@ document.querySelectorAll('a[target="modal"]').forEach((a) => {
   };
 });
 
-ctxmenu.attach(".nav", [
+ctxmenu.attach(".top-nav", [
+  {
+    text: "Start Quiz (backlog first)",
+    action: () => {
+      /** @type {HTMLAnchorElement} */
+      const a = document.querySelector(".top-nav a");
+      a.href = "/quiz.html?new=0";
+      a.click();
+    },
+  },
+  {
+    text: "Open item...",
+    action: async () => {
+      const v = prompt("Custom vocab:");
+      if (!v) return;
+
+      if (!/^\p{sc=Han}+$/u.test(v)) {
+        alert(`Invalid vocab: ${v}`);
+      }
+
+      openItem(v);
+    },
+  },
   {
     text: "Update CC-CEDICT",
     action: () => api.update_dict(),
@@ -131,7 +153,7 @@ async function doLoading() {
                 onShow: () => el.classList.add("hover"),
                 onHide: () => el.classList.remove("hover"),
                 attributes: { lang: "zh-CN" },
-              }
+              },
             );
           }
         }

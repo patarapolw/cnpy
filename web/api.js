@@ -63,6 +63,11 @@ export const api = {
   /**
    *
    * @param {number} review_counter
+   * @param {{
+   *   v?: string;
+   *   new?: number;
+   *   limit?: number;
+   * }} [opts]
    * @returns {Promise<{
    *  result: IQuizEntry[];
    *  count: number;
@@ -71,8 +76,8 @@ export const api = {
    *  isAIenabled?: boolean;
    * }>}
    */
-  async due_vocab_list(review_counter = 0) {
-    return fetchAPI(`/api/due_vocab_list/${review_counter}`).then((r) =>
+  async due_vocab_list(review_counter = 0, opts = {}) {
+    return fetchAPI(`/api/due_vocab_list/${review_counter}`, opts).then((r) =>
       r.json(),
     );
   },
@@ -177,7 +182,7 @@ export const api = {
    *  result_only?: boolean;
    *  meaning?: string;
    *  cloze?: string;
-   * }} opts
+   * }} [opts]
    * @returns {Promise<{result: string}>}
    */
   async ai_translation(v, opts = {}) {

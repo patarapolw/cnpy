@@ -1154,7 +1154,13 @@ async function newVocabList() {
     state.vocabList = state.pendingList;
     state.pendingList = [];
   } else if (state.due) {
-    const r = await api.due_vocab_list(state.review_counter);
+    const u = new URL(location.href);
+    const max_new = u.searchParams.get("new");
+
+    const r = await api.due_vocab_list(state.review_counter, {
+      v: u.searchParams.get("v"),
+      new: max_new ? parseInt(max_new) : undefined,
+    });
     state.vocabList = r.result;
     state.due = r.count;
     state.new = r.new;
