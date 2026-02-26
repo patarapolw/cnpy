@@ -33,7 +33,7 @@ export async function speak(s, web) {
  */
 export async function speakBackend(s) {
   let elAudio = Array.from(document.querySelectorAll("audio")).find((el) =>
-    el.hasAttribute("data-tts")
+    el.hasAttribute("data-tts"),
   );
   if (!elAudio) {
     elAudio = document.createElement("audio");
@@ -103,7 +103,7 @@ export function comp_pinyin(a, b, isFuzzy) {
 export async function openItem(v) {
   const r = await api.set_vocab_for_quiz(v);
   if (r.v) {
-    openInModal("./quiz.html", v);
+    openInModal(`./quiz.html?v=${v}`, v);
   } else {
     searchVoc(v);
   }
@@ -119,7 +119,7 @@ function joinPinyinForRegex(ps) {
     .map((p) =>
       p
         .toLocaleLowerCase()
-        .replace(/\d/g, (p) => (p === "5" ? "[1-5]" : `[${p}5]`))
+        .replace(/\d/g, (p) => (p === "5" ? "[1-5]" : `[${p}5]`)),
     )
     .filter((a, i, r) => r.indexOf(a) === i);
   return ps.length > 1 ? `(${ps.join("|")})` : ps[0];
@@ -148,7 +148,7 @@ export async function searchVoc(v, ps) {
   u.pathname = "/search.html";
   u.searchParams.set(
     "q",
-    JSON.stringify({ v, p: ps ? joinPinyinForRegex(ps) : undefined })
+    JSON.stringify({ v, p: ps ? joinPinyinForRegex(ps) : undefined }),
   );
   openInModal(u.pathname + u.search, `*${v}*`);
 }

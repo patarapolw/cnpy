@@ -41,6 +41,11 @@ class ServerGlobal:
     online_api_processes: list[threading.Thread] = []
 
 
+DAYS_EXPIRE_REVLOG_MEANING = int(env.get("CNPY_DAYS_EXPIRE_REVLOG_MEANING") or "0")
+DAYS_EXPIRE_REVLOG = int(env.get("CNPY_DAYS_EXPIRE_REVLOG") or "0")
+DAYS_EXPIRE_AI_CLOZE = int(env.get("CNPY_DAYS_EXPIRE_AI_CLOZE") or "30")
+
+
 def start():
     quiz.load_db()
     cedict.load_db(print)
@@ -55,19 +60,30 @@ def start():
 
     ### Run after restore sync
 
-    db.execute(
-        """
-        DELETE FROM revlog_meaning
-        WHERE unixepoch('now') - unixepoch(created) > 60*60*24 *30 -- 30 days
-        """
-    )
+    if DAYS_EXPIRE_REVLOG_MEANING > 0:
+        db.execute(
+            f"""
+            DELETE FROM revlog_meaning
+            WHERE unixepoch('now') - unixepoch(created) > 60*60*24 *{DAYS_EXPIRE_REVLOG_MEANING}
+            """
+        )
 
-    db.execute(
-        """
-        DELETE FROM revlog
-        WHERE unixepoch('now') - unixepoch(created) > 60*60*24 *30 -- 30 days
-        """
-    )
+    if DAYS_EXPIRE_REVLOG > 0:
+        db.execute(
+            f"""
+            DELETE FROM revlog
+            WHERE unixepoch('now') - unixepoch(created) > 60*60*24 *{DAYS_EXPIRE_REVLOG}
+            """
+        )
+
+    if DAYS_EXPIRE_AI_CLOZE > 0:
+        db.execute(
+            f"""
+            DELETE FROM ai_cloze
+            WHERE modified IS NULL
+            OR unixepoch('now') - unixepoch(modified) > 60*60*24 *{DAYS_EXPIRE_AI_CLOZE}
+            """
+        )
 
     db.execute(
         """
@@ -266,6 +282,36 @@ with server:
     @bottle.post("/api/ai_cloze/delete/<v>")
     def ai_cloze_delete(v: str):
         db.execute("DELETE FROM ai_cloze WHERE v = ?", (v,))
+
+    @bottle.post("/api/ai_revlog_meaning")
+    def ai_revlog_meaning():
+        obj: Any = bottle.request.json
+        start: int = obj.get("start")
+        limit: int = obj.get("limit", 10)
+
+        out = []
+        for r in db.execute(
+            f"""
+            SELECT *, (
+                SELECT arr FROM ai_cloze WHERE ai_cloze.v = revlog_meaning.v
+            ) sentences
+            FROM revlog_meaning
+            ORDER BY created DESC
+            LIMIT {limit} OFFSET {start}"""
+        ):
+            r = dict(r)
+            r["sentences"] = json.loads(r["sentences"] or "[]")
+
+            c = r["correct"]
+            if c == 5:
+                c = None
+            else:
+                c = bool(c)
+            r["correct"] = c
+
+            out.append(r)
+
+        return {"result": out}
 
     @bottle.post("/api/search")
     def search():
@@ -501,9 +547,31 @@ with server:
 
     @bottle.post("/api/due_vocab_list/<review_counter:int>")
     def due_vocab_list(review_counter: int):
-        limit = 20
+        obj: Any = bottle.request.json
+        v = obj.get("v")
+        max_new = obj.get("new", int(env.get("CNPY_MAX_NEW") or "10"))
+        limit = obj.get("limit", 20)
 
-        all_items = [
+        # TODO: prevent from triple fire from quiz.js at startup
+        # print(v)
+
+        all_items = []
+        if v:
+            for r in db.execute("SELECT * FROM quiz WHERE v = ? LIMIT 1", (v,)):
+                g.v_quiz = quiz.load_db_entry(r)
+
+            if g.v_quiz is None:
+                rs = db.execute(
+                    "SELECT * FROM quiz WHERE v IN (SELECT simp FROM cedict WHERE trad = ?)",
+                    (v,),
+                ).fetchall()
+
+                if len(rs) == 1:
+                    g.v_quiz = quiz.load_db_entry(rs[0])
+
+            all_items = [g.v_quiz]
+
+        all_items = all_items or [
             quiz.load_db_entry(r)
             for r in db.execute(
                 """
@@ -547,6 +615,7 @@ with server:
 
             output["result"] = [v]
             output["customItemSRS"] = v.get("srs")
+            output["count"] = 1
 
             return output
 
@@ -559,7 +628,7 @@ with server:
         result = []
         r_last = []
         max_review = limit * 2 - review_counter
-        max_new = int(env.get("CNPY_MAX_NEW") or "10")
+
         for r in all_items:
             if len(result) >= limit:
                 break

@@ -63,6 +63,11 @@ export const api = {
   /**
    *
    * @param {number} review_counter
+   * @param {{
+   *   v?: string;
+   *   new?: number;
+   *   limit?: number;
+   * }} [opts]
    * @returns {Promise<{
    *  result: IQuizEntry[];
    *  count: number;
@@ -71,9 +76,9 @@ export const api = {
    *  isAIenabled?: boolean;
    * }>}
    */
-  async due_vocab_list(review_counter = 0) {
-    return fetchAPI(`/api/due_vocab_list/${review_counter}`).then((r) =>
-      r.json()
+  async due_vocab_list(review_counter = 0, opts = {}) {
+    return fetchAPI(`/api/due_vocab_list/${review_counter}`, opts).then((r) =>
+      r.json(),
     );
   },
   /**
@@ -177,7 +182,7 @@ export const api = {
    *  result_only?: boolean;
    *  meaning?: string;
    *  cloze?: string;
-   * }} opts
+   * }} [opts]
    * @returns {Promise<{result: string}>}
    */
   async ai_translation(v, opts = {}) {
@@ -190,6 +195,31 @@ export const api = {
    */
   async ai_cloze_delete(v) {
     return fetchAPI(`/api/ai_cloze/delete/${v}`);
+  },
+  /**
+   *
+   * @param {number} start
+   * @param {number} [limit]
+   * @returns {Promise<{
+   *   result: {
+   *     v: string;
+   *     created: string;
+   *     correct: boolean | null;
+   *     explanation: string;
+   *     answer: string;
+   *     cloze: string; // can be ''
+   *     sentences: {
+   *       question: string;
+   *       alt: string[];
+   *       explanation: string;
+   *     }[];
+   *   }[]
+   * }>}
+   */
+  async ai_revlog_meaning(start, limit) {
+    return fetchAPI("/api/ai_revlog_meaning", { start, limit }).then((r) =>
+      r.json(),
+    );
   },
   /**
    * @typedef {'OPENAI_API_KEY'
@@ -243,7 +273,7 @@ export const api = {
    */
   async anki(action, params) {
     return fetchAPI("/api/anki", { action, params, version: 6 }).then((r) =>
-      r.json()
+      r.json(),
     );
   },
 };
