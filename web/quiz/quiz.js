@@ -224,6 +224,7 @@ function makeToast({ q_user, explanation, correct, attrValue }) {
 
   node.append(h, p);
 
+  const s = getComputedStyle(document.documentElement);
   /** @see https://github.com/apvarun/toastify-js?tab=readme-ov-file#documentation */
   // @ts-ignore
   const { toastElement } = Toastify({
@@ -236,10 +237,10 @@ function makeToast({ q_user, explanation, correct, attrValue }) {
       fontFamily: "sans-serif",
       // color: "black",
       background: correct
-        ? "var(--toast-right-color)"
+        ? s.getPropertyValue("--toast-right-color")
         : correct === null
-          ? "var(--toast-maybe-color)"
-          : "var(--toast-wrong-color)",
+          ? s.getPropertyValue("--toast-maybe-color")
+          : s.getPropertyValue("--toast-wrong-color"),
     },
   }).showToast();
   toastElement.lang = "zh-CN";
