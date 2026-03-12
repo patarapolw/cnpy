@@ -1,0 +1,64 @@
+:root,
+:root.light-theme {
+  --text-color: #222;
+  --bkg-color: #fff;
+
+  /* search old *.css with color: and rgb */
+  /* near-invisible color of Pinyin reading */
+  --color-faint: gray;
+
+  /* *analyze.css */
+  /* near-invisible color of Pinyin reading */
+  --color-pinyin-faint: var(--color-faint);
+
+  /* *dashboard.css */
+  /* tier-0 has the best Hanzi completion */
+  /* lower is the worst, with thicker color on hover */
+  --color-tier-0: black;
+  --color-tier-1: peru;
+  --color-tier-2: skyblue;
+  --color-tier-3: #eee;
+  --color-tier-3-hover: #ccc;
+
+  --color-start-button-border: rgba(0, 0, 0, 0.8);
+  --color-start-button-bg: rgba(211, 211, 211, 0.5);
+  --color-start-button-text: rgb(0, 0, 238);
+
+  --color-modal-bg: white;
+  --color-modal-border: #ccc;
+  --box-shadow-modal: 0 4px 8px rgba(0, 0, 0, 0.2);
+
+  --color-modal-close-button-bg: #f5f5f5;
+  --box-shadow-modal-close-button: 0 2px 4px rgba(0, 0, 0, 0.2);
+
+  /* *levels.css */
+  --color-bg-hover: aliceblue;
+  --td-border: 1px solid gray;
+  --box-shadow-voc-hover: inset 0px 0px 0.5em 0.5em rgba(255, 255, 255, 0.5);
+
+  /* *list.css */
+  --color-li-marker: var(--color-faint);
+
+  /* *meaning-log.css */
+  --color-right: green;
+  --color-wrong: red;
+  --color-maybe: goldenrod;
+
+  /* *quiz.css */
+  --color-right-progress: forestgreen;
+  --color-wrong-progress: var(--color-wrong);
+  --color-maybe-progress: orange;
+}
+
+:root.dark-theme {
+  --text-color: #eee;
+  --bkg-color: #121212;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light-theme) {
+    /* copied from .dark-theme block */
+    --text-color: #222;
+    --bkg-color: #fff;
+  }
+}
