@@ -22,11 +22,11 @@ const converter = new showdown.Converter({
 });
 
 async function loadHistory(start = liStart) {
-  const r = await api.ai_revlog_meaning(start, liSize);
+  const v = new URL(location.href, location.origin).searchParams.get("v") || "";
+  const r = await api.ai_revlog_meaning({ start, limit: liSize, v });
 
   if (r.result.length < liSize) {
     btnNext.disabled = true;
-    return;
   }
 
   const now_millisec = +new Date();

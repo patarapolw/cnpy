@@ -54,7 +54,7 @@ const elNotesTextarea = /** @type {HTMLTextAreaElement} */ (
 const elMeaningCloze = /** @type {HTMLDivElement} */ (
   document.getElementById("meaning-cloze")
 );
-const elMeaningClozeSentence = /** @type {HTMLDivElement} */ (
+const elMeaningClozeSentence = /** @type {HTMLAnchorElement} */ (
   elMeaningCloze.querySelector(".meaning-cloze-sentence")
 );
 const elMeaningClozeDeleteButton = /** @type {HTMLButtonElement} */ (
@@ -77,6 +77,12 @@ elMeaningQuiz.ontoggle = () => {
   }
 };
 
+elMeaningClozeSentence.onclick = function (ev) {
+  ev.preventDefault();
+  if (!this.href) return;
+  openInModal(this.href, `(${decodeURIComponent(this.href.split("?v=")[1])})`);
+};
+
 const ATTR_DATA_CHECKED = "data-checked";
 
 let isElMeaningInputEdited = true;
@@ -91,6 +97,7 @@ elMeaningClozeDeleteButton.addEventListener("click", async (ev) => {
   // Ensure deletion first before displaying (emptying) in the UI
   await api.ai_cloze_delete(v);
   elMeaningClozeSentence.textContent = "";
+  elMeaningClozeSentence.href = "";
 });
 
 elMeaningInput.addEventListener("input", (ev) => {
@@ -942,6 +949,7 @@ function doNext(ev) {
     const { cloze } = state.vocabDetails;
     if (cloze) {
       elMeaningClozeSentence.innerText = cloze;
+      elMeaningClozeSentence.href = `/meaning-log.html?v=${currentItem.v}`;
       if (state.lastIsRight) elMeaningInput.focus();
     }
 
@@ -1005,6 +1013,7 @@ function softCleanup() {
   elCompare.onclick = () => false;
 
   elMeaningClozeSentence.textContent = "";
+  elMeaningClozeSentence.href = "";
 
   document.querySelectorAll(".if-checked-details").forEach((el) => el.remove());
 }

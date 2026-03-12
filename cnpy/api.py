@@ -286,6 +286,7 @@ with server:
     @bottle.post("/api/ai_revlog_meaning")
     def ai_revlog_meaning():
         obj: Any = bottle.request.json
+        v: str = obj.get("v", "")
         start: int = obj.get("start")
         limit: int = obj.get("limit", 10)
 
@@ -296,8 +297,10 @@ with server:
                 SELECT arr FROM ai_cloze WHERE ai_cloze.v = revlog_meaning.v
             ) sentences
             FROM revlog_meaning
+            {'WHERE v=:v' if v else ''}
             ORDER BY created DESC
-            LIMIT {limit} OFFSET {start}"""
+            LIMIT :limit OFFSET :offset""",
+            {"v": v, "limit": limit, "offset": start},
         ):
             r = dict(r)
             r["sentences"] = json.loads(r["sentences"] or "[]")

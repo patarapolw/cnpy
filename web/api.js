@@ -198,8 +198,11 @@ export const api = {
   },
   /**
    *
-   * @param {number} start
-   * @param {number} [limit]
+   * @param {{
+   *   start: number;
+   *   limit?: number;
+   *   v?: string;
+   * }} opts
    * @returns {Promise<{
    *   result: {
    *     v: string;
@@ -216,10 +219,8 @@ export const api = {
    *   }[]
    * }>}
    */
-  async ai_revlog_meaning(start, limit) {
-    return fetchAPI("/api/ai_revlog_meaning", { start, limit }).then((r) =>
-      r.json(),
-    );
+  async ai_revlog_meaning(opts) {
+    return fetchAPI("/api/ai_revlog_meaning", opts).then((r) => r.json());
   },
   /**
    * @typedef {'OPENAI_API_KEY'
