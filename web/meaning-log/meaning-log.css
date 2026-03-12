@@ -12,15 +12,15 @@ nav {
 }
 
 .right {
-  color: var(--log-right-color);
+  color: var(--right-color);
   font-weight: bold;
 }
 
 .wrong {
-  color: var(--log-wrong-color);
+  color: var(--wrong-color);
 }
 
 .maybe {
-  color: var(--log-maybe-color);
+  color: var(--maybe-color);
   font-style: italic;
 }

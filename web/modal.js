@@ -186,7 +186,7 @@ style.textContent = /* css */ `
     width: 80vw;
     max-width: 800px;
     height: 100vh;
-    background-color: var(--modal-container-bg-color);
+    background-color: var(--modal-bg-color);
     z-index: 1000;
     display: flex;
     flex-direction: column;
@@ -205,7 +205,7 @@ style.textContent = /* css */ `
   #iframe-container {
     flex: 1;
     position: relative;
-    background-color: var(--iframe-container-bg-color);
+    background-color: var(--modal-bg-color);
   }
 
   #modal-close-button {
@@ -232,7 +232,7 @@ style.textContent = /* css */ `
   }
 
   .tab.active {
-    background-color: var(--tab-active-bg-color);
+    background-color: var(--modal-bg-color);
   }
 
   .tab-close-button {

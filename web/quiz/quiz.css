@@ -81,15 +81,15 @@ a.internal-link:visited {
 }
 
 .top-nav#progress [data-count-type="right"] {
-  background-color: var(--progress-right-color);
+  background-color: var(--right-color);
 }
 
 .top-nav#progress [data-count-type="repeat"] {
-  background-color: var(--progress-repeat-color);
+  background-color: var(--maybe-color);
 }
 
 .top-nav#progress [data-count-type="wrong"] {
-  background-color: var(--progress-wrong-color);
+  background-color: var(--wrong-color);
 }
 
 #counter {
@@ -98,7 +98,7 @@ a.internal-link:visited {
 
 .count[data-count-type="total"][data-repeat="true"] {
   text-decoration: underline;
-  color: var(--count-repeat-color);
+  color: var(--wrong-color);
 }
 
 .count small {
