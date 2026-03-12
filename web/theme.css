@@ -1,64 +1,250 @@
+/* =============================================================
+   cnpy - CSS Custom Properties (extracted from /web/.../*.css)
+   Light = default, Dark = override
+   ============================================================= */
+
 :root,
 :root.light-theme {
-  --text-color: #222;
-  --bkg-color: #fff;
+  /* Pinyin / faint text (analyze.css, search.css, list.css) */
+  --pinyin-color: gray;
+  --marker-color: gray;
 
-  /* search old *.css with color: and rgb */
-  /* near-invisible color of Pinyin reading */
-  --color-faint: gray;
+  /* Hanzi tiers (dashboard.css) */
+  --tier-0-color: black;
+  --tier-1-color: peru;
+  --tier-2-color: skyblue;
+  --tier-3-color: #eee;
+  --tier-3-hover-color: #ccc;
 
-  /* *analyze.css */
-  /* near-invisible color of Pinyin reading */
-  --color-pinyin-faint: var(--color-faint);
+  /* Hanzi hover glow (dashboard.css, levels.css) */
+  --hanzi-glow-color: rgba(255, 255, 255, 0.9);
+  --voc-glow-color: rgba(255, 255, 255, 0.5);
 
-  /* *dashboard.css */
-  /* tier-0 has the best Hanzi completion */
-  /* lower is the worst, with thicker color on hover */
-  --color-tier-0: black;
-  --color-tier-1: peru;
-  --color-tier-2: skyblue;
-  --color-tier-3: #eee;
-  --color-tier-3-hover: #ccc;
+  /* Start / nav button (dashboard.css) */
+  --button-border-color: rgba(0, 0, 0, 0.8);
+  --button-bg-color: rgba(211, 211, 211, 0.5);
+  --button-link-color: rgb(0, 0, 238);
 
-  --color-start-button-border: rgba(0, 0, 0, 0.8);
-  --color-start-button-bg: rgba(211, 211, 211, 0.5);
-  --color-start-button-text: rgb(0, 0, 238);
+  /* Modal (dashboard.css, quiz.css) */
+  --modal-shadow-color: rgba(0, 0, 0, 0.2);
+  --modal-close-shadow-color: rgba(0, 0, 0, 0.2);
 
-  --color-modal-bg: white;
-  --color-modal-border: #ccc;
-  --box-shadow-modal: 0 4px 8px rgba(0, 0, 0, 0.2);
+  --modal-bg-color: white;
+  --modal-border-color: #ccc;
 
-  --color-modal-close-button-bg: #f5f5f5;
-  --box-shadow-modal-close-button: 0 2px 4px rgba(0, 0, 0, 0.2);
+  /* Modal close button (dashboard.css, quiz.css) */
+  --modal-close-bg-color: #f5f5f5;
 
-  /* *levels.css */
-  --color-bg-hover: aliceblue;
-  --td-border: 1px solid gray;
-  --box-shadow-voc-hover: inset 0px 0px 0.5em 0.5em rgba(255, 255, 255, 0.5);
+  /* Overlay backdrop (quiz.css) */
+  --overlay-bg-color: rgba(0, 0, 0, 0.5);
 
-  /* *list.css */
-  --color-li-marker: var(--color-faint);
+  /* Quiz progress bar (quiz.css) */
+  --progress-right-color: forestgreen;
+  --progress-repeat-color: orange;
+  --progress-wrong-color: red;
 
-  /* *meaning-log.css */
-  --color-right: green;
-  --color-wrong: red;
-  --color-maybe: goldenrod;
+  /* Quiz answer states (quiz.css) */
+  --answer-right-color: greenyellow;
+  --answer-wrong-color: lightcoral;
+  --answer-maybe-color: yellow;
 
-  /* *quiz.css */
-  --color-right-progress: forestgreen;
-  --color-wrong-progress: var(--color-wrong);
-  --color-maybe-progress: orange;
-}
+  /* Quiz misc (quiz.css) */
+  --count-repeat-color: red;
+  --sentences-hidden-color: lightgray;
+  --input-border-color: black;
 
-:root.dark-theme {
-  --text-color: #eee;
-  --bkg-color: #121212;
+  /* Meaning log (meaning-log.css) */
+  --log-right-color: green;
+  --log-wrong-color: red;
+  --log-maybe-color: goldenrod;
+
+  /* Levels table (levels.css) */
+  --cloze-button-border-color: gray;
+  --table-border-color: gray;
+  --row-selected-bg-color: aliceblue;
+
+  /* modal.js (injected CSS-in-JS) */
+  --modal-container-bg-color: #fff;
+  --tab-bar-bg-color: #f9f9f9;
+  --tab-bar-border-color: #ccc;
+  --tab-bg-color: #f0f0f0;
+  --tab-hover-bg-color: #e0e0e0;
+  --tab-active-bg-color: #ffffff;
+  --tab-border-color: #ccc;
+  --iframe-container-bg-color: #fff;
+
+  /* quiz.js (Toastify toast background) */
+  --toast-right-color: #2a8b2f;
+  --toast-maybe-color: #bf6800;
+  --toast-wrong-color: #d91e18;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not(.light-theme) {
-    /* copied from .dark-theme block */
-    --text-color: #222;
-    --bkg-color: #fff;
+    .ctxmenu {
+      background: #1e1e1e;
+      border-color: #555;
+    }
+    .ctxmenu li.disabled {
+      color: #666;
+    }
+    .ctxmenu li.divider {
+      border-color: #444;
+    }
+    .ctxmenu li.interactive:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .ctxmenu li.submenu::after {
+      border-color: #aaa;
+    }
+    .ctxmenu {
+      box-shadow: #222 3px 3px 3px;
+    }
   }
+
+  :root:not(.light-theme) {
+    --pinyin-color: #888;
+    --marker-color: #888;
+
+    --tier-0-color: #e0e0e0;
+    --tier-1-color: #cd853f;
+    --tier-2-color: #4a9aba;
+    --tier-3-color: #444;
+    --tier-3-hover-color: #555;
+
+    --hanzi-glow-color: rgba(0, 0, 0, 0.9);
+    --voc-glow-color: rgba(0, 0, 0, 0.5);
+
+    --button-border-color: rgba(255, 255, 255, 0.3);
+    --button-bg-color: rgba(60, 60, 60, 0.7);
+    --button-link-color: #7ab3ff;
+
+    --modal-shadow-color: rgba(0, 0, 0, 0.6);
+    --modal-close-shadow-color: rgba(0, 0, 0, 0.5);
+
+    --modal-shadow-color: rgba(0, 0, 0, 0.6);
+    --modal-close-shadow-color: rgba(0, 0, 0, 0.5);
+
+    --modal-bg-color: #1e1e1e;
+    --modal-border-color: #444;
+
+    --modal-close-bg-color: #2a2a2a;
+
+    --overlay-bg-color: rgba(0, 0, 0, 0.75);
+
+    --progress-right-color: #4caf50;
+    --progress-repeat-color: #e8922a;
+    --progress-wrong-color: #e05252;
+
+    --answer-right-color: #2d6a2d;
+    --answer-wrong-color: #7a2a2a;
+    --answer-maybe-color: #5a4a00;
+
+    --count-repeat-color: #e05252;
+    --sentences-hidden-color: #555;
+    --input-border-color: #aaa;
+
+    --log-right-color: #4caf50;
+    --log-wrong-color: #e05252;
+    --log-maybe-color: #c8960c;
+
+    --cloze-button-border-color: #777;
+    --cloze-button-border-color: #777;
+    --table-border-color: #555;
+    --row-selected-bg-color: #1a2a3a;
+
+    --modal-container-bg-color: #1e1e1e;
+    --tab-bar-bg-color: #252525;
+    --tab-bar-border-color: #444;
+    --tab-bg-color: #2a2a2a;
+    --tab-hover-bg-color: #333;
+    --tab-active-bg-color: #1e1e1e;
+    --tab-border-color: #444;
+    --iframe-container-bg-color: #1e1e1e;
+
+    --toast-right-color: #1e6e22;
+    --toast-maybe-color: #9e5200;
+    --toast-wrong-color: #a81510;
+  }
+}
+
+:root.dark-theme {
+  .ctxmenu {
+    background: #1e1e1e;
+    border-color: #555;
+  }
+  .ctxmenu li.disabled {
+    color: #666;
+  }
+  .ctxmenu li.divider {
+    border-color: #444;
+  }
+  .ctxmenu li.interactive:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  .ctxmenu li.submenu::after {
+    border-color: #aaa;
+  }
+  .ctxmenu {
+    box-shadow: #222 3px 3px 3px;
+  }
+
+  --pinyin-color: #888;
+  --marker-color: #888;
+
+  --tier-0-color: #e0e0e0;
+  --tier-1-color: #cd853f;
+  --tier-2-color: #4a9aba;
+  --tier-3-color: #444;
+  --tier-3-hover-color: #555;
+
+  --hanzi-glow-color: rgba(0, 0, 0, 0.9);
+  --voc-glow-color: rgba(0, 0, 0, 0.5);
+
+  --button-border-color: rgba(255, 255, 255, 0.3);
+  --button-bg-color: rgba(60, 60, 60, 0.7);
+  --button-link-color: #7ab3ff;
+
+  --modal-shadow-color: rgba(0, 0, 0, 0.6);
+  --modal-close-shadow-color: rgba(0, 0, 0, 0.5);
+
+  --modal-bg-color: #1e1e1e;
+  --modal-border-color: #444;
+
+  --modal-close-bg-color: #2a2a2a;
+
+  --overlay-bg-color: rgba(0, 0, 0, 0.75);
+
+  --progress-right-color: #4caf50;
+  --progress-repeat-color: #e8922a;
+  --progress-wrong-color: #e05252;
+
+  --answer-right-color: #2d6a2d;
+  --answer-wrong-color: #7a2a2a;
+  --answer-maybe-color: #5a4a00;
+
+  --count-repeat-color: #e05252;
+  --sentences-hidden-color: #555;
+  --input-border-color: #aaa;
+
+  --log-right-color: #4caf50;
+  --log-wrong-color: #e05252;
+  --log-maybe-color: #c8960c;
+
+  --cloze-button-border-color: #777;
+  --table-border-color: #555;
+  --row-selected-bg-color: #1a2a3a;
+
+  --modal-container-bg-color: #1e1e1e;
+  --tab-bar-bg-color: #252525;
+  --tab-bar-border-color: #444;
+  --tab-bg-color: #2a2a2a;
+  --tab-hover-bg-color: #333;
+  --tab-active-bg-color: #1e1e1e;
+  --tab-border-color: #444;
+  --iframe-container-bg-color: #1e1e1e;
+
+  --toast-right-color: #1e6e22;
+  --toast-maybe-color: #9e5200;
+  --toast-wrong-color: #a81510;
 }

@@ -236,10 +236,10 @@ function makeToast({ q_user, explanation, correct, attrValue }) {
       fontFamily: "sans-serif",
       // color: "black",
       background: correct
-        ? "#2A8B2F"
+        ? "var(--toast-right-color)"
         : correct === null
-          ? "#BF6800"
-          : "#D91E18",
+          ? "var(--toast-maybe-color)"
+          : "var(--toast-wrong-color)",
     },
   }).showToast();
   toastElement.lang = "zh-CN";

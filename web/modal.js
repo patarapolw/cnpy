@@ -88,7 +88,7 @@ export function openInModal(url, title) {
 
       if (!nextActiveTab) {
         nextActiveTab = Array.from(tabBar.children).find((t) =>
-          t.classList.contains("active")
+          t.classList.contains("active"),
         );
       }
 
@@ -174,7 +174,7 @@ style.textContent = /* css */ `
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: var(--overlay-bg-color);
     z-index: 999;
   }
 
@@ -186,18 +186,18 @@ style.textContent = /* css */ `
     width: 80vw;
     max-width: 800px;
     height: 100vh;
-    background-color: #fff;
+    background-color: var(--modal-container-bg-color);
     z-index: 1000;
     display: flex;
     flex-direction: column;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 8px var(--modal-shadow-color);
   }
 
   #tab-bar {
     display: flex;
-    background-color: #f9f9f9;
-    border-bottom: 1px solid #ccc;
+    background-color: var(--tab-bar-bg-color);
+    border-bottom: 1px solid var(--tab-bar-border-color);
     overflow-x: scroll;
     padding-right: 80px;
   }
@@ -205,7 +205,7 @@ style.textContent = /* css */ `
   #iframe-container {
     flex: 1;
     position: relative;
-    background-color: #fff;
+    background-color: var(--iframe-container-bg-color);
   }
 
   #modal-close-button {
@@ -220,19 +220,19 @@ style.textContent = /* css */ `
     display: flex;
     align-items: center;
     padding: 10px;
-    border-right: 1px solid #ccc;
+    border-right: 1px solid var(--tab-border-color);
     cursor: pointer;
-    background-color: #f0f0f0;
+    background-color: var(--tab-bg-color);
     word-break: keep-all;
     white-space: nowrap;
   }
 
   .tab:hover {
-    background-color: #e0e0e0;
+    background-color: var(--tab-hover-bg-color);
   }
 
   .tab.active {
-    background-color: #ffffff;
+    background-color: var(--tab-active-bg-color);
   }
 
   .tab-close-button {

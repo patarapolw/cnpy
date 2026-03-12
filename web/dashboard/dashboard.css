@@ -1,3 +1,5 @@
+@import "/theme.css";
+
 * {
   font-family: sans-serif;
 }
@@ -61,41 +63,41 @@ body {
   font-size: 2em;
   padding: 0 3px;
   margin: 0 -0.7rem;
-  box-shadow: inset 0px 0px 0.5em 0.5em rgba(255, 255, 255, 0.9);
+  box-shadow: inset 0px 0px 0.5em 0.5em var(--hanzi-glow-color);
   z-index: 1;
 }
 
 .tier-0 {
-  color: black;
+  color: var(--tier-0-color);
 }
 
 .tier-1 {
-  color: peru;
+  color: var(--tier-1-color);
 }
 
 .tier-2 {
-  color: skyblue;
+  color: var(--tier-2-color);
 }
 
 .tier-3 {
-  color: #eee;
+  color: var(--tier-3-color);
 }
 
 .tier-3.hover,
 .tier-3:hover {
-  color: #ccc;
+  color: var(--tier-3-hover-color);
 }
 
 .button {
-  border: 1px solid rgba(0, 0, 0, 0.8);
+  border: 1px solid var(--button-border-color);
   border-radius: 3px;
   padding: 5px 10px;
-  background-color: rgba(211, 211, 211, 0.5);
+  background-color: var(--button-bg-color);
 }
 
 .button a {
   text-decoration: none;
-  color: rgb(0, 0, 238);
+  color: var(--button-link-color);
 }
 
 ul.ctxmenu {
@@ -109,9 +111,9 @@ ul.ctxmenu {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: white;
-  border: 1px solid #ccc;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background-color: var(--modal-bg-color);
+  border: 1px solid var(--modal-border-color);
+  box-shadow: 0 4px 8px var(--modal-shadow-color);
   z-index: 1000;
   display: flex;
   flex-direction: column;
@@ -130,10 +132,10 @@ ul.ctxmenu {
   height: 30px;
   width: 30px;
   border: none;
-  background-color: #f5f5f5;
+  background-color: var(--modal-close-bg-color);
   cursor: pointer;
   text-align: center;
   line-height: 30px;
   border-radius: 50%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px var(--modal-close-shadow-color);
 }
