@@ -314,6 +314,19 @@ with server:
 
             out.append(r)
 
+        if not out and v:
+            for r in db.execute(
+                f"""
+                SELECT v, modified created, arr FROM ai_cloze
+                WHERE v = :v
+                """,
+                (v,),
+            ):
+                r = dict(r)
+                r["sentences"] = json.loads(r["arr"] or "[]")
+
+                out.append(r)
+
         return {"result": out}
 
     @bottle.post("/api/search")

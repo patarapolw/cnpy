@@ -207,10 +207,10 @@ export const api = {
    *   result: {
    *     v: string;
    *     created: string;
-   *     correct: boolean | null;
-   *     explanation: string;
-   *     answer: string;
-   *     cloze: string; // can be ''
+   *     correct?: boolean | null;
+   *     explanation?: string;
+   *     answer?: string;
+   *     cloze?: string; // can be ''
    *     sentences: {
    *       question: string;
    *       alt: string[];
