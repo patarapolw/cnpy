@@ -113,14 +113,14 @@ def fn_save_settings():
     )
 
 
-def create_ai_ask_process(d: dict, v: str, meaning: str, cloze: str):
-    try:
-        r = ai.ai_ask(v, meaning=meaning, cloze=cloze)
-        d[v] = r
-        # valid json or not is checked in ai.py
-    except Exception as e:
-        traceback.print_exc()
-        print(f"AI translation error {v}")
+def create_ai_ask_process(
+    d: dict, v: str, meaning: str, cloze: str, win: webview.Window
+):
+    # obj_str = json.dumps({"v": v})
+    obj = ai.ai_ask(v, meaning=meaning, cloze=cloze)
+    obj_str = json.dumps(obj)
+    d[v] = obj_str
+    # win.run_js(f"onComplete_ai_ask?.({obj_str})")
 
 
 srs = fsrs.FSRS()
@@ -172,7 +172,7 @@ with server:
     @bottle.post("/api/sync/setup")
     def set_sync_db():
         file_path = g.win.create_file_dialog(
-            webview.SAVE_DIALOG,
+            webview.FileDialog.SAVE,
             directory=str(exe_root),
             save_filename="cnpy.db",
             file_types=("cnpy SQLite database (*.db)",),
@@ -269,6 +269,7 @@ with server:
                         v,
                         meaning,
                         cloze,
+                        g.win,
                     ),
                 )
                 g.online_api_processes.append(process)

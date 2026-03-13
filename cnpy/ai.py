@@ -1,12 +1,10 @@
 import time
 import json
-import traceback
-import pprint
-import sys
+from typing import Generator
 
 from openai import OpenAI
-from ollama import Client
 from regex import Regex
+from json_repair import repair_json
 
 from cnpy.db import db
 from cnpy.env import env
@@ -51,6 +49,8 @@ Then, explain why the meaning is correct, incorrect, or partially accurate. Incl
 Q_MEANING = f"""
 {Q_MEANING_ROLE}
 
+* Always output fields in order: correct, explanation.
+
 Respond in this JSON format:
 
 ```json
@@ -72,6 +72,7 @@ Make **sufficient number of** cloze test sentences to cover **all** distinct usa
 * Provide 2–3 plausible but incorrect alternatives for each. Alternatives are different from each other and from the headword.
 * Explain why the headword is the most appropriate choice among the options.
 * Reading and meaning **must not be included** inside the cloze questions and cloze alts.
+* Always output fields in order: correct, explanation, cloze.
 
 Respond in this JSON format:
 
@@ -92,50 +93,11 @@ Respond in this JSON format:
 """.strip()
 
 
-def ollama_ai_ask(q_system: str, q_user: str) -> str | None:
+def stream_ai_ask(
+    q_system: str, q_user: str, largest_model: bool
+) -> Generator[str, None, None]:
     """
-    Ask a question using Ollama.
-
-    Notes:
-        - This function requires the Ollama library to be installed and configured.
-
-    See Also:
-        - https://ollama.com for installation instructions.
-
-    Args:
-        q_system (str): The string defining system role.
-        q_user (str): The string to ask.
-
-    Returns:
-        str | None: The answered string, or None if fails.
-    """
-    result = None
-
-    try:
-        # todo: OpenAI compatibility (https://github.com/ollama/ollama/blob/main/docs/openai.md)
-        ollama_client = Client(
-            # Use environment variable CNPY_LOCAL_OLLAMA_HOST
-            host=env.get(f"{ENV_LOCAL_KEY_PREFIX}OLLAMA_HOST")
-        )
-
-        response = ollama_client.chat(
-            model=get_local_model(),
-            messages=[
-                {"role": "system", "content": q_system},
-                {"role": "user", "content": q_user},
-            ],
-        )
-
-        result = response.message.content
-    except Exception as e:
-        print(f"Error in ollama_ai `{q_user}`: {e}")
-
-    return result
-
-
-def online_ai_ask(q_system: str, q_user: str) -> str | None:
-    """
-    Ask a question using online AI.
+    Generator to respond to a question using LLM.
 
     Notes:
         - This function requires `OPENAI_API_KEY` to be set in the environment.
@@ -153,55 +115,55 @@ def online_ai_ask(q_system: str, q_user: str) -> str | None:
     Returns:
         str | None: The answered string, or None if fails.
     """
-    result = None
+    model = get_online_model() if largest_model else ""
 
-    try:
-        model = get_online_model()
+    base_url = "https://api.openai.com/v1"
+    if model.startswith("deepseek-"):
+        base_url = "https://api.deepseek.com"
+    elif model.startswith("gemini-") or model.startswith("gemma-"):
+        base_url = "https://generativelanguage.googleapis.com/v1beta/openai/"
 
-        model_type = "openai"
-        base_url = "https://api.openai.com/v1"
-        if model.startswith("deepseek-"):
-            model_type = "deepseek"
-            base_url = "https://api.deepseek.com"
-        elif model.startswith("gemini-") or model.startswith("gemma-"):
-            model_type = "google"
-            base_url = "https://generativelanguage.googleapis.com/v1beta/openai/"
+    base_url = (
+        (env.get("OPENAI_BASE_URL") or base_url)
+        if largest_model
+        # Use environment variable CNPY_LOCAL_OLLAMA_HOST
+        else env.get(f"{ENV_LOCAL_KEY_PREFIX}OLLAMA_HOST")
+    )
 
-        base_url = env.get("OPENAI_BASE_URL") or base_url
+    openai_client = OpenAI(
+        base_url=base_url,
+        api_key=env.get("OPENAI_API_KEY") if largest_model else None,
+    )
 
-        openai_client = OpenAI(
-            base_url=base_url,
-            api_key=env.get("OPENAI_API_KEY"),
-        )
+    temperature = env.get("OPENAI_TEMPERATURE")
+    if not temperature and model == "deepseek-chat":
+        temperature = "1.3"
+    if not largest_model:
+        temperature = None
 
-        temperature = env.get("OPENAI_TEMPERATURE")
-        if not temperature and model == "deepseek-chat":
-            temperature = "1.3"
+    response = openai_client.chat.completions.create(
+        model=model,
+        messages=[
+            (
+                {"role": "user", "content": q_system}
+                if model.startswith("gemma-")
+                else {"role": "system", "content": q_system}
+            ),
+            {"role": "user", "content": q_user},
+        ],
+        temperature=float(
+            temperature or "1"
+        ),  # Adjust temperature according to documentation
+        stream=True,
+    )
 
-        response = openai_client.chat.completions.create(
-            model=model,
-            messages=[
-                (
-                    {"role": "user", "content": q_system}
-                    if model.startswith("gemma-")
-                    else {"role": "system", "content": q_system}
-                ),
-                {"role": "user", "content": q_user},
-            ],
-            temperature=float(
-                temperature or "1"
-            ),  # Adjust temperature according to documentation
-            stream=False,
-        )
-
-        result = response.choices[0].message.content
-    except Exception as e:
-        print(f"Error in online_ai `{q_user}`: {e}")
-
-    return result
+    for chunk in response:
+        delta = chunk.choices[0].delta.content
+        if delta:
+            yield delta
 
 
-def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> str | None:
+def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> dict | None:
     """
     Ask AI with a question type
 
@@ -214,9 +176,9 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> str |
         meaning (str | None): The string of user supplied meaning to the vocab
 
     Returns:
-        str | None: The answered string, or None if all methods fail.
+        dict | None: The answered string, or None if all methods fail.
     """
-    t: str | None = None
+    llm_stream: Generator[str, None, None] | None = None
     q_system = Q_TRANSLATION_SYSTEM
     q_user = Q_TRANSLATION.format(v=v)
     name = f"{v} translation"
@@ -248,7 +210,7 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> str |
             is_ai_run = True
 
             print(f"{name}: using local AI")
-            return ollama_ai_ask(q_system, q_user)
+            return stream_ai_ask(q_system, q_user, False)
 
     def do_online():
         if get_can_online():
@@ -256,46 +218,60 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> str |
             is_ai_run = True
 
             print(f"{name}: using online AI")
-            return online_ai_ask(q_system, q_user)
+            return stream_ai_ask(q_system, q_user, True)
 
     if meaning:
-        t = do_local() or do_online()
+        llm_stream = do_local() or do_online()
     else:
-        t = do_online() or do_local()
+        llm_stream = do_online() or do_local()
 
-    if is_ai_run:
-        print(f"{name}: AI response took {time.time() - start:.1f} seconds")
+    if not llm_stream:
+        return
 
-    if not t:
-        return None
+    current_output = ""
+    rowid = 0
 
-    if meaning:
-        # TODO: permissive LLM prompt that give explanation even with malformed JSON response
-        # TODO: when cloze generation fails, show error logs in UI
+    for chunk in llm_stream:
+        current_output += chunk
 
-        try:
-            # Like find(), but raise ValueError when the substring is not found.
-            # @see https://docs.python.org/3/library/stdtypes.html#str.index
-            i_opening = t.index("{")
+    obj = repair_json(current_output, return_objects=True)
+    if isinstance(obj, dict):
+        obj["v"] = v
 
-            i_closing = t.rfind("}")
-            if i_closing == -1:
-                msg = "Closing '}' not found in AI response"
-                db.execute(
-                    "INSERT INTO ai_error (v,error,output) VALUES (?,?,?)",
-                    (v, msg, t),
+        if not meaning:
+            print(f"{v}: saving AI translation")
+            db.execute(
+                "INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)",
+                (v, json.dumps(obj, ensure_ascii=False)),
+            )
+            db.commit()
+        else:
+            if "correct" not in obj:
+                return
+
+            correct: bool | None = obj.get("correct")
+            explanation: str = obj.get("explanation", "")
+
+            obj["q_user"] = q_user
+
+            if not explanation:
+                return obj
+
+            if not rowid:
+                rowid: int = (
+                    db.execute(
+                        "SELECT COALESCE(max(rowid), 0) FROM revlog_meaning"
+                    ).fetchone()[0]
+                    + 1
                 )
-                raise ValueError(msg)
-
-            r = t[i_opening : i_closing + 1]
-            obj = json.loads(r)
-
-            correct: bool | None = obj["correct"]
-            explanation: str = obj["explanation"]
 
             db.execute(
-                "INSERT INTO revlog_meaning (v, correct, explanation, answer, cloze) VALUES (?,?,?,?,?)",
+                """
+                INSERT OR REPLACE INTO revlog_meaning (rowid, v, correct, explanation, answer, cloze)
+                VALUES (?,?,?,?,?,?)
+                """,
                 (
+                    rowid,
                     v,
                     5 if correct is None else int(correct),
                     explanation,
@@ -306,7 +282,9 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> str |
 
             if cloze_results:
                 obj["cloze"] = cloze_results
-            else:
+            elif (cloze_results := obj.get("cloze")) and isinstance(
+                cloze_results, list
+            ):
                 errors: set[str] = set()
                 re_han = Regex(r"\p{Han}")
 
@@ -316,7 +294,6 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> str |
                 # includes (brackets of sentence meaning.)
                 re_en = Regex(r" [\p{L&}\p{M}!-~]+\.")
 
-                cloze_results = obj["cloze"]
                 for r in cloze_results:
                     q: str = r["question"]
                     headword: str = r["headword"]
@@ -363,30 +340,16 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> str |
                 else:
                     db.execute(
                         "INSERT INTO ai_error (v,error,output) VALUES (?,?,?)",
-                        (v, json.dumps(list(errors), ensure_ascii=False), t),
+                        (
+                            v,
+                            json.dumps(list(errors), ensure_ascii=False),
+                            json.dumps(obj, ensure_ascii=False),
+                        ),
                     )
+            db.commit()
+        return obj
 
-            obj["q_user"] = q_user
-            t = json.dumps(obj, ensure_ascii=False)
-
-            obj["v"] = v
-            pprint.pp(obj, sort_dicts=False)
-        except ValueError:
-            traceback.print_exc()
-            print("Error:", v, t)
-            db.execute("DELETE FROM ai_dict WHERE v = ? AND t = ''", (v,))
-
-            db.execute(
-                "INSERT INTO ai_error (v,error,output) VALUES (?,?,?)",
-                (v, str(sys.exception()), t),
-            )
-    else:
-        print(f"{v}: saving AI translation")
-        db.execute("INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)", (v, t))
-
-    db.commit()
-
-    return t
+    return None
 
 
 def load_db():
