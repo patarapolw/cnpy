@@ -137,9 +137,9 @@ def create_ai_ask_process(
 
         run_in_all_iframes(obj_str)
 
-    obj["isComplete"] = True
-    obj_str = json.dumps(obj, ensure_ascii=False)
-    run_in_all_iframes(obj_str)
+    # obj["isComplete"] = True
+    # obj_str = json.dumps(obj, ensure_ascii=False)
+    # run_in_all_iframes(obj_str)
 
 
 srs = fsrs.FSRS()

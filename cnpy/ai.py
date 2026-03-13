@@ -1,5 +1,5 @@
-import time
 import json
+import threading
 from typing import Generator
 
 from openai import OpenAI
@@ -9,6 +9,8 @@ from json_repair import repair_json
 from cnpy.db import db
 from cnpy.env import env
 from cnpy.sync import ENV_LOCAL_KEY_PREFIX
+
+db_lock = threading.Lock()
 
 
 def get_local_model():
@@ -232,19 +234,25 @@ def ai_ask(
         return
 
     current_output = ""
-    rowid = 0
 
     obj: dict = {}
+
+    def get_correct():
+        correct: bool | None = obj.get("correct")
+        if correct is not None and type(correct) is not bool:
+            return None
+        return correct
+
+    def get_explanation():
+        explanation: str | None = obj.get("explanation")
+        if type(explanation) is not str:
+            return None
+        return explanation
 
     for chunk in llm_stream:
         current_output += chunk
 
         if not meaning:
-            db.execute(
-                "INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)",
-                (v, current_output),
-            )
-            db.commit()
             obj["translation"] = current_output
         else:
             obj = repair_json(current_output, return_objects=True, stream_stable=True)  # type: ignore
@@ -252,50 +260,45 @@ def ai_ask(
                 continue
 
             obj["v"] = v
-
-            correct: bool | None = obj.get("correct")
-            if correct is not None and type(correct) is not bool:
-                continue
-
-            explanation: str = obj.get("explanation", "")
-            if type(explanation) is not str:
-                continue
-
             obj["q_user"] = q_user
 
-            if not explanation:
+            if not get_explanation():
                 yield obj
                 continue
 
-            if not rowid:
-                rowid: int = (
-                    db.execute(
-                        "SELECT COALESCE(max(rowid), 0) FROM revlog_meaning"
-                    ).fetchone()[0]
-                    + 1
-                )
-
-            db.execute(
-                """
-                INSERT OR REPLACE INTO revlog_meaning (rowid, v, correct, explanation, answer, cloze)
-                VALUES (?,?,?,?,?,?)
-                """,
-                (
-                    rowid,
-                    v,
-                    5 if correct is None else int(correct),
-                    explanation,
-                    meaning,
-                    cloze or "",
-                ),
-            )
-
             if cloze_results:
                 obj["cloze"] = cloze_results
-            db.commit()
 
-            yield obj
+            # wait for complete explanation to yield
+            # yield obj
 
+    with db_lock:
+        if not meaning:
+            db.execute(
+                "INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)",
+                (v, current_output),
+            )
+        else:
+            correct = get_correct()
+            explanation = get_explanation()
+            if explanation:
+                db.execute(
+                    """
+                    INSERT OR REPLACE INTO revlog_meaning (v, correct, explanation, answer, cloze)
+                    VALUES (?,?,?,?,?)
+                    """,
+                    (
+                        v,
+                        5 if correct is None else int(correct),
+                        explanation,
+                        meaning,
+                        cloze or "",
+                    ),
+                )
+
+        db.commit()
+
+    obj["isComplete"] = True
     yield obj
 
     obj_cloze = obj.get("cloze")
@@ -358,23 +361,24 @@ def ai_ask(
     if not is_valid_cloze:
         return
 
-    if not errors:
-        print(f"{v}: saving AI cloze")
-        db.execute(
-            "INSERT OR REPLACE INTO ai_cloze (v, arr, modified) VALUES (?, ?, datetime())",
-            (v, json.dumps(obj_cloze, ensure_ascii=False)),
-        )
-    else:
-        db.execute(
-            "INSERT INTO ai_error (v,error,output) VALUES (?,?,?)",
-            (
-                v,
-                json.dumps(list(errors), ensure_ascii=False),
-                json.dumps(obj, ensure_ascii=False),
-            ),
-        )
+    with db_lock:
+        if not errors:
+            print(f"{v}: saving AI cloze")
+            db.execute(
+                "INSERT OR REPLACE INTO ai_cloze (v, arr, modified) VALUES (?, ?, datetime())",
+                (v, json.dumps(obj_cloze, ensure_ascii=False)),
+            )
+        else:
+            db.execute(
+                "INSERT INTO ai_error (v,error,output) VALUES (?,?,?)",
+                (
+                    v,
+                    json.dumps(list(errors), ensure_ascii=False),
+                    json.dumps(obj, ensure_ascii=False),
+                ),
+            )
 
-    db.commit()
+        db.commit()
 
 
 def load_db():

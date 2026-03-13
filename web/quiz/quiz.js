@@ -126,6 +126,16 @@ elMeaningInput.addEventListener("keypress", async (ev) => {
       if (meaning) {
         try {
           await api.ai_translation(v, { meaning, cloze });
+          if (!on_ai_ask.loading_intervalId) {
+            on_ai_ask.loading_intervalId = window.setInterval(() => {
+              if (state.vocabList[state.i]?.v !== v) {
+                clearInterval(on_ai_ask.loading_intervalId);
+                on_ai_ask.loading_intervalId = 0;
+                return;
+              }
+              elMeaningExplanation.textContent += ".";
+            }, 1000);
+          }
         } catch (e) {
           console.error(e);
           elMeaningExplanation.textContent = "";
@@ -1255,18 +1265,21 @@ async function newVocabList() {
   }
 }
 
+on_ai_ask.loading_intervalId = 0;
+
 function on_ai_ask(param) {
   const { v, meaning, cloze, isComplete, ...r } = param;
 
   const item = state.vocabList[state.i];
   if (!item) return;
-  console.log(item.v, v, meaning);
 
-  const checkSameItem = () => item.v === v;
+  const checkSameItem = () => state.vocabList[state.i]?.v === v;
   if (meaning) {
     const { correct, explanation = "", q_user } = r;
     if (checkSameItem() && !explanation) {
-      elMeaningExplanation.textContent += ".";
+    } else {
+      clearInterval(on_ai_ask.loading_intervalId);
+      on_ai_ask.loading_intervalId = 0;
     }
 
     let attrValue = "";
