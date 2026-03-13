@@ -116,11 +116,30 @@ def fn_save_settings():
 def create_ai_ask_process(
     d: dict, v: str, meaning: str, cloze: str, win: webview.Window
 ):
-    # obj_str = json.dumps({"v": v})
-    obj = ai.ai_ask(v, meaning=meaning, cloze=cloze)
+    base_obj: dict[str, Any] = {"v": v, "meaning": meaning}
+    obj = base_obj
     obj_str = json.dumps(obj)
-    d[v] = obj_str
-    # win.run_js(f"onComplete_ai_ask?.({obj_str})")
+
+    def run_in_all_iframes(payload: str):
+        js = f"""
+        window.on_ai_ask?.({payload});
+        for (const f of document.querySelectorAll('iframe')) {{
+            try {{ f.contentWindow.on_ai_ask?.({payload}) }} catch (e) {{ console.error(e) }}
+        }};
+        """
+
+        win.run_js(js)
+
+    for obj in ai.ai_ask(v, meaning=meaning, cloze=cloze):
+        obj.update(base_obj)
+        obj_str = json.dumps(obj, ensure_ascii=False)
+        d[v] = obj["translation"] if "translation" in obj else obj_str
+
+        run_in_all_iframes(obj_str)
+
+    obj["isComplete"] = True
+    obj_str = json.dumps(obj, ensure_ascii=False)
+    run_in_all_iframes(obj_str)
 
 
 srs = fsrs.FSRS()

@@ -43,7 +43,10 @@ Also consider possibility that the provided meaning is a typo.
 * If the meaning is **clearly wrong**, return `"correct": false`.
 * If the meaning is **ambiguous, partially correct, or depends on context**, return `"correct": null`.
 
-Then, explain why the meaning is correct, incorrect, or partially accurate. Include the Pinyin of the given Chinese word in the given meaning context. Include nuances and common uses.
+Then, explain why the meaning is correct, incorrect, or partially accurate.
+Include the Pinyin(s) of the given Chinese word in the given meaning context.
+If there multiple possible Pinyins, explain why.
+Include nuances and common uses.
 """.strip()
 
 Q_MEANING = f"""
@@ -163,7 +166,9 @@ def stream_ai_ask(
             yield delta
 
 
-def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> dict | None:
+def ai_ask(
+    v: str, *, meaning: str | None = "", cloze: str | None = ""
+) -> Generator[dict, None, None]:
     """
     Ask AI with a question type
 
@@ -176,7 +181,7 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> dict 
         meaning (str | None): The string of user supplied meaning to the vocab
 
     Returns:
-        dict | None: The answered string, or None if all methods fail.
+        Generator[dict, None, None]: The answered JSON, or None if all methods fail.
     """
     llm_stream: Generator[str, None, None] | None = None
     q_system = Q_TRANSLATION_SYSTEM
@@ -199,8 +204,6 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> dict 
             q_user = f'Is "{meaning}" a correct meaning for "{v}" in sentence "{cloze}" in Chinese?'
         else:
             cloze_results = []
-
-    start = time.time()
 
     is_ai_run = False
 
@@ -231,31 +234,38 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> dict 
     current_output = ""
     rowid = 0
 
+    obj: dict = {}
+
     for chunk in llm_stream:
         current_output += chunk
 
-    obj = repair_json(current_output, return_objects=True)
-    if isinstance(obj, dict):
-        obj["v"] = v
-
         if not meaning:
-            print(f"{v}: saving AI translation")
             db.execute(
                 "INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)",
-                (v, json.dumps(obj, ensure_ascii=False)),
+                (v, current_output),
             )
             db.commit()
+            obj["translation"] = current_output
         else:
-            if "correct" not in obj:
-                return
+            obj = repair_json(current_output, return_objects=True, stream_stable=True)  # type: ignore
+            if not isinstance(obj, dict):
+                continue
+
+            obj["v"] = v
 
             correct: bool | None = obj.get("correct")
+            if correct is not None and type(correct) is not bool:
+                continue
+
             explanation: str = obj.get("explanation", "")
+            if type(explanation) is not str:
+                continue
 
             obj["q_user"] = q_user
 
             if not explanation:
-                return obj
+                yield obj
+                continue
 
             if not rowid:
                 rowid: int = (
@@ -282,74 +292,89 @@ def ai_ask(v: str, *, meaning: str | None = "", cloze: str | None = "") -> dict 
 
             if cloze_results:
                 obj["cloze"] = cloze_results
-            elif (cloze_results := obj.get("cloze")) and isinstance(
-                cloze_results, list
-            ):
-                errors: set[str] = set()
-                re_han = Regex(r"\p{Han}")
-
-                # a space followed by alphabets (having upper/lower cases) or "English" punctuations (!-~)
-                # ending with an "English" period (not Chinese ones like 。)
-                # e.g. ' "Émanuel".'
-                # includes (brackets of sentence meaning.)
-                re_en = Regex(r" [\p{L&}\p{M}!-~]+\.")
-
-                for r in cloze_results:
-                    q: str = r["question"]
-                    headword: str = r["headword"]
-                    alt: list[str] = r["alt"]
-
-                    if headword != v:
-                        e = f"q for {headword}"
-                        errors.add(e)
-                        print(f"Error: {v} ({e}): {q}")
-                        break
-
-                    filtered_alt = [s for s in alt if s != v]
-
-                    if not alt:
-                        e = f"{v} in {alt}"
-                        errors.add(e)
-                        print(f"Error: {v} ({e}): {q}")
-                        break
-
-                    alt = filtered_alt
-                    r["alt"] = alt
-
-                    if not re_han.search(q) or re_en.search(q):
-                        e = f"malformed q"
-                        errors.add(e)
-                        print(f"Error: {v} ({e}): {q}")
-                        break
-
-                    if "_" not in q:
-                        q = q.replace(v, "__")
-                        if "_" not in q:
-                            e = f"no cloze deletion"
-                            errors.add(e)
-                            print(f"Error: {v} ({e}): {q}")
-                            break
-                        r["question"] = q
-
-                if not errors:
-                    print(f"{v}: saving AI cloze")
-                    db.execute(
-                        "INSERT OR REPLACE INTO ai_cloze (v, arr, modified) VALUES (?, ?, datetime())",
-                        (v, json.dumps(cloze_results, ensure_ascii=False)),
-                    )
-                else:
-                    db.execute(
-                        "INSERT INTO ai_error (v,error,output) VALUES (?,?,?)",
-                        (
-                            v,
-                            json.dumps(list(errors), ensure_ascii=False),
-                            json.dumps(obj, ensure_ascii=False),
-                        ),
-                    )
             db.commit()
-        return obj
 
-    return None
+            yield obj
+
+    yield obj
+
+    obj_cloze = obj.get("cloze")
+    if not isinstance(obj_cloze, list):
+        return
+
+    is_valid_cloze = True
+    errors: set[str] = set()
+    re_han = Regex(r"\p{Han}")
+
+    # a space followed by alphabets (having upper/lower cases) or "English" punctuations (!-~)
+    # ending with an "English" period (not Chinese ones like 。)
+    # e.g. ' "Émanuel".'
+    # includes (brackets of sentence meaning.)
+    re_en = Regex(r" [\p{L&}\p{M}!-~]+\.")
+
+    for r in obj_cloze:
+        if type(r) is not dict or not all(
+            k in r for k in ["question", "headword", "alt"]
+        ):
+            is_valid_cloze = False
+            continue
+
+        q: str = r["question"]
+        headword: str = r["headword"]
+        alt: list[str] = r["alt"]
+
+        if headword != v:
+            e = f"q for {headword}"
+            errors.add(e)
+            print(f"Error: {v} ({e}): {q}")
+            break
+
+        filtered_alt = [s for s in alt if s != v]
+
+        if not alt:
+            e = f"{v} in {alt}"
+            errors.add(e)
+            print(f"Error: {v} ({e}): {q}")
+            break
+
+        alt = filtered_alt
+        r["alt"] = alt
+
+        if not re_han.search(q) or re_en.search(q):
+            e = f"malformed q"
+            errors.add(e)
+            print(f"Error: {v} ({e}): {q}")
+            break
+
+        if "_" not in q:
+            q = q.replace(v, "__")
+            if "_" not in q:
+                e = f"no cloze deletion"
+                errors.add(e)
+                print(f"Error: {v} ({e}): {q}")
+                break
+            r["question"] = q
+
+    if not is_valid_cloze:
+        return
+
+    if not errors:
+        print(f"{v}: saving AI cloze")
+        db.execute(
+            "INSERT OR REPLACE INTO ai_cloze (v, arr, modified) VALUES (?, ?, datetime())",
+            (v, json.dumps(obj_cloze, ensure_ascii=False)),
+        )
+    else:
+        db.execute(
+            "INSERT INTO ai_error (v,error,output) VALUES (?,?,?)",
+            (
+                v,
+                json.dumps(list(errors), ensure_ascii=False),
+                json.dumps(obj, ensure_ascii=False),
+            ),
+        )
+
+    db.commit()
 
 
 def load_db():
