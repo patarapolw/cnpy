@@ -1326,30 +1326,36 @@ function on_ai_ask(param) {
   } else {
     if (!isComplete) return;
     if (checkSameItem()) {
-      // Get the current notes
-      let notes = elNotesTextarea.value;
-
-      if (notes.endsWith(AI_TRANSLATION_STRING)) {
-        notes = notes.slice(0, notes.length - AI_TRANSLATION_STRING.length);
-      }
-
-      if (!notes.includes(AI_TRANSLATION_STRING)) {
-        if (notes) {
-          notes += "\n\n";
-        }
-
-        notes += AI_TRANSLATION_STRING + "\n" + r.translation;
-        item.data.notes = notes;
-
-        elNotesTextarea.value = notes;
-        makeNotes({ skipSave: false });
-        // Toggle the notes display to show the new notes
-        elNotes.setAttribute("data-has-notes", "1");
-      }
+      loadAITranslationIntoTextArea(r.translation);
     }
   }
 }
 Object.assign(window, { on_ai_ask });
+
+function loadAITranslationIntoTextArea(translation) {
+  const item = state.vocabList[state.i];
+
+  // Get the current notes
+  let notes = elNotesTextarea.value;
+
+  if (notes.endsWith(AI_TRANSLATION_STRING)) {
+    notes = notes.slice(0, notes.length - AI_TRANSLATION_STRING.length);
+  }
+
+  if (!notes.includes(AI_TRANSLATION_STRING)) {
+    if (notes) {
+      notes += "\n\n";
+    }
+
+    notes += AI_TRANSLATION_STRING + "\n" + translation;
+    item.data.notes = notes;
+
+    elNotesTextarea.value = notes;
+    makeNotes({ skipSave: false });
+    // Toggle the notes display to show the new notes
+    elNotes.setAttribute("data-has-notes", "1");
+  }
+}
 
 let showModeShowDetails = false;
 
@@ -1397,6 +1403,9 @@ function makeNotes({ skipSave } = {}) {
     api.ai_translation(item.v, { reset }).then(async (r) => {
       // If API call has run once, it's ok to let the API call again
       makeNotes.aiTranslationTriggeredSet.delete(item.v);
+      if (r.result && state.vocabList[state.i]?.v === item.v) {
+        loadAITranslationIntoTextArea(r.result);
+      }
     });
   }
 

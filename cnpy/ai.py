@@ -234,20 +234,19 @@ def ai_ask(
         return
 
     current_output = ""
-
     obj: dict = {}
 
     def get_correct():
-        correct: bool | None = obj.get("correct")
-        if correct is not None and type(correct) is not bool:
-            return None
-        return correct
+        correct = obj.get("correct")
+        if type(correct) is bool:
+            return correct
+        return None
 
     def get_explanation():
-        explanation: str | None = obj.get("explanation")
-        if type(explanation) is not str:
-            return None
-        return explanation
+        explanation = obj.get("explanation")
+        if type(explanation) is str:
+            return explanation
+        return None
 
     for chunk in llm_stream:
         current_output += chunk
@@ -269,8 +268,8 @@ def ai_ask(
             if cloze_results:
                 obj["cloze"] = cloze_results
 
-            # wait for complete explanation to yield
-            # yield obj
+            # yield incomplete explanation?
+            yield obj
 
     with db_lock:
         if not meaning:
@@ -278,6 +277,7 @@ def ai_ask(
                 "INSERT OR REPLACE INTO ai_dict (v, t) VALUES (?, ?)",
                 (v, current_output),
             )
+            db.commit()
         else:
             correct = get_correct()
             explanation = get_explanation()
@@ -295,8 +295,7 @@ def ai_ask(
                         cloze or "",
                     ),
                 )
-
-        db.commit()
+                db.commit()
 
     obj["isComplete"] = True
     yield obj
