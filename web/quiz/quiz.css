@@ -340,8 +340,8 @@ button[name="ai"] {
   height: 100px;
   min-height: 100px;
   transform: translate(-50%, -50%);
-  background-color: white;
-  border: 1px solid #ccc;
+  background-color: var(--modal-bg-color);
+  border: 1px solid var(--modal-border-color);
   box-shadow: 0 4px 8px var(--modal-shadow-color);
   z-index: 1000;
   display: flex;
@@ -357,7 +357,7 @@ button[name="ai"] {
   height: 30px;
   width: 30px;
   border: none;
-  background-color: #f5f5f5;
+  background-color: var(--modal-close-bg-color);
   cursor: pointer;
   text-align: center;
   line-height: 30px;
