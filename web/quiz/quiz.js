@@ -1324,19 +1324,35 @@ function on_ai_ask(param) {
       newMeaningExplanationTimestamp = new Date();
     }
   } else {
-    if (!isComplete) return;
-    if (checkSameItem()) {
-      loadAITranslationIntoTextArea(r.translation);
+    if (!checkSameItem()) return;
+
+    loadAITranslationIntoTextArea(r.translation, {
+      skipSave: !isComplete,
+    });
+
+    if (isComplete) {
+      document.querySelectorAll('button[name="ai"]').forEach((el) => {
+        const b = /** @type {HTMLButtonElement} */ (el);
+        b.disabled = false;
+      });
     }
   }
 }
 Object.assign(window, { on_ai_ask });
 
-function loadAITranslationIntoTextArea(translation) {
+/**
+ *
+ * @param {string} translation
+ * @param {{
+ *   skipSave?: boolean
+ * }} [opts={}]
+ */
+function loadAITranslationIntoTextArea(translation, { skipSave } = {}) {
   const item = state.vocabList[state.i];
 
   // Get the current notes
-  let notes = elNotesTextarea.value;
+  // but don't load the altered streamed text
+  let notes = item.data.notes || "";
 
   if (notes.endsWith(AI_TRANSLATION_STRING)) {
     notes = notes.slice(0, notes.length - AI_TRANSLATION_STRING.length);
@@ -1348,12 +1364,16 @@ function loadAITranslationIntoTextArea(translation) {
     }
 
     notes += AI_TRANSLATION_STRING + "\n" + translation;
-    item.data.notes = notes;
-
     elNotesTextarea.value = notes;
-    makeNotes({ skipSave: false });
+    // only save altered notes when ready (backend)
+    makeNotes({ skipSave, aiTriggered: true });
     // Toggle the notes display to show the new notes
     elNotes.setAttribute("data-has-notes", "1");
+
+    if (!skipSave) {
+      // only save altered notes when ready (frontend loop)
+      item.data.notes = notes;
+    }
   }
 }
 
@@ -1361,52 +1381,58 @@ let showModeShowDetails = false;
 
 /**
  *
- * @param {{skipSave?: boolean}} [opts={}]
+ * @param {{
+ *   skipSave?: boolean;
+ *   aiTriggered?: boolean;
+ * }} [opts={}]
  * @returns
  */
-function makeNotes({ skipSave } = {}) {
+function makeNotes({ skipSave, aiTriggered } = {}) {
   const elDisplay = /** @type {HTMLDivElement} */ (
     elNotes.querySelector("#notes-show .notes-display")
   );
-  const item = state.vocabList[state.i];
+  const { v } = state.vocabList[state.i] || {};
+  if (!v) return;
 
   let isAITranslation = !elNotesTextarea.value.trim();
   let reset = false;
 
-  if (elNotesTextarea.value.endsWith(NEW_AI_TRANSLATION_STRING)) {
-    reset = true;
-    elNotesTextarea.value = elNotesTextarea.value.slice(
-      0,
-      elNotesTextarea.value.length - NEW_AI_TRANSLATION_STRING.length,
-    );
-    elNotesTextarea.value += AI_TRANSLATION_STRING;
-  }
+  if (!aiTriggered) {
+    if (elNotesTextarea.value.endsWith(NEW_AI_TRANSLATION_STRING)) {
+      reset = true;
+      elNotesTextarea.value = elNotesTextarea.value.slice(
+        0,
+        elNotesTextarea.value.length - NEW_AI_TRANSLATION_STRING.length,
+      );
+      elNotesTextarea.value += AI_TRANSLATION_STRING;
+    }
 
-  if (elNotesTextarea.value.endsWith(AI_TRANSLATION_STRING)) {
-    isAITranslation = true;
-  }
-
-  document.querySelectorAll('button[name="ai"]').forEach((el) => {
-    const b = /** @type {HTMLButtonElement} */ (el);
-    b.disabled = false;
-  });
-
-  // Use a flag to prevent repeated AI translation calls for the same item
-  if (!makeNotes.aiTranslationTriggeredSet.has(item.v) && isAITranslation) {
-    makeNotes.aiTranslationTriggeredSet.add(item.v);
+    if (elNotesTextarea.value.endsWith(AI_TRANSLATION_STRING)) {
+      isAITranslation = true;
+    }
 
     document.querySelectorAll('button[name="ai"]').forEach((el) => {
       const b = /** @type {HTMLButtonElement} */ (el);
-      b.disabled = true;
+      b.disabled = false;
     });
 
-    api.ai_translation(item.v, { reset }).then(async (r) => {
-      // If API call has run once, it's ok to let the API call again
-      makeNotes.aiTranslationTriggeredSet.delete(item.v);
-      if (r.result && state.vocabList[state.i]?.v === item.v) {
-        loadAITranslationIntoTextArea(r.result);
-      }
-    });
+    // Use a flag to prevent repeated AI translation calls for the same item
+    if (!makeNotes.aiTranslationTriggeredSet.has(v) && isAITranslation) {
+      makeNotes.aiTranslationTriggeredSet.add(v);
+
+      document.querySelectorAll('button[name="ai"]').forEach((el) => {
+        const b = /** @type {HTMLButtonElement} */ (el);
+        b.disabled = true;
+      });
+
+      api.ai_translation(v, { reset }).then(async (r) => {
+        // If API call has run once, it's ok to let the API call again
+        makeNotes.aiTranslationTriggeredSet.delete(v);
+        if (r.result && state.vocabList[state.i]?.v === v) {
+          loadAITranslationIntoTextArea(r.result);
+        }
+      });
+    }
   }
 
   const notesText = elNotesTextarea.value;
@@ -1426,12 +1452,15 @@ function makeNotes({ skipSave } = {}) {
   }
 
   if (!skipSave) {
+    const item = state.vocabList[state.i];
+    if (item?.v !== v) return;
+
     item.data = item.data || {
       wordfreq: 0,
       notes: "",
     };
     item.data.notes = notesText;
-    api.save_notes(item.v, notesText);
+    api.save_notes(v, notesText);
   }
 }
 

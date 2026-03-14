@@ -268,8 +268,8 @@ def ai_ask(
             if cloze_results:
                 obj["cloze"] = cloze_results
 
-            # yield incomplete explanation?
-            yield obj
+        # yield incomplete translation / explanation?
+        yield obj
 
     with db_lock:
         if not meaning:
