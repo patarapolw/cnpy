@@ -8,9 +8,10 @@ import requests
 import json
 import datetime
 import random
-from typing import Callable, TypedDict, Any
+from typing import Callable, TypedDict, Any, cast
 import threading
 import traceback
+from pathlib import Path
 
 from cnpy import quiz, cedict, sentence, ai, settings, sync
 from cnpy.db import db, radical_db, db_version
@@ -158,6 +159,13 @@ for f in folder.glob("**/*.txt"):
 
 with server:
 
+    @bottle.hook("before_request")
+    def verify_token():
+        if bottle.request.method == "POST":
+            headers = cast(dict, bottle.request.headers)
+            if headers.get("X-Token") != webview.token:
+                bottle.abort(403)
+
     @bottle.get("/")
     def index():
         return bottle.static_file("loading.html", root=web_root)
@@ -174,7 +182,18 @@ with server:
             return bottle.static_file(p.name, root=p.parent)
 
     @bottle.get("/<filepath:path>")
-    def serve_static(filepath):
+    def serve_static(filepath: str):
+        full_path = Path(web_root) / filepath
+
+        if full_path.suffix == ".html":
+            html = full_path.read_text("utf-8")
+            html = html.replace(
+                "</head>",
+                f"<script>window.pywebview = window.pywebview || {{}}; window.pywebview.token = {json.dumps(webview.token)};</script>\n</head>",
+                1,
+            )
+            return html
+
         return bottle.static_file(filepath, root=web_root)
 
     @bottle.post("/api/get_settings")

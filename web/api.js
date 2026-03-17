@@ -287,10 +287,14 @@ export const api = {
  * @returns
  */
 async function fetchAPI(url, payload = null, method = "POST") {
+  //@ts-ignore
+  const token = window.pywebview?.token;
+
   const r = await fetch(url, {
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
+      "X-Token": token,
     },
     method,
     body: payload ? JSON.stringify(payload) : null,
