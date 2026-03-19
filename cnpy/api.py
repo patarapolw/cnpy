@@ -183,17 +183,6 @@ with server:
 
     @bottle.get("/<filepath:path>")
     def serve_static(filepath: str):
-        full_path = Path(web_root) / filepath
-
-        if full_path.suffix == ".html":
-            html = full_path.read_text("utf-8")
-            html = html.replace(
-                "</head>",
-                f"<script>window.pywebview = window.pywebview || {{}}; window.pywebview.token = {json.dumps(webview.token)};</script>\n</head>",
-                1,
-            )
-            return html
-
         return bottle.static_file(filepath, root=web_root)
 
     @bottle.post("/api/get_settings")

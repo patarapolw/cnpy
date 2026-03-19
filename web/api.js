@@ -287,8 +287,26 @@ export const api = {
  * @returns
  */
 async function fetchAPI(url, payload = null, method = "POST") {
-  //@ts-ignore
-  const token = window.pywebview?.token;
+  /** @type {Window} */
+  let win = window;
+  while (win.self !== win.top) {
+    win = win.parent;
+  }
+
+  const getToken = () => /** @type {any} */ (win).pywebview?.token;
+  let token = getToken();
+
+  if (!token) {
+    token = await new Promise((resolve) => {
+      win.addEventListener(
+        "pywebviewready",
+        () => {
+          resolve(getToken());
+        },
+        { once: true },
+      );
+    });
+  }
 
   const r = await fetch(url, {
     headers: {
