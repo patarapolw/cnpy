@@ -58,3 +58,12 @@ declare const ctxmenu: import("../node_modules/ctxmenu/index").CTXMenuSingleton;
 declare const showdown: {
   Converter: import("showdown").ConverterStatic;
 };
+
+// Source - https://stackoverflow.com/a/69887283
+// Posted by psqli, modified by community. See post 'Timeline' for change history
+// Retrieved 2026-03-19, License - CC BY-SA 4.0
+
+interface Promise<T> {
+  /** Adds a timeout (in milliseconds) that will reject the promise when expired. */
+  withTimeout(milliseconds: number, reason?: string): Promise<T>;
+}

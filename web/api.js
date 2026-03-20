@@ -279,6 +279,19 @@ export const api = {
   },
 };
 
+/** @type {Promise['withTimeout']} */
+Promise.prototype.withTimeout = async function (timeout = 5000, reason) {
+  let timeoutId;
+  return Promise.race([
+    this,
+    new Promise((_, reject) => {
+      timeoutId = window.setTimeout(() => reject({ timeout, reason }), timeout);
+    }),
+  ]).finally(() => {
+    if (timeoutId) clearTimeout(timeoutId);
+  });
+};
+
 /**
  *
  * @param {string} url
@@ -305,7 +318,7 @@ async function fetchAPI(url, payload = null, method = "POST") {
         },
         { once: true },
       );
-    });
+    }).withTimeout(5000, "fetchAPI pywebviewready");
   }
 
   const r = await fetch(url, {
