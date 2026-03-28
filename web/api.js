@@ -198,16 +198,19 @@ export const api = {
   },
   /**
    *
-   * @param {number} start
-   * @param {number} [limit]
+   * @param {{
+   *   start: number;
+   *   limit?: number;
+   *   v?: string;
+   * }} opts
    * @returns {Promise<{
    *   result: {
    *     v: string;
    *     created: string;
-   *     correct: boolean | null;
-   *     explanation: string;
-   *     answer: string;
-   *     cloze: string; // can be ''
+   *     correct?: boolean | null;
+   *     explanation?: string;
+   *     answer?: string;
+   *     cloze?: string; // can be ''
    *     sentences: {
    *       question: string;
    *       alt: string[];
@@ -216,10 +219,8 @@ export const api = {
    *   }[]
    * }>}
    */
-  async ai_revlog_meaning(start, limit) {
-    return fetchAPI("/api/ai_revlog_meaning", { start, limit }).then((r) =>
-      r.json(),
-    );
+  async ai_revlog_meaning(opts) {
+    return fetchAPI("/api/ai_revlog_meaning", opts).then((r) => r.json());
   },
   /**
    * @typedef {'OPENAI_API_KEY'
@@ -278,6 +279,19 @@ export const api = {
   },
 };
 
+/** @type {Promise['withTimeout']} */
+Promise.prototype.withTimeout = async function (timeout = 5000, reason) {
+  let timeoutId;
+  return Promise.race([
+    this,
+    new Promise((_, reject) => {
+      timeoutId = window.setTimeout(() => reject({ timeout, reason }), timeout);
+    }),
+  ]).finally(() => {
+    if (timeoutId) clearTimeout(timeoutId);
+  });
+};
+
 /**
  *
  * @param {string} url
@@ -286,10 +300,32 @@ export const api = {
  * @returns
  */
 async function fetchAPI(url, payload = null, method = "POST") {
+  /** @type {Window} */
+  let win = window;
+  while (win.self !== win.top) {
+    win = win.parent;
+  }
+
+  const getToken = () => /** @type {any} */ (win).pywebview?.token;
+  let token = getToken();
+
+  if (!token) {
+    token = await new Promise((resolve) => {
+      win.addEventListener(
+        "pywebviewready",
+        () => {
+          resolve(getToken());
+        },
+        { once: true },
+      );
+    }).withTimeout(5000, "fetchAPI pywebviewready");
+  }
+
   const r = await fetch(url, {
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
+      "X-Token": token,
     },
     method,
     body: payload ? JSON.stringify(payload) : null,

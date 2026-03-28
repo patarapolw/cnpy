@@ -22,11 +22,11 @@ const converter = new showdown.Converter({
 });
 
 async function loadHistory(start = liStart) {
-  const r = await api.ai_revlog_meaning(start, liSize);
+  const v = new URL(location.href, location.origin).searchParams.get("v") || "";
+  const r = await api.ai_revlog_meaning({ start, limit: liSize, v });
 
   if (r.result.length < liSize) {
     btnNext.disabled = true;
-    return;
   }
 
   const now_millisec = +new Date();
@@ -81,12 +81,22 @@ async function loadHistory(start = liStart) {
     elItem.textContent = obj.v;
 
     const elResult = li.querySelector(".result");
-    elResult.textContent = obj.answer;
-    elResult.className =
-      obj.correct === null ? "maybe" : obj.correct ? "right" : "wrong";
+    if (obj.answer) {
+      elResult.textContent = obj.answer;
+      elResult.className =
+        obj.correct === null ? "maybe" : obj.correct ? "right" : "wrong";
+    } else {
+      let subLi = elResult;
+      if (!(subLi instanceof HTMLLIElement)) {
+        subLi = elResult.parentElement;
+      }
+      subLi.remove();
+    }
 
     const elWhy = li.querySelector(".why");
-    elWhy.innerHTML = converter.makeHtml(obj.explanation);
+    if (obj.explanation) {
+      elWhy.innerHTML = converter.makeHtml(obj.explanation);
+    }
 
     obj.sentences.map((sent) => {
       const details = document.createElement("details");

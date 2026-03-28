@@ -1,0 +1,265 @@
+/* =============================================================
+   cnpy - CSS Custom Properties (extracted from /web/.../*.css)
+   Light = default, Dark = override
+   ============================================================= */
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+:root,
+:root.light-theme {
+  /* Base (all pages) */
+  --bg-color: #ffffff;
+  --text-color: #222222;
+
+  /* Pinyin / faint text (analyze.css, search.css, list.css) */
+  --pinyin-color: gray;
+  --marker-color: gray;
+
+  /* Hanzi tiers (dashboard.css) */
+  --tier-0-color: black;
+  --tier-1-color: peru;
+  --tier-2-color: skyblue;
+  --tier-3-color: #eee;
+  --tier-3-hover-color: #ccc;
+
+  /* Hanzi hover glow (dashboard.css, levels.css) */
+  --hanzi-glow-color: rgba(255, 255, 255, 0.9);
+  --voc-glow-color: rgba(255, 255, 255, 0.5);
+
+  /* Start / nav button (dashboard.css) */
+  --button-border-color: rgba(0, 0, 0, 0.8);
+  --button-bg-color: rgba(211, 211, 211, 0.5);
+  --button-link-color: rgb(0, 0, 238);
+
+  /* Modal (dashboard.css, quiz.css, modal.js) */
+  /* replaces: --modal-container-bg-color, --iframe-container-bg-color, --tab-active-bg-color */
+  --modal-shadow-color: rgba(0, 0, 0, 0.2);
+  --modal-close-shadow-color: rgba(0, 0, 0, 0.2);
+  --modal-bg-color: white;
+  --modal-border-color: #ccc;
+  --modal-close-bg-color: #f5f5f5;
+
+  /* Overlay backdrop (quiz.css) */
+  --overlay-bg-color: rgba(0, 0, 0, 0.5);
+
+  /* Quiz progress bar (quiz.css) */
+  /* --progress-right-color merged into --right-color */
+  /* --progress-wrong-color merged into --wrong-color */
+
+  /* Quiz answer states (quiz.css) */
+  --answer-right-color: greenyellow;
+  --answer-wrong-color: lightcoral;
+  --answer-maybe-color: yellow;
+
+  /* Quiz misc (quiz.css) */
+  /* --count-repeat-color merged into --wrong-color */
+  --sentences-hidden-color: lightgray;
+  --input-border-color: black;
+  --cloze-button-border-color: gray;
+
+  /* Shared semantic colors (meaning-log.css, quiz.css) */
+  /* --right-color replaces: --log-right-color, --progress-right-color */
+  --right-color: green;
+  /* --wrong-color replaces: --log-wrong-color, --progress-wrong-color, --count-repeat-color */
+  --wrong-color: red;
+  /* --maybe-color replaces: --log-maybe-color, --progress-repeat-color */
+  --maybe-color: goldenrod;
+
+  /* Levels table (levels.css) */
+  --table-border-color: gray;
+  --row-selected-bg-color: aliceblue;
+
+  /* modal.js (injected CSS-in-JS) */
+  /* --modal-container-bg-color, --iframe-container-bg-color, --tab-active-bg-color merged into --modal-bg-color */
+  --tab-bar-bg-color: #f9f9f9;
+  --tab-bar-border-color: #ccc;
+  --tab-bg-color: #f0f0f0;
+  --tab-hover-bg-color: #e0e0e0;
+  --tab-border-color: #ccc;
+
+  /* quiz.js (Toastify toast background) */
+  --toast-right-color: #2a8b2f;
+  --toast-maybe-color: #bf6800;
+  --toast-wrong-color: #d91e18;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light-theme) {
+    /* ctxmenu (_lib/ctxmenu.min.js injected styles override) */
+    .ctxmenu {
+      background: #1e1e1e;
+      border-color: #555;
+      box-shadow: #222 3px 3px 3px;
+    }
+    .ctxmenu li.disabled {
+      color: #666;
+    }
+    .ctxmenu li.divider {
+      border-color: #444;
+    }
+    .ctxmenu li.interactive:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .ctxmenu li.submenu::after {
+      border-color: #aaa;
+    }
+
+    /* Base (all pages) */
+    --bg-color: #121212;
+    --text-color: #e8e8e8;
+
+    /* Pinyin / faint text (analyze.css, search.css, list.css) */
+    --pinyin-color: #888;
+    --marker-color: #888;
+
+    /* Hanzi tiers (dashboard.css) */
+    --tier-0-color: #e0e0e0;
+    --tier-1-color: #cd853f;
+    --tier-2-color: #4a9aba;
+    --tier-3-color: #444;
+    --tier-3-hover-color: #555;
+
+    /* Hanzi hover glow (dashboard.css, levels.css) */
+    --hanzi-glow-color: rgba(0, 0, 0, 0.9);
+    --voc-glow-color: rgba(0, 0, 0, 0.5);
+
+    /* Start / nav button (dashboard.css) */
+    --button-border-color: rgba(255, 255, 255, 0.3);
+    --button-bg-color: rgba(60, 60, 60, 0.7);
+    --button-link-color: #7ab3ff;
+
+    /* Modal (dashboard.css, quiz.css, modal.js) */
+    --modal-shadow-color: rgba(0, 0, 0, 0.6);
+    --modal-close-shadow-color: rgba(0, 0, 0, 0.5);
+    --modal-bg-color: #1e1e1e;
+    --modal-border-color: #444;
+    --modal-close-bg-color: #2a2a2a;
+
+    /* Overlay backdrop (quiz.css) */
+    --overlay-bg-color: rgba(0, 0, 0, 0.75);
+
+    /* Quiz progress bar (quiz.css) */
+    --maybe-color: #c8960c;
+
+    /* Quiz answer states (quiz.css) */
+    --answer-right-color: #2d6a2d;
+    --answer-wrong-color: #7a2a2a;
+    --answer-maybe-color: #5a4a00;
+
+    /* Quiz misc (quiz.css) */
+    --sentences-hidden-color: #888;
+    --input-border-color: #aaa;
+    --cloze-button-border-color: #777;
+
+    /* Shared semantic colors (meaning-log.css, quiz.css) */
+    --right-color: #4caf50;
+    --wrong-color: #e05252;
+
+    /* Levels table (levels.css) */
+    --table-border-color: #555;
+    --row-selected-bg-color: #1a2a3a;
+
+    /* modal.js (injected CSS-in-JS) */
+    --tab-bar-bg-color: #252525;
+    --tab-bar-border-color: #444;
+    --tab-bg-color: #2a2a2a;
+    --tab-hover-bg-color: #333;
+    --tab-border-color: #444;
+
+    /* quiz.js (Toastify toast background) */
+    --toast-right-color: #1e6e22;
+    --toast-maybe-color: #9e5200;
+    --toast-wrong-color: #a81510;
+  }
+}
+
+:root.dark-theme {
+  /* ctxmenu (_lib/ctxmenu.min.js injected styles override) */
+  .ctxmenu {
+    background: #1e1e1e;
+    border-color: #555;
+    box-shadow: #222 3px 3px 3px;
+  }
+  .ctxmenu li.disabled {
+    color: #666;
+  }
+  .ctxmenu li.divider {
+    border-color: #444;
+  }
+  .ctxmenu li.interactive:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  .ctxmenu li.submenu::after {
+    border-color: #aaa;
+  }
+
+  /* Base (all pages) */
+  --bg-color: #121212;
+  --text-color: #e8e8e8;
+
+  /* Pinyin / faint text (analyze.css, search.css, list.css) */
+  --pinyin-color: #888;
+  --marker-color: #888;
+
+  /* Hanzi tiers (dashboard.css) */
+  --tier-0-color: #e0e0e0;
+  --tier-1-color: #cd853f;
+  --tier-2-color: #4a9aba;
+  --tier-3-color: #444;
+  --tier-3-hover-color: #555;
+
+  /* Hanzi hover glow (dashboard.css, levels.css) */
+  --hanzi-glow-color: rgba(0, 0, 0, 0.9);
+  --voc-glow-color: rgba(0, 0, 0, 0.5);
+
+  /* Start / nav button (dashboard.css) */
+  --button-border-color: rgba(255, 255, 255, 0.3);
+  --button-bg-color: rgba(60, 60, 60, 0.7);
+  --button-link-color: #7ab3ff;
+
+  /* Modal (dashboard.css, quiz.css, modal.js) */
+  --modal-shadow-color: rgba(0, 0, 0, 0.6);
+  --modal-close-shadow-color: rgba(0, 0, 0, 0.5);
+  --modal-bg-color: #1e1e1e;
+  --modal-border-color: #444;
+  --modal-close-bg-color: #2a2a2a;
+
+  /* Overlay backdrop (quiz.css) */
+  --overlay-bg-color: rgba(0, 0, 0, 0.75);
+
+  /* Quiz progress bar (quiz.css) */
+  --maybe-color: #c8960c;
+
+  /* Quiz answer states (quiz.css) */
+  --answer-right-color: #2d6a2d;
+  --answer-wrong-color: #7a2a2a;
+  --answer-maybe-color: #5a4a00;
+
+  /* Quiz misc (quiz.css) */
+  --sentences-hidden-color: #888;
+  --input-border-color: #aaa;
+  --cloze-button-border-color: #777;
+
+  /* Shared semantic colors (meaning-log.css, quiz.css) */
+  --right-color: #4caf50;
+  --wrong-color: #e05252;
+
+  /* Levels table (levels.css) */
+  --table-border-color: #555;
+  --row-selected-bg-color: #1a2a3a;
+
+  /* modal.js (injected CSS-in-JS) */
+  --tab-bar-bg-color: #252525;
+  --tab-bar-border-color: #444;
+  --tab-bg-color: #2a2a2a;
+  --tab-hover-bg-color: #333;
+  --tab-border-color: #444;
+
+  /* quiz.js (Toastify toast background) */
+  --toast-right-color: #1e6e22;
+  --toast-maybe-color: #9e5200;
+  --toast-wrong-color: #a81510;
+}

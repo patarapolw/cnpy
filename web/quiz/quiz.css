@@ -1,3 +1,5 @@
+@import "/theme.css";
+
 body,
 #quiz {
   display: flex;
@@ -79,15 +81,15 @@ a.internal-link:visited {
 }
 
 .top-nav#progress [data-count-type="right"] {
-  background-color: forestgreen;
+  background-color: var(--right-color);
 }
 
 .top-nav#progress [data-count-type="repeat"] {
-  background-color: orange;
+  background-color: var(--maybe-color);
 }
 
 .top-nav#progress [data-count-type="wrong"] {
-  background-color: red;
+  background-color: var(--wrong-color);
 }
 
 #counter {
@@ -96,7 +98,7 @@ a.internal-link:visited {
 
 .count[data-count-type="total"][data-repeat="true"] {
   text-decoration: underline;
-  color: red;
+  color: var(--wrong-color);
 }
 
 .count small {
@@ -108,9 +110,21 @@ a.internal-link:visited {
   cursor: default;
 }
 
+button[name="right"] {
+  background-color: var(--answer-right-color);
+}
+
+button[name="wrong"] {
+  background-color: var(--answer-wrong-color);
+}
+
+button[name="repeat"] {
+  background-color: var(--answer-maybe-color);
+}
+
 .typing-checker {
   text-align: center;
-  border: 2px solid black;
+  border: 2px solid var(--input-border-color);
   border-radius: 3px;
   padding: 2px 1.5em;
   min-width: calc(200px - 3em);
@@ -118,17 +132,17 @@ a.internal-link:visited {
 
 .typing-checker[data-checked="right"] {
   caret-color: transparent;
-  background-color: greenyellow;
+  background-color: var(--answer-right-color);
 }
 
 .typing-checker[data-checked="wrong"] {
   caret-color: transparent;
-  background-color: lightcoral;
+  background-color: var(--answer-wrong-color);
 }
 
 .typing-checker[data-checked="maybe"] {
   caret-color: transparent;
-  background-color: yellow;
+  background-color: var(--answer-maybe-color);
 }
 
 .meaning-input-container {
@@ -227,7 +241,7 @@ details {
 
 .meaning-cloze button {
   border-radius: 50%;
-  border: 1px solid gray;
+  border: 1px solid var(--cloze-button-border-color);
 }
 
 .meaning-cloze-sentence:empty + * {
@@ -236,6 +250,7 @@ details {
 
 #meaning-explanation {
   margin-top: 0.5em;
+  text-align: left;
 }
 
 summary {
@@ -256,7 +271,7 @@ summary {
 }
 
 #sentences .english:not(:hover) {
-  color: lightgray;
+  color: var(--sentences-hidden-color);
 }
 
 #sentences[data-sentence-count="0"] {
@@ -313,7 +328,7 @@ button[name="ai"] {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--overlay-bg-color);
   z-index: 999;
 }
 
@@ -326,9 +341,9 @@ button[name="ai"] {
   height: 100px;
   min-height: 100px;
   transform: translate(-50%, -50%);
-  background-color: white;
-  border: 1px solid #ccc;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background-color: var(--modal-bg-color);
+  border: 1px solid var(--modal-border-color);
+  box-shadow: 0 4px 8px var(--modal-shadow-color);
   z-index: 1000;
   display: flex;
   flex-direction: column;
@@ -343,12 +358,12 @@ button[name="ai"] {
   height: 30px;
   width: 30px;
   border: none;
-  background-color: #f5f5f5;
+  background-color: var(--modal-close-bg-color);
   cursor: pointer;
   text-align: center;
   line-height: 30px;
   border-radius: 50%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px var(--modal-close-shadow-color);
 }
 
 /* Iframe styles */

@@ -25,14 +25,16 @@ if __name__ == "__main__":
 
     win = webview.create_window(
         "cnpy",
-        server,  # type: ignore
+        server,
         text_select=True,
         confirm_close=True,
         **win_size,
     )
+    assert win is not None
+
     log_win = None
 
-    g.web_ready = lambda: win.load_url("/dashboard.html")
+    g.web_ready = lambda: g.win.load_url("/dashboard.html")
     g.win = win
 
     webview.start(

@@ -1,3 +1,5 @@
+@import "/theme.css";
+
 * {
   font-family: sans-serif;
 }
@@ -22,7 +24,7 @@ input {
 .pinyin {
   font-size: 0.7em;
   display: inline-block;
-  color: gray;
+  color: var(--pinyin-color);
   margin-left: 1em;
   user-select: none;
   cursor: default;
@@ -39,5 +41,5 @@ input {
 li::marker {
   font-size: 10px;
   font-family: Arial, Helvetica, sans-serif;
-  color: grey;
+  color: var(--marker-color);
 }

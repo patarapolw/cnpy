@@ -8,9 +8,10 @@ import requests
 import json
 import datetime
 import random
-from typing import Callable, TypedDict, Any
+from typing import Callable, TypedDict, Any, cast
 import threading
 import traceback
+from pathlib import Path
 
 from cnpy import quiz, cedict, sentence, ai, settings, sync
 from cnpy.db import db, radical_db, db_version
@@ -113,14 +114,33 @@ def fn_save_settings():
     )
 
 
-def create_ai_ask_process(d: dict, v: str, meaning: str, cloze: str):
-    try:
-        r = ai.ai_ask(v, meaning=meaning, cloze=cloze)
-        d[v] = r
-        # valid json or not is checked in ai.py
-    except Exception as e:
-        traceback.print_exc()
-        print(f"AI translation error {v}")
+def create_ai_ask_process(
+    d: dict, v: str, meaning: str, cloze: str, win: webview.Window
+):
+    base_obj: dict[str, Any] = {"v": v, "meaning": meaning}
+    obj = base_obj
+    obj_str = json.dumps(obj)
+
+    def run_in_all_iframes(payload: str):
+        js = f"""
+        window.on_ai_ask?.({payload});
+        for (const f of document.querySelectorAll('iframe')) {{
+            try {{ f.contentWindow.on_ai_ask?.({payload}) }} catch (e) {{ console.error(e) }}
+        }};
+        """
+
+        win.run_js(js)
+
+    for obj in ai.ai_ask(v, meaning=meaning, cloze=cloze):
+        obj.update(base_obj)
+        obj_str = json.dumps(obj, ensure_ascii=False)
+        d[v] = obj["translation"] if "translation" in obj else obj_str
+
+        run_in_all_iframes(obj_str)
+
+    # obj["isComplete"] = True
+    # obj_str = json.dumps(obj, ensure_ascii=False)
+    # run_in_all_iframes(obj_str)
 
 
 srs = fsrs.FSRS()
@@ -139,6 +159,13 @@ for f in folder.glob("**/*.txt"):
 
 with server:
 
+    @bottle.hook("before_request")
+    def verify_token():
+        if bottle.request.method == "POST":
+            headers = cast(dict, bottle.request.headers)
+            if headers.get("X-Token") != webview.token:
+                bottle.abort(403)
+
     @bottle.get("/")
     def index():
         return bottle.static_file("loading.html", root=web_root)
@@ -155,7 +182,7 @@ with server:
             return bottle.static_file(p.name, root=p.parent)
 
     @bottle.get("/<filepath:path>")
-    def serve_static(filepath):
+    def serve_static(filepath: str):
         return bottle.static_file(filepath, root=web_root)
 
     @bottle.post("/api/get_settings")
@@ -172,7 +199,7 @@ with server:
     @bottle.post("/api/sync/setup")
     def set_sync_db():
         file_path = g.win.create_file_dialog(
-            webview.SAVE_DIALOG,
+            webview.FileDialog.SAVE,
             directory=str(exe_root),
             save_filename="cnpy.db",
             file_types=("cnpy SQLite database (*.db)",),
@@ -269,6 +296,7 @@ with server:
                         v,
                         meaning,
                         cloze,
+                        g.win,
                     ),
                 )
                 g.online_api_processes.append(process)
@@ -286,6 +314,7 @@ with server:
     @bottle.post("/api/ai_revlog_meaning")
     def ai_revlog_meaning():
         obj: Any = bottle.request.json
+        v: str = obj.get("v", "")
         start: int = obj.get("start")
         limit: int = obj.get("limit", 10)
 
@@ -296,8 +325,10 @@ with server:
                 SELECT arr FROM ai_cloze WHERE ai_cloze.v = revlog_meaning.v
             ) sentences
             FROM revlog_meaning
+            {'WHERE v=:v' if v else ''}
             ORDER BY created DESC
-            LIMIT {limit} OFFSET {start}"""
+            LIMIT :limit OFFSET :offset""",
+            {"v": v, "limit": limit, "offset": start},
         ):
             r = dict(r)
             r["sentences"] = json.loads(r["sentences"] or "[]")
@@ -310,6 +341,19 @@ with server:
             r["correct"] = c
 
             out.append(r)
+
+        if not out and v:
+            for r in db.execute(
+                f"""
+                SELECT v, modified created, arr FROM ai_cloze
+                WHERE v = :v
+                """,
+                (v,),
+            ):
+                r = dict(r)
+                r["sentences"] = json.loads(r["arr"] or "[]")
+
+                out.append(r)
 
         return {"result": out}
 

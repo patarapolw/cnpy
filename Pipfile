@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-pywebview = "*"
+pywebview = "~=6.1"
 fsrs = "~=3.1.0"
 regex = "*"
 wordfreq = "*"
@@ -13,9 +13,9 @@ pyinstaller = "*"
 bottle = "*"
 gtts = "*"
 requests = "*"
-ollama = "*"
 openai = "*"
 python-dotenv = "*"
+json-repair = "*"
 
 [dev-packages]
 

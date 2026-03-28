@@ -1,3 +1,5 @@
+@import "/theme.css";
+
 body {
   display: grid;
 }
@@ -10,15 +12,15 @@ nav {
 }
 
 .right {
-  color: green;
+  color: var(--right-color);
   font-weight: bold;
 }
 
 .wrong {
-  color: red;
+  color: var(--wrong-color);
 }
 
 .maybe {
-  color: goldenrod;
+  color: var(--maybe-color);
   font-style: italic;
 }

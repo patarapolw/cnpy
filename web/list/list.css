@@ -1,3 +1,5 @@
+@import "/theme.css";
+
 body {
   margin-bottom: 50px;
 }
@@ -14,5 +16,5 @@ ol:focus {
 li::marker {
   font-size: 10px;
   font-family: Arial, Helvetica, sans-serif;
-  color: grey;
+  color: var(--marker-color);
 }
