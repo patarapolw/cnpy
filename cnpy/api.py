@@ -86,6 +86,14 @@ def start():
             """
         )
 
+        db.execute(
+            f"""
+            DELETE FROM ai_cloze
+            WHERE v IN (SELECT v FROM revlog_meaning WHERE correct = 0)
+            AND unixepoch('now') - unixepoch(modified) > 60*60*24 *{DAYS_EXPIRE_AI_CLOZE / 2}
+            """
+        )
+
     db.execute(
         """
         UPDATE vlist SET skip = NULL

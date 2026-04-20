@@ -151,7 +151,7 @@ def stream_ai_ask(
         messages=[
             (
                 {"role": "user", "content": q_system}
-                if model.startswith("gemma-")
+                if model.startswith("gemma-3")
                 else {"role": "system", "content": q_system}
             ),
             {"role": "user", "content": q_user},
@@ -162,9 +162,20 @@ def stream_ai_ask(
         stream=True,
     )
 
+    is_thought = False
+
     for chunk in response:
         delta = chunk.choices[0].delta.content
         if delta:
+            if "<thought>" in delta:
+                is_thought = True
+
+            if "</thought>" in delta:
+                is_thought = False
+
+            if is_thought:
+                continue
+
             yield delta
 
 
