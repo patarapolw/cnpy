@@ -167,11 +167,20 @@ def stream_ai_ask(
     for chunk in response:
         delta = chunk.choices[0].delta.content
         if delta:
-            if "<thought>" in delta:
+            tag = "thought"
+            opening = f"<{tag}>"
+            if opening in delta:
                 is_thought = True
 
-            if "</thought>" in delta:
+            closing = f"</{tag}>"
+            try:
+                i_closing = delta.index(closing) + len(closing)
                 is_thought = False
+
+                if i_closing < len(delta):
+                    delta = delta[i_closing:]
+            except ValueError:
+                pass
 
             if is_thought:
                 continue
