@@ -71,6 +71,7 @@ Q_MEANING_WITH_CLOZE = f"""
 
 Regardless of correctness, generate at least one cloze test sentence per distinct usage sense of the word.
 Make **sufficient number of** cloze test sentences to cover **all** distinct usage senses of the word, as well as homographs bearing the same Hanzi.
+There must be **at least 2** cloze test sentences.
 
 * The blank should be best filled by the Chinese headword.
 * The headword **must** be the same as the original Chinese word.
@@ -409,8 +410,7 @@ def load_db():
 
     This function creates the `ai_cloze` table if it does not exist.
     """
-    db.executescript(
-        """
+    db.executescript("""
         CREATE TABLE IF NOT EXISTS ai_dict (
             v TEXT NOT NULL,
             t TEXT NOT NULL,
@@ -444,8 +444,7 @@ def load_db():
             output      TEXT NOT NULL,
             created     TEXT NOT NULL DEFAULT (datetime())
         );
-        """
-    )
+        """)
 
     if db.execute("PRAGMA user_version").fetchone()[0] < 2:
         if not db.execute(
@@ -453,11 +452,9 @@ def load_db():
         ).fetchmany(1):
             db.executescript("ALTER TABLE ai_cloze ADD COLUMN modified TEXT")
 
-    db.executescript(
-        """
+    db.executescript("""
         CREATE INDEX IF NOT EXISTS idx_ai_cloze_modified ON ai_cloze (modified);
-        """
-    )
+        """)
 
     # Delete placeholder entries
     db.execute("DELETE FROM ai_dict WHERE t = ''")
