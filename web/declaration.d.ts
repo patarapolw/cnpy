@@ -17,6 +17,9 @@ interface ISentence {
 
 interface IQuizEntry {
   v: string;
+  srs?: {
+    due: string;
+  };
   data: {
     wordfreq: number;
     notes: string;

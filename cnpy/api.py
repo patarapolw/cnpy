@@ -62,43 +62,33 @@ def start():
     ### Run after restore sync
 
     if DAYS_EXPIRE_REVLOG_MEANING > 0:
-        db.execute(
-            f"""
+        db.execute(f"""
             DELETE FROM revlog_meaning
             WHERE unixepoch('now') - unixepoch(created) > 60*60*24 *{DAYS_EXPIRE_REVLOG_MEANING}
-            """
-        )
+            """)
 
     if DAYS_EXPIRE_REVLOG > 0:
-        db.execute(
-            f"""
+        db.execute(f"""
             DELETE FROM revlog
             WHERE unixepoch('now') - unixepoch(created) > 60*60*24 *{DAYS_EXPIRE_REVLOG}
-            """
-        )
+            """)
 
     if DAYS_EXPIRE_AI_CLOZE > 0:
-        db.execute(
-            f"""
+        db.execute(f"""
             DELETE FROM ai_cloze
             WHERE modified IS NULL
             OR unixepoch('now') - unixepoch(modified) > 60*60*24 *{DAYS_EXPIRE_AI_CLOZE}
-            """
-        )
+            """)
 
-        db.execute(
-            f"""
+        db.execute(f"""
             DELETE FROM ai_cloze
             WHERE v IN (SELECT v FROM revlog_meaning WHERE correct = 0)
             AND unixepoch('now') - unixepoch(modified) > 60*60*24 *{DAYS_EXPIRE_AI_CLOZE / 2}
-            """
-        )
+            """)
 
-    db.execute(
-        """
+    db.execute("""
         UPDATE vlist SET skip = NULL
-        """
-    )
+        """)
 
 
 def fn_get_freq_min():
@@ -603,6 +593,7 @@ with server:
         v = obj.get("v")
         max_new = obj.get("new", int(env.get("CNPY_MAX_NEW") or "10"))
         limit = obj.get("limit", 20)
+        since: str = obj.get("since", datetime.datetime.now().isoformat())
 
         # TODO: prevent from triple fire from quiz.js at startup
         # print(v)
@@ -623,35 +614,57 @@ with server:
 
             all_items = [g.v_quiz]
 
+        since = since.split(".", 1)[0] + ".99"
         all_items = all_items or [
             quiz.load_db_entry(r)
             for r in db.execute(
-                """
-                WITH vs AS (
-                    SELECT v FROM vlist WHERE skip IS NULL
-                )
-                SELECT * FROM quiz
-                WHERE
-                (
-                    json_extract(srs, '$.due') < date()||'T'||time()||'.99' OR
-                    (
-                        json_extract(srs, '$.due') IS NULL
-                        AND v IN (
-                            SELECT DISTINCT simp FROM cedict WHERE simp IN vs OR trad IN vs
-                        )
-                    )
-                ) AND v NOT IN (
-                    SELECT v FROM vlist WHERE skip IS NOT NULL
-                ) AND v IN (SELECT simp FROM cedict)
-                """
+                f"""
+            WITH vs AS (
+                SELECT v FROM vlist WHERE skip IS NULL
+            )
+            SELECT *,
+                json_extract(srs, '$.due') corrected_due
+            FROM quiz
+            WHERE
+            corrected_due <= ?
+            AND v IN (SELECT DISTINCT simp FROM cedict WHERE simp IN vs OR trad IN vs)
+            AND v NOT IN (SELECT v FROM vlist WHERE skip IS NOT NULL)
+            ORDER BY corrected_due ASC
+            """,
+                (since,),
             )
         ]
 
-        n = len(all_items)
-        n_new = len([r for r in all_items if not r.get("srs")])
+        new_items = [
+            quiz.load_db_entry(r)
+            for r in db.execute(
+                """
+            WITH vs AS (
+                SELECT v FROM vlist WHERE skip IS NULL
+            )
+            SELECT *
+            FROM quiz
+            WHERE
+            srs IS NULL
+            AND v IN (SELECT DISTINCT simp FROM cedict WHERE simp IN vs OR trad IN vs)
+            AND v NOT IN (SELECT v FROM vlist WHERE skip IS NOT NULL)
+            """,
+            )
+        ]
+
+        n_new = len(new_items)
+
+        max_review = int(env.get("CNPY_MAX_REVIEW") or "0")
+        n_all = len(all_items)
+
+        if max_review:
+            all_items = all_items[: max_review - n_new]
+
+        all_items.extend(new_items)
 
         output = {
-            "count": n,
+            "count": n_all,
+            "remaining": len(all_items),  # after taking max_review into consideration
             "new": n_new,
             "isAIenabled": any(
                 (
