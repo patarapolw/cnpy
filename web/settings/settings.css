@@ -13,6 +13,10 @@ fieldset form + * {
   margin-top: 1em;
 }
 
+label + input[type="checkbox"] {
+  margin-left: 2em;
+}
+
 input[type="text"] {
   flex-grow: 1;
   margin-left: 0.5em;
