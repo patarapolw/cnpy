@@ -614,53 +614,55 @@ with server:
 
             all_items = [g.v_quiz]
 
-        since = since.split(".", 1)[0] + ".99"
-        all_items = all_items or [
-            quiz.load_db_entry(r)
-            for r in db.execute(
-                f"""
-            WITH vs AS (
-                SELECT v FROM vlist WHERE skip IS NULL
-            )
-            SELECT *,
-                json_extract(srs, '$.due') corrected_due
-            FROM quiz
-            WHERE
-            corrected_due <= ?
-            AND v IN (SELECT DISTINCT simp FROM cedict WHERE simp IN vs OR trad IN vs)
-            AND v NOT IN (SELECT v FROM vlist WHERE skip IS NOT NULL)
-            ORDER BY corrected_due ASC
-            """,
-                (since,),
-            )
-        ]
-
-        new_items = [
-            quiz.load_db_entry(r)
-            for r in db.execute(
-                """
-            WITH vs AS (
-                SELECT v FROM vlist WHERE skip IS NULL
-            )
-            SELECT *
-            FROM quiz
-            WHERE
-            srs IS NULL
-            AND v IN (SELECT DISTINCT simp FROM cedict WHERE simp IN vs OR trad IN vs)
-            AND v NOT IN (SELECT v FROM vlist WHERE skip IS NOT NULL)
-            """,
-            )
-        ]
-
-        n_new = len(new_items)
-
-        max_review = int(env.get("CNPY_MAX_REVIEW") or "0")
+        n_new = 0
         n_all = len(all_items)
 
-        if max_review:
-            all_items = all_items[: max_review - n_new]
+        if not all_items:
+            since = since.split(".", 1)[0] + ".99"
+            all_items = all_items or [
+                quiz.load_db_entry(r)
+                for r in db.execute(
+                    f"""
+                WITH vs AS (
+                    SELECT v FROM vlist WHERE skip IS NULL
+                )
+                SELECT *,
+                    json_extract(srs, '$.due') due
+                FROM quiz
+                WHERE
+                due <= ?
+                AND v IN (SELECT DISTINCT simp FROM cedict WHERE simp IN vs OR trad IN vs)
+                ORDER BY due ASC
+                """,
+                    (since,),
+                )
+            ]
 
-        all_items.extend(new_items)
+            new_items = [
+                quiz.load_db_entry(r)
+                for r in db.execute(
+                    """
+                WITH vs AS (
+                    SELECT v FROM vlist WHERE skip IS NULL
+                )
+                SELECT *
+                FROM quiz
+                WHERE
+                srs IS NULL
+                AND v IN (SELECT DISTINCT simp FROM cedict WHERE simp IN vs OR trad IN vs)
+                """,
+                )
+            ]
+
+            n_new = len(new_items)
+
+            max_review = int(env.get("CNPY_MAX_REVIEW") or "0")
+            n_all = len(all_items)
+
+            if max_review:
+                all_items = all_items[: max_review - n_new]
+
+            all_items.extend(new_items)
 
         output = {
             "count": n_all,
