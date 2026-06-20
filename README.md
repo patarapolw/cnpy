@@ -12,7 +12,7 @@ No typo checking. No turning to Wrong or Right. However, there is a middle-way b
 - `F1` to Skip the current vocab (putting to skip list is considered separately)
 - `F4` to End the current batch, and start the wrong drill or make a new batch.
 - `F1` / `F4` must be done before answering, that is, not because of not knowing the answer and no spoiler.
-- Mulitple answers if applicable, separated by `;` (whitespaces are ignored). Important readings can be forced to require. Uncommon readings can be disabled and made wrong.
+- Mulitple answers if applicable, separated by `;` (whitespaces are ignored). Important readings can be forced to be required. Uncommon readings can be disabled and made wrong.
 - Custom vocabularies can be added, and will be put to the end of Due queue (if the entries exist in [CC-CEDICT](#dictionaries))
 - Selected vocabularies can be permanently skipped, if accidentally put into SRS, or considered practically uncommon.
 
@@ -20,15 +20,21 @@ No typo checking. No turning to Wrong or Right. However, there is a middle-way b
 
 ![Dictionaries](_README/right.png)
 
+Mulitple answers if applicable, separated by `;` (whitespaces are ignored). Important readings can be forced to be required. Uncommon readings can be disabled and made wrong.
+
 ![Select Reading](_README/select3.png)
+
+After every rounds of not-Right's, there will be unlimited repeat drills until you get everything Right. Additionally, if too many wrongs (10), the repeat drill will start earlier.
 
 ![Repeat Quiz](_README/repeat.png)
 
 ## Meaning quiz
 
-Meaning quiz is possible, but AI-generated, so not intended to be included in SRS score. LLM API key is required. (See [Configuration](#configuration).)
+Meaning quiz is possible, but AI-generated and not included in SRS score. LLM API key is required. (See [Configuration](#configuration).)
 
 ![Meaning quiz](_README/meaning.png)
+
+Right-click context menu at top-right for meaning quiz revlog.
 
 ![Meaning quiz log](_README/meaning-revlog2.png)
 
@@ -43,6 +49,8 @@ Note taking is powered bidirectionally by markdown (via [showdown.js](https://sh
 Right-click context menu to check for similar Hanzi and vocabularies. The context-menu is also for TTS (speech synthesis), extra menu and updating CC-CEDICT.
 
 ![Right click](_README/contextmenu.png)
+
+Regex-enabled search bar
 
 <img title="Hanzi containing" src="_README/sup.png" width=600 />
 
@@ -94,7 +102,7 @@ AI dictionary and TTS can be configured in Settings, accessible from the dashboa
 * Install [ollama](https://ollama.com) to use offline AI LLM.
 * Sync database will be copied to the selected file location, e.g. Google Drive, Dropbox.
 
-## Dictionaries
+## Data sources
 
 Vocabularies are from [CC-CEDICT](https://www.mdbg.net/chinese/dictionary?page=cc-cedict) at [MDBG Chinese Dictionary](https://www.mdbg.net/chinese/dictionary).
 
