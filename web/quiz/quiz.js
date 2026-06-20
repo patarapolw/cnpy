@@ -12,6 +12,9 @@ import {
   speak,
 } from "../util.js";
 
+let since = new Date();
+since.setMinutes(since.getMinutes() - since.getTimezoneOffset());
+
 /** @type {State} */
 const state = {
   vocabList: [],
@@ -1126,11 +1129,19 @@ async function newVocabList() {
     const r = await api.due_vocab_list(state.review_counter, {
       v: u.searchParams.get("v"),
       new: max_new ? parseInt(max_new) : undefined,
+      since,
     });
     state.vocabList = r.result;
-    state.due = r.count;
+    state.due = r.remaining;
     state.new = r.new;
     state.review_counter += r.result.length;
+
+    since = new Date(
+      r.result
+        .map((it) => it.srs?.due)
+        .sort()
+        .pop() || since,
+    );
 
     if (r.isAIenabled) {
       elRoot.setAttribute("data-ai", "1");

@@ -25,6 +25,19 @@ const saveRunners = [];
 
   /** @type {HTMLInputElement} */
   const checkboxHasNew = fieldsetQuizSettings.querySelector("input#has-new");
+  /** @type {HTMLSpanElement} */
+  const counterHasNew = fieldsetQuizSettings.querySelector(
+    'label[for="has-new"] [data-count]',
+  );
+
+  /** @type {HTMLInputElement} */
+  const checkboxHasMaxReview = fieldsetQuizSettings.querySelector(
+    "input#has-max_review",
+  );
+  /** @type {HTMLSpanElement} */
+  const counterHasMaxReview = fieldsetQuizSettings.querySelector(
+    'label[for="has-max_review"] [data-count]',
+  );
 
   /** @type {HTMLInputElement} */
   const inputVoiceName = fieldsetQuizSettings.querySelector("input#voice-name");
@@ -34,13 +47,18 @@ const saveRunners = [];
   function checkTTSengine() {
     fieldsetQuizSettings.classList.toggle(
       "hide-options",
-      ttsEngine !== "emoti"
+      ttsEngine !== "emoti",
     );
   }
 
   async function init() {
-    checkboxHasNew.checked =
-      ((await api.get_env("CNPY_MAX_NEW")) ?? "10") !== "0";
+    const max_new = parseInt(await api.get_env("CNPY_MAX_NEW"));
+    counterHasNew.innerText = `(${max_new || 10})`;
+    checkboxHasNew.checked = max_new > 0;
+
+    const max_review = parseInt(await api.get_env("CNPY_MAX_REVIEW"));
+    counterHasMaxReview.innerText = `(${max_review || 100})`;
+    checkboxHasMaxReview.checked = max_review > 0;
 
     const ttsVoice = (await api.get_env("CNPY_LOCAL_TTS_VOICE")) ?? "";
     if (ttsVoice === "0") {
@@ -72,6 +90,10 @@ const saveRunners = [];
 
   async function save() {
     await api.set_env("CNPY_MAX_NEW", checkboxHasNew.checked ? "10" : "0");
+    await api.set_env(
+      "CNPY_MAX_REVIEW",
+      checkboxHasMaxReview.checked ? "100" : "0",
+    );
 
     if ((ttsEngine = "")) {
       await api.set_env("CNPY_LOCAL_TTS_VOICE", "0");
@@ -92,7 +114,7 @@ const saveRunners = [];
 
   /** @type {HTMLInputElement} */
   const inputOpenAIapiKey = fieldsetOpenAI.querySelector(
-    "input#openai-api-key"
+    "input#openai-api-key",
   );
 
   /** @type {HTMLInputElement} */
@@ -224,7 +246,7 @@ const saveRunners = [];
 
   /** @type {HTMLInputElement} */
   const inputSyncDatabase = fieldSetSync.querySelector(
-    'input[name="sync-database"]'
+    'input[name="sync-database"]',
   );
   /** @type {HTMLButtonElement} */
   const btnRestore = fieldSetSync.querySelector('button[name="restore"]');
@@ -272,12 +294,12 @@ const saveRunners = [];
 
   /** @type {HTMLInputElement} */
   const checkboxIsAnkiConnect = fieldSetAnki.querySelector(
-    "input#is-anki-connect"
+    "input#is-anki-connect",
   );
 
   /** @type {HTMLInputElement} */
   const inputAnkiConnectServer = fieldSetAnki.querySelector(
-    'input[name="anki-connect-server"]'
+    'input[name="anki-connect-server"]',
   );
 
   checkboxIsAnkiConnect.onchange = () => {
@@ -287,7 +309,7 @@ const saveRunners = [];
   function check() {
     fieldSetAnki.classList.toggle(
       "hide-options",
-      !checkboxIsAnkiConnect.checked
+      !checkboxIsAnkiConnect.checked,
     );
   }
 
@@ -299,7 +321,7 @@ const saveRunners = [];
   async function save() {
     await api.set_env(
       "IS_ANKI_CONNECT",
-      checkboxIsAnkiConnect.checked ? "1" : ""
+      checkboxIsAnkiConnect.checked ? "1" : "",
     );
     await api.set_env("ANKI_CONNECT_URL", inputAnkiConnectServer.value);
   }

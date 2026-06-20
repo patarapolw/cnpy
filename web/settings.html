@@ -20,7 +20,14 @@
 
       <form>
         <input type="checkbox" name="has-new" id="has-new" checked />
-        <label for="has-new">New items per session</label>
+        <label for="has-new">
+          New items per session <span data-count></span>
+        </label>
+
+        <input type="checkbox" name="has-max_review" id="has-max_review" />
+        <label for="has-max_review">
+          Max review per session <span data-count></span>
+        </label>
       </form>
 
       <form id="tts">

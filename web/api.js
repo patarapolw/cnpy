@@ -67,10 +67,12 @@ export const api = {
    *   v?: string;
    *   new?: number;
    *   limit?: number;
+   *   since?: Date;
    * }} [opts]
    * @returns {Promise<{
    *  result: IQuizEntry[];
    *  count: number;
+   *  remaining: number;
    *  new: number;
    *  customItemSRS?: any;
    *  isAIenabled?: boolean;
@@ -227,6 +229,7 @@ export const api = {
    * | 'OPENAI_BASE_URL'
    * | 'OPENAI_MODEL'
    * | 'CNPY_MAX_NEW'
+   * | 'CNPY_MAX_REVIEW'
    * | 'CNPY_LOCAL_OLLAMA_MODEL'
    * | 'CNPY_LOCAL_OLLAMA_HOST'
    * | 'CNPY_LOCAL_WAIT_FOR_AI_RESULTS'
@@ -279,8 +282,12 @@ export const api = {
   },
 };
 
-/** @type {Promise['withTimeout']} */
-Promise.prototype.withTimeout = async function (timeout = 5000, reason) {
+/** @type {Promise<'withTimeout'>} */
+Promise.prototype.withTimeout = async function (
+  timeout = 5000,
+  /** @type {any} */ reason,
+) {
+  /** @type {number} */
   let timeoutId;
   return Promise.race([
     this,

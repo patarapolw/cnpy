@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
         "target": "ES2023",
+        "strictNullChecks": false
     },
     "exclude": ["web/_lib/**/*"],
     "include": ["web/**/*"],
