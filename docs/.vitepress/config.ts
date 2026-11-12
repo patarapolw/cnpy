@@ -17,9 +17,21 @@ export default defineConfig({
   themeConfig: {
     nav: [
       { text: "Home", link: "/" },
+      { text: "App guide", link: "/guide" },
       { text: "Vocabulary", link: "/levels/" },
     ],
     sidebar: [
+      {
+        text: "Using cnpy",
+        items: [
+          { text: "App guide", link: "/guide" },
+          { text: "Reading quiz", link: "/guide#reading-quiz" },
+          { text: "Meanings and notes", link: "/guide#meanings-and-notes" },
+          { text: "Hanzi and text tools", link: "/guide#hanzi-and-text-tools" },
+          { text: "Statistics and settings", link: "/guide#statistics-and-settings" },
+          { text: "Data sources", link: "/guide#data-sources" },
+        ],
+      },
       {
         text: "Vocabulary levels",
         link: "/levels/",

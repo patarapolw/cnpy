@@ -12,6 +12,9 @@ hero:
     - theme: alt
       text: View on GitHub
       link: https://github.com/patarapolw/cnpy
+    - theme: alt
+      text: App guide
+      link: /guide
 
 features:
   - title: Progressive vocabulary
@@ -20,6 +23,8 @@ features:
     details: Each level includes pinyin and concise CC-CEDICT definitions where available.
   - title: Spaced repetition
     details: cnpy is a desktop app for practicing Chinese readings with repeat drills.
+  - title: More than quizzes
+    details: Explore meanings, notes, Hanzi, article parsing, and learning statistics in the app guide.
 ---
 
 ## About the vocabulary
