@@ -82,10 +82,81 @@ def load_dictionary(
     return dictionary
 
 
+def load_sentences(
+    words: set[str],
+) -> dict[str, list[tuple[str, str]]]:
+    if not DATABASE.is_file():
+        raise FileNotFoundError(f"Sentence database not found: {DATABASE}")
+
+    database_uri = f"{DATABASE.as_uri()}?mode=ro"
+    sentence_ids: dict[str, list[int]] = {}
+    with sqlite3.connect(database_uri, uri=True) as connection:
+        ordered_words = sorted(words)
+        for offset in range(0, len(ordered_words), 500):
+            batch = ordered_words[offset : offset + 500]
+            placeholders = ",".join("?" for _ in batch)
+            rows = connection.execute(
+                f"""
+                SELECT v, json_extract(data, '$.sent')
+                FROM quiz
+                WHERE v IN ({placeholders})
+                """,
+                batch,
+            )
+            for word, sent_json in rows:
+                if sent_json:
+                    sentence_ids[word] = json.loads(sent_json)
+
+        sentence_rows: dict[int, tuple[str, str | None]] = {}
+        all_ids = sorted({sent_id for ids in sentence_ids.values() for sent_id in ids})
+        for offset in range(0, len(all_ids), 500):
+            batch = all_ids[offset : offset + 500]
+            placeholders = ",".join("?" for _ in batch)
+            rows = connection.execute(
+                f"SELECT id, cmn, eng FROM sentence WHERE id IN ({placeholders})",
+                batch,
+            )
+            sentence_rows.update(
+                (sent_id, (cmn, eng)) for sent_id, cmn, eng in rows
+            )
+
+    return {
+        word: [
+            sentence_rows[sent_id]
+            for sent_id in ids
+            if sent_id in sentence_rows
+        ]
+        for word, ids in sentence_ids.items()
+    }
+
+
+def marked_example(
+    word: str,
+    traditional: str | None,
+    sentences: list[tuple[str, str]],
+) -> list[tuple[str, str]]:
+    forms = [word]
+    if traditional and traditional != word:
+        forms.append(traditional)
+
+    candidates = []
+    for chinese, english in sentences:
+        if not english or len(chinese) > 240 or len(english) > 400:
+            continue
+        form = next((form for form in forms if form in chinese), None)
+        if form:
+            marked = chinese.replace(form, f"**{form}**", 1)
+            candidates.append((forms.index(form), len(chinese), marked, english))
+
+    candidates.sort()
+    return [(chinese, english) for _, _, chinese, english in candidates[:2]]
+
+
 def render_level(
     level: int,
     words: list[str],
     dictionary: dict[str, list[tuple[str, str | None, str, list[str]]]],
+    sentences: dict[str, list[tuple[str, str]]],
 ) -> str:
     rows = ["---", "target: zh-CN", "vocabulary:", "  words:"]
     vocabulary_table = [
@@ -114,6 +185,16 @@ def render_level(
                 f"      en: {yaml_string('; '.join(meanings[:8]) or 'No CC-CEDICT definition found.')}",
             ]
         )
+        examples = marked_example(key, traditional, sentences.get(key, []))
+        if examples:
+            rows.append("      examples:")
+            for chinese, english in examples:
+                rows.extend(
+                    [
+                        f"        - zh: {yaml_string(chinese)}",
+                        f"          en: {yaml_string(english)}",
+                    ]
+                )
         shown_meanings = "; ".join(meanings[:8]) or "No CC-CEDICT definition found."
         vocabulary_table.append(
             "| "
@@ -168,6 +249,7 @@ def main() -> None:
         dictionary_key(word) for words in levels.values() for word in words
     }
     dictionary = load_dictionary(dictionary_words)
+    sentences = load_sentences(dictionary_words)
     groups: dict[int, list[int]] = {}
 
     for level, words in levels.items():
@@ -177,7 +259,7 @@ def main() -> None:
         hsk_directory.mkdir(parents=True, exist_ok=True)
         output_path = hsk_directory / f"level-{level}.md"
         output_path.write_text(
-            render_level(level, words, dictionary),
+            render_level(level, words, dictionary, sentences),
             encoding="utf-8",
             newline="\n",
         )

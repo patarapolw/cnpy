@@ -1,6 +1,6 @@
 # Vocabulary levels
 
-These 60 levels follow the ordering in the [ZhQuiz HSK lists](https://github.com/zhquiz/level). Each level is a lesson folder containing vocabulary in its YAML frontmatter, ready to import into LinguaSRS. The same entries are repeated in the `## Vocabulary` table for VitePress preview; the app omits that section on import.
+These 60 levels follow the ordering in the [ZhQuiz HSK lists](https://github.com/zhquiz/level). Each level is a lesson folder containing vocabulary in its YAML frontmatter, ready to import into [LinguaSRS](https://github.com/patarapolw/lingua_srs). The same entries are repeated in the `## Vocabulary` table for VitePress preview; the app omits that section on import.
 
 The entries include pinyin and English definitions from CC-CEDICT where available. Pinyin uses tone numbers (for example, `ni3 hao3`).
 
