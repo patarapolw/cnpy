@@ -170,3 +170,6 @@ node_modules/
 *.db-*
 
 /_web/
+
+/docs/.vitepress/dist
+/docs/.vitepress/cache

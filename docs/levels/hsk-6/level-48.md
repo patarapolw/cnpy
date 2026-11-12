@@ -1,0 +1,583 @@
+---
+target: zh-CN
+vocabulary:
+  words:
+    - zh: "严峻"
+      en: "grim; severe; rigorous"
+      pinyin: "yan2 jun4"
+      traditional: "嚴峻"
+    - zh: "摇滚"
+      en: "rock 'n' roll (music); to rock; to fall off"
+      pinyin: "yao2 gun3"
+      traditional: "搖滾"
+    - zh: "隐瞒"
+      en: "to conceal; to hide (a taboo subject); to cover up the truth"
+      pinyin: "yin3 man2"
+      traditional: "隱瞞"
+    - zh: "直径"
+      en: "diameter"
+      pinyin: "zhi2 jing4"
+      traditional: "直徑"
+    - zh: "制止"
+      en: "to curb; to put a stop to; to stop; to check; to limit"
+      pinyin: "zhi4 zhi3"
+    - zh: "智能"
+      en: "intelligent; able; smart (phone, system, bomb etc)"
+      pinyin: "zhi4 neng2"
+    - zh: "保密"
+      en: "to keep sth confidential; to maintain secrecy"
+      pinyin: "bao3 mi4"
+    - zh: "扁"
+      en: "surname Pian; flat; (coll.) to beat (sb) up; old variant of 匾[bian3]; (bound form) small"
+      pinyin: "Pian1; bian3; pian1"
+    - zh: "残忍"
+      en: "cruel; mean; merciless; ruthless"
+      pinyin: "can2 ren3"
+      traditional: "殘忍"
+    - zh: "嘲笑"
+      en: "to jeer at; to deride; to ridicule; mockery; derision"
+      pinyin: "chao2 xiao4"
+    - zh: "成心"
+      en: "intentionally; deliberately; on purpose"
+      pinyin: "cheng2 xin1"
+    - zh: "搭配"
+      en: "to pair up; to match; to arrange in pairs; to add sth into a group"
+      pinyin: "da1 pei4"
+    - zh: "根源"
+      en: "origin; root (cause)"
+      pinyin: "gen1 yuan2"
+    - zh: "公认"
+      en: "publicly known (to be); accepted (as)"
+      pinyin: "gong1 ren4"
+      traditional: "公認"
+    - zh: "光辉"
+      en: "radiance; glory; brilliant; magnificent"
+      pinyin: "guang1 hui1"
+      traditional: "光輝"
+    - zh: "坑"
+      en: "pit; hollow; depression; (mining) pit; shaft; tunnel; (literary) to bury alive; (coll.) to cheat"
+      pinyin: "keng1"
+      traditional: "阬"
+    - zh: "亏损"
+      en: "deficit; (financial) loss"
+      pinyin: "kui1 sun3"
+      traditional: "虧損"
+    - zh: "灵感"
+      en: "inspiration; insight; a burst of creativity in scientific or artistic endeavor"
+      pinyin: "ling2 gan3"
+      traditional: "靈感"
+    - zh: "媒介"
+      en: "intermediary; vehicle; vector; medium; media"
+      pinyin: "mei2 jie4"
+    - zh: "明明"
+      en: "obviously; plainly; undoubtedly; definitely"
+      pinyin: "ming2 ming2"
+    - zh: "倘若"
+      en: "if; supposing; in case"
+      pinyin: "tang3 ruo4"
+    - zh: "天赋"
+      en: "gift; innate skill"
+      pinyin: "tian1 fu4"
+      traditional: "天賦"
+    - zh: "侮辱"
+      en: "to insult; to humiliate; dishonor"
+      pinyin: "wu3 ru3"
+    - zh: "掩盖"
+      en: "to conceal; to hide behind; to cover up"
+      pinyin: "yan3 gai4"
+      traditional: "掩蓋"
+    - zh: "眼神"
+      en: "expression or emotion showing in one's eyes; meaningful glance; wink; eyesight (dialect)"
+      pinyin: "yan3 shen2"
+    - zh: "一流"
+      en: "top quality; front ranking"
+      pinyin: "yi1 liu2"
+    - zh: "以至"
+      en: "down to; up to; to such an extent as to ...; also written 以至於|以至于[yi3 zhi4 yu2]"
+      pinyin: "yi3 zhi4"
+    - zh: "以致"
+      en: "to such an extent as to; down to; up to"
+      pinyin: "yi3 zhi4"
+    - zh: "永恒"
+      en: "eternal; everlasting; fig. to pass into eternity (i.e. to die)"
+      pinyin: "yong3 heng2"
+      traditional: "永恆"
+    - zh: "助手"
+      en: "assistant; helper"
+      pinyin: "zhu4 shou3"
+    - zh: "祖父"
+      en: "father's father; paternal grandfather"
+      pinyin: "zu3 fu4"
+    - zh: "补贴"
+      en: "to subsidize; subsidy; allowance; to supplement (one's salary etc); benefit"
+      pinyin: "bu3 tie1"
+      traditional: "補貼"
+    - zh: "参谋"
+      en: "staff officer; to give advice"
+      pinyin: "can1 mou2"
+      traditional: "參謀"
+    - zh: "成效"
+      en: "effect; result"
+      pinyin: "cheng2 xiao4"
+    - zh: "当场"
+      en: "at the scene; on the spot"
+      pinyin: "dang1 chang3"
+      traditional: "當場"
+    - zh: "导向"
+      en: "to be oriented towards; orientation"
+      pinyin: "dao3 xiang4"
+      traditional: "導向"
+    - zh: "等候"
+      en: "to wait; to wait for"
+      pinyin: "deng3 hou4"
+    - zh: "顿时"
+      en: "immediately; suddenly"
+      pinyin: "dun4 shi2"
+      traditional: "頓時"
+    - zh: "割"
+      en: "to cut; to cut apart"
+      pinyin: "ge1"
+    - zh: "公式"
+      en: "formula"
+      pinyin: "gong1 shi4"
+    - zh: "机遇"
+      en: "opportunity; favorable turn of events; stroke of luck"
+      pinyin: "ji1 yu4"
+      traditional: "機遇"
+    - zh: "降临"
+      en: "to descend; to arrive; to come"
+      pinyin: "jiang4 lin2"
+      traditional: "降臨"
+    - zh: "惊奇"
+      en: "to be amazed; to be surprised; to wonder"
+      pinyin: "jing1 qi2"
+      traditional: "驚奇"
+    - zh: "科目"
+      en: "academic subject; field of study"
+      pinyin: "ke1 mu4"
+    - zh: "空白"
+      en: "blank space"
+      pinyin: "kong4 bai2"
+    - zh: "况且"
+      en: "moreover; besides; in addition; furthermore"
+      pinyin: "kuang4 qie3"
+      traditional: "況且"
+    - zh: "乐趣"
+      en: "delight; pleasure; joy"
+      pinyin: "le4 qu4"
+      traditional: "樂趣"
+    - zh: "提示"
+      en: "to point out; to remind (sb of sth); to suggest; suggestion; tip; reminder; notice"
+      pinyin: "ti2 shi4"
+    - zh: "盛"
+      en: "surname Sheng; to hold; to contain; to ladle; to pick up with a utensil; flourishing; vigorous; magnificent"
+      pinyin: "Sheng4; cheng2; sheng4"
+    - zh: "动荡"
+      en: "variant of 動蕩|动荡[dong4 dang4]; unrest (social or political); turmoil; upheaval; commotion"
+      pinyin: "dong4 dang4"
+      traditional: "動盪"
+    - zh: "关怀"
+      en: "care; solicitude; to show care for; concerned about; attentive to"
+      pinyin: "guan1 huai2"
+      traditional: "關懷"
+    - zh: "回避"
+      en: "variant of 迴避|回避[hui2 bi4]; to shun; to avoid (sb); to skirt; to evade (an issue); to step back; to withdraw; to recuse (a judge etc)"
+      pinyin: "hui2 bi4"
+      traditional: "迴避"
+    - zh: "回收"
+      en: "to recycle; to reclaim; to retrieve; to recover; to recall (a defective product)"
+      pinyin: "hui2 shou1"
+    - zh: "觉醒"
+      en: "to awaken; to come to realize; awakened to the truth; the truth dawns upon one; scales fall from the eyes; to become aware"
+      pinyin: "jue2 xing3"
+      traditional: "覺醒"
+    - zh: "扣"
+      en: "to fasten; to button; button; buckle; knot; to arrest; to confiscate; to deduct (money)"
+      pinyin: "kou4"
+      traditional: "釦"
+    - zh: "拟定"
+      en: "to draw up; to draft; to formulate"
+      pinyin: "ni3 ding4"
+      traditional: "擬定"
+    - zh: "抢救"
+      en: "to rescue"
+      pinyin: "qiang3 jiu4"
+      traditional: "搶救"
+    - zh: "倾听"
+      en: "to listen attentively"
+      pinyin: "qing1 ting1"
+      traditional: "傾聽"
+    - zh: "犬"
+      en: "(literary) dog; Kangxi radical 94"
+      pinyin: "quan3"
+    - zh: "骚扰"
+      en: "to disturb; to cause a commotion; to harass"
+      pinyin: "sao1 rao3"
+      traditional: "騷擾"
+    - zh: "舌头"
+      en: "tongue; CL:個|个[ge4]; enemy soldier captured for the purpose of extracting information"
+      pinyin: "she2 tou5"
+      traditional: "舌頭"
+    - zh: "适宜"
+      en: "suitable; appropriate"
+      pinyin: "shi4 yi2"
+      traditional: "適宜"
+    - zh: "铜"
+      en: "copper (chemistry); see also 紅銅|红铜[hong2 tong2]; CL:塊|块[kuai4]"
+      pinyin: "tong2"
+      traditional: "銅"
+    - zh: "娃娃"
+      en: "baby; small child; doll"
+      pinyin: "wa2 wa5"
+    - zh: "窝"
+      en: "nest; pit or hollow on the human body; lair; den; place; to harbor or shelter; to hold in check; to bend"
+      pinyin: "wo1"
+      traditional: "窩"
+    - zh: "意味着"
+      en: "to signify; to mean; to imply"
+      pinyin: "yi4 wei4 zhe5"
+      traditional: "意味著"
+    - zh: "优越"
+      en: "superior; superiority"
+      pinyin: "you1 yue4"
+      traditional: "優越"
+    - zh: "诱惑"
+      en: "to entice; to lure; to induce; to attract"
+      pinyin: "you4 huo4"
+      traditional: "誘惑"
+    - zh: "帐篷"
+      en: "tent; CL:頂|顶[ding3],座[zuo4]"
+      pinyin: "zhang4 peng5"
+      traditional: "帳篷"
+    - zh: "侦探"
+      en: "detective; to do detective work"
+      pinyin: "zhen1 tan4"
+      traditional: "偵探"
+    - zh: "振兴"
+      en: "Zhengxing district of Dandong city 丹東市|丹东市[Dan1 dong1 shi4], Liaoning; to revive; to revitalize; to invigorate; to re-energize"
+      pinyin: "Zhen4 xing1; zhen4 xing1"
+      traditional: "振興"
+    - zh: "悲惨"
+      en: "miserable; tragic"
+      pinyin: "bei1 can3"
+      traditional: "悲慘"
+    - zh: "便利"
+      en: "convenient; easy; to facilitate"
+      pinyin: "bian4 li4"
+    - zh: "裁判"
+      en: "(law) to judge; to adjudicate; verdict; judgement; (sports) to referee; (sports) umpire; referee; judge"
+      pinyin: "cai2 pan4"
+    - zh: "倡导"
+      en: "to advocate; to initiate; to propose; to be a proponent of (an idea or school of thought)"
+      pinyin: "chang4 dao3"
+      traditional: "倡導"
+    - zh: "地步"
+      en: "stage; degree (to which a situation has evolved); a (usu. bad) situation; leeway"
+      pinyin: "di4 bu4"
+    - zh: "奠定"
+      en: "to establish; to fix; to settle"
+      pinyin: "dian4 ding4"
+    - zh: "栋"
+      en: "classifier for houses or buildings; ridgepole (old)"
+      pinyin: "dong4"
+      traditional: "棟"
+    - zh: "防守"
+      en: "to defend; to protect (against)"
+      pinyin: "fang2 shou3"
+    - zh: "纲领"
+      en: "program (i.e. plan of action); guiding principle"
+      pinyin: "gang1 ling3"
+      traditional: "綱領"
+    - zh: "宫殿"
+      en: "palace; CL:座[zuo4]"
+      pinyin: "gong1 dian4"
+      traditional: "宮殿"
+    - zh: "固然"
+      en: "admittedly (it's true that...)"
+      pinyin: "gu4 ran2"
+    - zh: "井"
+      en: "Jing, one of the 28 constellations of Chinese astronomy; surname Jing; a well; CL:口[kou3]; neat; orderly"
+      pinyin: "Jing3; jing3"
+    - zh: "盲目"
+      en: "(fig.) (of one's actions) blind; unthinking"
+      pinyin: "mang2 mu4"
+    - zh: "模范"
+      en: "model; fine example"
+      pinyin: "mo2 fan4"
+      traditional: "模範"
+    - zh: "内在"
+      en: "inner; internal; intrinsic; innate"
+      pinyin: "nei4 zai4"
+      traditional: "內在"
+    - zh: "坡"
+      en: "slope; CL:個|个[ge4]; sloping; slanted"
+      pinyin: "po1"
+    - zh: "散发"
+      en: "to distribute; to emit; to issue"
+      pinyin: "san4 fa1"
+      traditional: "散發"
+    - zh: "渗透"
+      en: "(lit. and fig.) to permeate; to seep into; (of a product, idea etc) to penetrate (in a population); (of hostile forces) to infiltrate; (chemistry) osmosis"
+      pinyin: "shen4 tou4"
+      traditional: "滲透"
+    - zh: "生育"
+      en: "to give birth to; to bear; fertility"
+      pinyin: "sheng1 yu4"
+    - zh: "塑造"
+      en: "to model; to mold; (fig.) to create (a character, a market, an image etc); (fig.) (literature) to portray (in words)"
+      pinyin: "su4 zao4"
+    - zh: "威力"
+      en: "might; formidable power"
+      pinyin: "wei1 li4"
+    - zh: "削弱"
+      en: "to weaken; to impair; to cripple"
+      pinyin: "xue1 ruo4"
+    - zh: "掩护"
+      en: "to screen; to shield; to cover; protection; cover; CL:面[mian4]"
+      pinyin: "yan3 hu4"
+      traditional: "掩護"
+    - zh: "董事长"
+      en: "chairman of the board of directors"
+      pinyin: "dong3 shi4 zhang3"
+      traditional: "董事長"
+    - zh: "对照"
+      en: "to contrast; to compare; to place side by side for comparison (as parallel texts); to check"
+      pinyin: "dui4 zhao4"
+      traditional: "對照"
+    - zh: "反思"
+      en: "to think back over sth; to review; to revisit; to rethink; reflection; reassessment"
+      pinyin: "fan3 si1"
+    - zh: "惯例"
+      en: "convention; usual practice"
+      pinyin: "guan4 li4"
+      traditional: "慣例"
+    - zh: "鉴于"
+      en: "in view of; seeing that; considering; whereas"
+      pinyin: "jian4 yu2"
+      traditional: "鑒於"
+    - zh: "器材"
+      en: "equipment; material"
+      pinyin: "qi4 cai2"
+    - zh: "容纳"
+      en: "to hold; to contain; to accommodate; to tolerate (different opinions)"
+      pinyin: "rong2 na4"
+      traditional: "容納"
+    - zh: "书面"
+      en: "in writing; written"
+      pinyin: "shu1 mian4"
+      traditional: "書面"
+    - zh: "薪水"
+      en: "salary; wage"
+      pinyin: "xin1 shui3"
+    - zh: "厌恶"
+      en: "to loathe; to hate; disgusted with sth"
+      pinyin: "yan4 wu4"
+      traditional: "厭惡"
+    - zh: "珍珠"
+      en: "pearl (CL:顆|颗[ke1],粒[li4]); (fig.) teardrop; tear"
+      pinyin: "zhen1 zhu1"
+    - zh: "制裁"
+      en: "to punish; punishment; sanctions (incl. economic)"
+      pinyin: "zhi4 cai2"
+    - zh: "注释"
+      en: "to annotate; to add a comment; explanatory note; annotation; variant of 注釋|注释[zhu4 shi4]"
+      pinyin: "zhu4 shi4"
+      traditional: "注釋"
+    - zh: "追究"
+      en: "to investigate; to look into"
+      pinyin: "zhui1 jiu1"
+    - zh: "资深"
+      en: "senior; highly experienced; veteran"
+      pinyin: "zi1 shen1"
+      traditional: "資深"
+    - zh: "悲哀"
+      en: "grieved; sorrowful"
+      pinyin: "bei1 ai1"
+    - zh: "畅销"
+      en: "to sell well; bestselling; chart-topping"
+      pinyin: "chang4 xiao1"
+      traditional: "暢銷"
+    - zh: "充足"
+      en: "adequate; sufficient; abundant"
+      pinyin: "chong1 zu2"
+    - zh: "跌"
+      en: "to fall; to tumble; to trip; (of prices etc) to drop; Taiwan pr. [die2]"
+      pinyin: "die1"
+    - zh: "贩卖"
+      en: "to sell; to peddle; to traffic"
+      pinyin: "fan4 mai4"
+      traditional: "販賣"
+    - zh: "格局"
+      en: "structure; pattern; layout"
+      pinyin: "ge2 ju2"
+    - zh: "故障"
+      en: "malfunction; breakdown; defect; shortcoming; fault; failure; impediment; error"
+      pinyin: "gu4 zhang4"
+    - zh: "火焰"
+      en: "blaze; flame"
+      pinyin: "huo3 yan4"
+    - zh: "饥饿"
+      en: "hunger; starvation; famine"
+      pinyin: "ji1 e4"
+      traditional: "飢餓"
+    - zh: "极限"
+      en: "limit; extreme boundary"
+      pinyin: "ji2 xian4"
+      traditional: "極限"
+    - zh: "可行"
+      en: "feasible"
+      pinyin: "ke3 xing2"
+    - zh: "雷达"
+      en: "(loanword) radar"
+      pinyin: "lei2 da2"
+      traditional: "雷達"
+    - zh: "论证"
+      en: "to prove a point; to expound on; to demonstrate or prove (through argument); proof"
+      pinyin: "lun4 zheng4"
+      traditional: "論證"
+    - zh: "猛烈"
+      en: "fierce; violent; vigorous; intense"
+      pinyin: "meng3 lie4"
+    - zh: "培育"
+      en: "to train; to breed"
+      pinyin: "pei2 yu4"
+    - zh: "倾斜"
+      en: "to incline; to lean; to slant; to slope; to tilt"
+      pinyin: "qing1 xie2"
+      traditional: "傾斜"
+---
+
+# Level 48
+
+## Vocabulary
+
+| Vocabulary | Pinyin | Definitions |
+| --- | --- | --- |
+| 严峻 | yan2 jun4 | grim; severe; rigorous |
+| 摇滚 | yao2 gun3 | rock 'n' roll (music); to rock; to fall off |
+| 隐瞒 | yin3 man2 | to conceal; to hide (a taboo subject); to cover up the truth |
+| 直径 | zhi2 jing4 | diameter |
+| 制止 | zhi4 zhi3 | to curb; to put a stop to; to stop; to check; to limit |
+| 智能 | zhi4 neng2 | intelligent; able; smart (phone, system, bomb etc) |
+| 保密 | bao3 mi4 | to keep sth confidential; to maintain secrecy |
+| 扁 | Pian1; bian3; pian1 | surname Pian; flat; (coll.) to beat (sb) up; old variant of 匾[bian3]; (bound form) small |
+| 残忍 | can2 ren3 | cruel; mean; merciless; ruthless |
+| 嘲笑 | chao2 xiao4 | to jeer at; to deride; to ridicule; mockery; derision |
+| 成心 | cheng2 xin1 | intentionally; deliberately; on purpose |
+| 搭配 | da1 pei4 | to pair up; to match; to arrange in pairs; to add sth into a group |
+| 根源 | gen1 yuan2 | origin; root (cause) |
+| 公认 | gong1 ren4 | publicly known (to be); accepted (as) |
+| 光辉 | guang1 hui1 | radiance; glory; brilliant; magnificent |
+| 坑 | keng1 | pit; hollow; depression; (mining) pit; shaft; tunnel; (literary) to bury alive; (coll.) to cheat |
+| 亏损 | kui1 sun3 | deficit; (financial) loss |
+| 灵感 | ling2 gan3 | inspiration; insight; a burst of creativity in scientific or artistic endeavor |
+| 媒介 | mei2 jie4 | intermediary; vehicle; vector; medium; media |
+| 明明 | ming2 ming2 | obviously; plainly; undoubtedly; definitely |
+| 倘若 | tang3 ruo4 | if; supposing; in case |
+| 天赋 | tian1 fu4 | gift; innate skill |
+| 侮辱 | wu3 ru3 | to insult; to humiliate; dishonor |
+| 掩盖 | yan3 gai4 | to conceal; to hide behind; to cover up |
+| 眼神 | yan3 shen2 | expression or emotion showing in one's eyes; meaningful glance; wink; eyesight (dialect) |
+| 一流 | yi1 liu2 | top quality; front ranking |
+| 以至 | yi3 zhi4 | down to; up to; to such an extent as to ...; also written 以至於\|以至于[yi3 zhi4 yu2] |
+| 以致 | yi3 zhi4 | to such an extent as to; down to; up to |
+| 永恒 | yong3 heng2 | eternal; everlasting; fig. to pass into eternity (i.e. to die) |
+| 助手 | zhu4 shou3 | assistant; helper |
+| 祖父 | zu3 fu4 | father's father; paternal grandfather |
+| 补贴 | bu3 tie1 | to subsidize; subsidy; allowance; to supplement (one's salary etc); benefit |
+| 参谋 | can1 mou2 | staff officer; to give advice |
+| 成效 | cheng2 xiao4 | effect; result |
+| 当场 | dang1 chang3 | at the scene; on the spot |
+| 导向 | dao3 xiang4 | to be oriented towards; orientation |
+| 等候 | deng3 hou4 | to wait; to wait for |
+| 顿时 | dun4 shi2 | immediately; suddenly |
+| 割 | ge1 | to cut; to cut apart |
+| 公式 | gong1 shi4 | formula |
+| 机遇 | ji1 yu4 | opportunity; favorable turn of events; stroke of luck |
+| 降临 | jiang4 lin2 | to descend; to arrive; to come |
+| 惊奇 | jing1 qi2 | to be amazed; to be surprised; to wonder |
+| 科目 | ke1 mu4 | academic subject; field of study |
+| 空白 | kong4 bai2 | blank space |
+| 况且 | kuang4 qie3 | moreover; besides; in addition; furthermore |
+| 乐趣 | le4 qu4 | delight; pleasure; joy |
+| 提示 | ti2 shi4 | to point out; to remind (sb of sth); to suggest; suggestion; tip; reminder; notice |
+| 盛 | Sheng4; cheng2; sheng4 | surname Sheng; to hold; to contain; to ladle; to pick up with a utensil; flourishing; vigorous; magnificent |
+| 动荡 | dong4 dang4 | variant of 動蕩\|动荡[dong4 dang4]; unrest (social or political); turmoil; upheaval; commotion |
+| 关怀 | guan1 huai2 | care; solicitude; to show care for; concerned about; attentive to |
+| 回避 | hui2 bi4 | variant of 迴避\|回避[hui2 bi4]; to shun; to avoid (sb); to skirt; to evade (an issue); to step back; to withdraw; to recuse (a judge etc) |
+| 回收 | hui2 shou1 | to recycle; to reclaim; to retrieve; to recover; to recall (a defective product) |
+| 觉醒 | jue2 xing3 | to awaken; to come to realize; awakened to the truth; the truth dawns upon one; scales fall from the eyes; to become aware |
+| 扣 | kou4 | to fasten; to button; button; buckle; knot; to arrest; to confiscate; to deduct (money) |
+| 拟定 | ni3 ding4 | to draw up; to draft; to formulate |
+| 抢救 | qiang3 jiu4 | to rescue |
+| 倾听 | qing1 ting1 | to listen attentively |
+| 犬 | quan3 | (literary) dog; Kangxi radical 94 |
+| 骚扰 | sao1 rao3 | to disturb; to cause a commotion; to harass |
+| 舌头 | she2 tou5 | tongue; CL:個\|个[ge4]; enemy soldier captured for the purpose of extracting information |
+| 适宜 | shi4 yi2 | suitable; appropriate |
+| 铜 | tong2 | copper (chemistry); see also 紅銅\|红铜[hong2 tong2]; CL:塊\|块[kuai4] |
+| 娃娃 | wa2 wa5 | baby; small child; doll |
+| 窝 | wo1 | nest; pit or hollow on the human body; lair; den; place; to harbor or shelter; to hold in check; to bend |
+| 意味着 | yi4 wei4 zhe5 | to signify; to mean; to imply |
+| 优越 | you1 yue4 | superior; superiority |
+| 诱惑 | you4 huo4 | to entice; to lure; to induce; to attract |
+| 帐篷 | zhang4 peng5 | tent; CL:頂\|顶[ding3],座[zuo4] |
+| 侦探 | zhen1 tan4 | detective; to do detective work |
+| 振兴 | Zhen4 xing1; zhen4 xing1 | Zhengxing district of Dandong city 丹東市\|丹东市[Dan1 dong1 shi4], Liaoning; to revive; to revitalize; to invigorate; to re-energize |
+| 悲惨 | bei1 can3 | miserable; tragic |
+| 便利 | bian4 li4 | convenient; easy; to facilitate |
+| 裁判 | cai2 pan4 | (law) to judge; to adjudicate; verdict; judgement; (sports) to referee; (sports) umpire; referee; judge |
+| 倡导 | chang4 dao3 | to advocate; to initiate; to propose; to be a proponent of (an idea or school of thought) |
+| 地步 | di4 bu4 | stage; degree (to which a situation has evolved); a (usu. bad) situation; leeway |
+| 奠定 | dian4 ding4 | to establish; to fix; to settle |
+| 栋 | dong4 | classifier for houses or buildings; ridgepole (old) |
+| 防守 | fang2 shou3 | to defend; to protect (against) |
+| 纲领 | gang1 ling3 | program (i.e. plan of action); guiding principle |
+| 宫殿 | gong1 dian4 | palace; CL:座[zuo4] |
+| 固然 | gu4 ran2 | admittedly (it's true that...) |
+| 井 | Jing3; jing3 | Jing, one of the 28 constellations of Chinese astronomy; surname Jing; a well; CL:口[kou3]; neat; orderly |
+| 盲目 | mang2 mu4 | (fig.) (of one's actions) blind; unthinking |
+| 模范 | mo2 fan4 | model; fine example |
+| 内在 | nei4 zai4 | inner; internal; intrinsic; innate |
+| 坡 | po1 | slope; CL:個\|个[ge4]; sloping; slanted |
+| 散发 | san4 fa1 | to distribute; to emit; to issue |
+| 渗透 | shen4 tou4 | (lit. and fig.) to permeate; to seep into; (of a product, idea etc) to penetrate (in a population); (of hostile forces) to infiltrate; (chemistry) osmosis |
+| 生育 | sheng1 yu4 | to give birth to; to bear; fertility |
+| 塑造 | su4 zao4 | to model; to mold; (fig.) to create (a character, a market, an image etc); (fig.) (literature) to portray (in words) |
+| 威力 | wei1 li4 | might; formidable power |
+| 削弱 | xue1 ruo4 | to weaken; to impair; to cripple |
+| 掩护 | yan3 hu4 | to screen; to shield; to cover; protection; cover; CL:面[mian4] |
+| 董事长 | dong3 shi4 zhang3 | chairman of the board of directors |
+| 对照 | dui4 zhao4 | to contrast; to compare; to place side by side for comparison (as parallel texts); to check |
+| 反思 | fan3 si1 | to think back over sth; to review; to revisit; to rethink; reflection; reassessment |
+| 惯例 | guan4 li4 | convention; usual practice |
+| 鉴于 | jian4 yu2 | in view of; seeing that; considering; whereas |
+| 器材 | qi4 cai2 | equipment; material |
+| 容纳 | rong2 na4 | to hold; to contain; to accommodate; to tolerate (different opinions) |
+| 书面 | shu1 mian4 | in writing; written |
+| 薪水 | xin1 shui3 | salary; wage |
+| 厌恶 | yan4 wu4 | to loathe; to hate; disgusted with sth |
+| 珍珠 | zhen1 zhu1 | pearl (CL:顆\|颗[ke1],粒[li4]); (fig.) teardrop; tear |
+| 制裁 | zhi4 cai2 | to punish; punishment; sanctions (incl. economic) |
+| 注释 | zhu4 shi4 | to annotate; to add a comment; explanatory note; annotation; variant of 注釋\|注释[zhu4 shi4] |
+| 追究 | zhui1 jiu1 | to investigate; to look into |
+| 资深 | zi1 shen1 | senior; highly experienced; veteran |
+| 悲哀 | bei1 ai1 | grieved; sorrowful |
+| 畅销 | chang4 xiao1 | to sell well; bestselling; chart-topping |
+| 充足 | chong1 zu2 | adequate; sufficient; abundant |
+| 跌 | die1 | to fall; to tumble; to trip; (of prices etc) to drop; Taiwan pr. [die2] |
+| 贩卖 | fan4 mai4 | to sell; to peddle; to traffic |
+| 格局 | ge2 ju2 | structure; pattern; layout |
+| 故障 | gu4 zhang4 | malfunction; breakdown; defect; shortcoming; fault; failure; impediment; error |
+| 火焰 | huo3 yan4 | blaze; flame |
+| 饥饿 | ji1 e4 | hunger; starvation; famine |
+| 极限 | ji2 xian4 | limit; extreme boundary |
+| 可行 | ke3 xing2 | feasible |
+| 雷达 | lei2 da2 | (loanword) radar |
+| 论证 | lun4 zheng4 | to prove a point; to expound on; to demonstrate or prove (through argument); proof |
+| 猛烈 | meng3 lie4 | fierce; violent; vigorous; intense |
+| 培育 | pei2 yu4 | to train; to breed |
+| 倾斜 | qing1 xie2 | to incline; to lean; to slant; to slope; to tilt |
+HSK 6 · 125 vocabulary entries
+
+[Previous level](/levels/hsk-6/level-47) · [All vocabulary levels](/levels/) · [Next level](/levels/hsk-6/level-49)
