@@ -18,8 +18,10 @@ vocabulary:
       examples:
         - zh: "我的祖父要用**拐杖**才能走路。"
           en: "My grandfather cannot walk without a stick."
+          notes: "Source: [Tatoeba sentence #795358](https://tatoeba.org/en/sentences/show/795358)"
         - zh: "這個老人拄著一根**拐杖**走路。"
           en: "The old man walked with a stick."
+          notes: "Source: [Tatoeba sentence #900352](https://tatoeba.org/en/sentences/show/900352)"
       pinyin: "guai3 zhang4"
     - zh: "靠拢"
       en: "to draw close to"
@@ -53,6 +55,7 @@ vocabulary:
       examples:
         - zh: "我們得**體諒**她年輕。"
           en: "We should take into account she is still young."
+          notes: "Source: [Tatoeba sentence #1964659](https://tatoeba.org/en/sentences/show/1964659)"
       pinyin: "ti3 liang4"
       traditional: "體諒"
     - zh: "汹涌"
@@ -64,8 +67,10 @@ vocabulary:
       examples:
         - zh: "她在海边卖**贝壳**。"
           en: "She sells seashells by the seashore."
+          notes: "Source: [Tatoeba sentence #3068647](https://tatoeba.org/en/sentences/show/3068647)"
         - zh: "我在海边捡了个漂亮**贝壳**。"
           en: "I picked up a pretty shell at the seaside."
+          notes: "Source: [Tatoeba sentence #5911660](https://tatoeba.org/en/sentences/show/5911660)"
       pinyin: "bei4 ke2"
       traditional: "貝殼"
     - zh: "裁缝"
@@ -80,12 +85,14 @@ vocabulary:
       examples:
         - zh: "他把我从头到脚**打量**了一番。"
           en: "He looked me over from head to foot."
+          notes: "Source: [Tatoeba sentence #1941868](https://tatoeba.org/en/sentences/show/1941868)"
       pinyin: "da3 liang5"
     - zh: "高超"
       en: "excellent; superlative"
       examples:
         - zh: "無論是多麼不協和的兩種顏色，在技術**高超**的設計師手裏，也能化成悅目的配搭。"
           en: "In the hands of a skilled designer, any two colors can go well together."
+          notes: "Source: [Tatoeba sentence #1988451](https://tatoeba.org/en/sentences/show/1988451)"
       pinyin: "gao1 chao1"
     - zh: "更正"
       en: "to correct; to make a correction"
@@ -125,6 +132,7 @@ vocabulary:
       examples:
         - zh: "**大伙儿**玩得高兴吗？"
           en: "You guys having fun?"
+          notes: "Source: [Tatoeba sentence #2014981](https://tatoeba.org/en/sentences/show/2014981)"
       pinyin: "da4 huo3 r5"
       traditional: "大伙兒"
     - zh: "方圆"
@@ -140,6 +148,7 @@ vocabulary:
       examples:
         - zh: "盡可能**及早**拜訪您。"
           en: "I'll come as soon as I can."
+          notes: "Source: [Tatoeba sentence #805744](https://tatoeba.org/en/sentences/show/805744)"
       pinyin: "ji2 zao3"
     - zh: "见闻"
       en: "what one has seen and heard; knowledge; one's experience"
@@ -150,6 +159,7 @@ vocabulary:
       examples:
         - zh: "努力和**敬業**會讓你成功。"
           en: "Hard work and dedication will bring you success."
+          notes: "Source: [Tatoeba sentence #5611433](https://tatoeba.org/en/sentences/show/5611433)"
       pinyin: "jing4 ye4"
       traditional: "敬業"
     - zh: "款式"
@@ -182,6 +192,7 @@ vocabulary:
       examples:
         - zh: "这个故事**仓促**地结了尾。"
           en: "The story concluded abruptly."
+          notes: "Source: [Tatoeba sentence #1878074](https://tatoeba.org/en/sentences/show/1878074)"
       pinyin: "cang1 cu4"
       traditional: "倉促"
     - zh: "敌视"
@@ -205,6 +216,7 @@ vocabulary:
       examples:
         - zh: "**活该**。"
           en: "You reap what you sow."
+          notes: "Source: [Tatoeba sentence #3832400](https://tatoeba.org/en/sentences/show/3832400)"
       pinyin: "huo2 gai1"
       traditional: "活該"
     - zh: "精简"
@@ -216,6 +228,7 @@ vocabulary:
       examples:
         - zh: "他的雙腳被交叉**捆綁**著。"
           en: "His legs were crossed."
+          notes: "Source: [Tatoeba sentence #6159421](https://tatoeba.org/en/sentences/show/6159421)"
       pinyin: "kun3 bang3"
       traditional: "捆綁"
     - zh: "唠叨"
@@ -223,6 +236,7 @@ vocabulary:
       examples:
         - zh: "别**唠叨**！我需要学习。"
           en: "Don't chatter! I have to study."
+          notes: "Source: [Tatoeba sentence #8871010](https://tatoeba.org/en/sentences/show/8871010)"
       pinyin: "lao2 dao5"
       traditional: "嘮叨"
     - zh: "神气"
@@ -240,8 +254,10 @@ vocabulary:
       examples:
         - zh: "我不**挑剔**。"
           en: "I'm not fussy."
+          notes: "Source: [Tatoeba sentence #3478420](https://tatoeba.org/en/sentences/show/3478420)"
         - zh: "汤姆相当**挑剔**。"
           en: "Tom is quite fussy."
+          notes: "Source: [Tatoeba sentence #8589144](https://tatoeba.org/en/sentences/show/8589144)"
       pinyin: "tiao1 ti5"
     - zh: "唯独"
       en: "only; just (i.e. it is only that...); all except; unique"
@@ -259,6 +275,7 @@ vocabulary:
       examples:
         - zh: "请多**保重**身体。"
           en: "Please take care of your body."
+          notes: "Source: [Tatoeba sentence #2704934](https://tatoeba.org/en/sentences/show/2704934)"
       pinyin: "bao3 zhong4"
     - zh: "备份"
       en: "backup"
@@ -273,8 +290,10 @@ vocabulary:
       examples:
         - zh: "湯姆和瑪麗就是沒法兒**和睦**相處。"
           en: "Tom and Mary never got along."
+          notes: "Source: [Tatoeba sentence #10455456](https://tatoeba.org/en/sentences/show/10455456)"
         - zh: "人类是在没吃掉对方前能够与对方**和睦**相处的唯一动物。"
           en: "Man is the only animal that can remain on friendly terms with the victims he intends to eat until he eats them."
+          notes: "Source: [Tatoeba sentence #5067344](https://tatoeba.org/en/sentences/show/5067344)"
       pinyin: "he2 mu4"
     - zh: "敬礼"
       en: "to salute; salute"
@@ -296,6 +315,7 @@ vocabulary:
       examples:
         - zh: "谁能揭开海洋的**奥秘**？"
           en: "Who shall ever unravel the mysteries of the sea?"
+          notes: "Source: [Tatoeba sentence #5574498](https://tatoeba.org/en/sentences/show/5574498)"
       pinyin: "ao4 mi4"
       traditional: "奧祕"
     - zh: "吹牛"
@@ -306,8 +326,10 @@ vocabulary:
       examples:
         - zh: "真**丢人**！"
           en: "What a shame!"
+          notes: "Source: [Tatoeba sentence #4444892](https://tatoeba.org/en/sentences/show/4444892)"
         - zh: "哎，今天真**丢人**，我把衣服穿反了。"
           en: "Argh, I was so embarrassed today. I wore my clothes inside-out."
+          notes: "Source: [Tatoeba sentence #3060461](https://tatoeba.org/en/sentences/show/3060461)"
       pinyin: "diu1 ren2"
       traditional: "丟人"
     - zh: "肥沃"
@@ -315,8 +337,10 @@ vocabulary:
       examples:
         - zh: "他農場的土地十分**肥沃**。"
           en: "The land on his farm is very fertile."
+          notes: "Source: [Tatoeba sentence #750615](https://tatoeba.org/en/sentences/show/750615)"
         - zh: "他的農場的土地十分**肥沃**。"
           en: "The land on his farm is very fertile."
+          notes: "Source: [Tatoeba sentence #10551913](https://tatoeba.org/en/sentences/show/10551913)"
       pinyin: "fei2 wo4"
     - zh: "根深蒂固"
       en: "deep-rooted (problem etc)"
@@ -329,12 +353,14 @@ vocabulary:
       examples:
         - zh: "他嚇得全身**僵硬**。"
           en: "He was rigid with terror."
+          notes: "Source: [Tatoeba sentence #5505578](https://tatoeba.org/en/sentences/show/5505578)"
       pinyin: "jiang1 ying4"
     - zh: "茫茫"
       en: "boundless; vast and obscure"
       examples:
         - zh: "突然，从**茫茫**大雾中出现了一艘船。"
           en: "Suddenly, a ship appeared through the fog."
+          notes: "Source: [Tatoeba sentence #4147266](https://tatoeba.org/en/sentences/show/4147266)"
       pinyin: "mang2 mang2"
     - zh: "凝固"
       en: "to freeze; to solidify; to congeal; fig. with rapt attention"
@@ -359,6 +385,7 @@ vocabulary:
       examples:
         - zh: "真的不敢相信你在吃医生**叮嘱**不要食用的东西。"
           en: "I can't believe you are eating something the doctor has told you repeatedly you shouldn't eat."
+          notes: "Source: [Tatoeba sentence #4760026](https://tatoeba.org/en/sentences/show/4760026)"
       pinyin: "ding1 zhu3"
       traditional: "叮囑"
     - zh: "夹杂"
@@ -366,6 +393,7 @@ vocabulary:
       examples:
         - zh: "他說話**夾雜**著台灣口音。"
           en: "He spoke with a Taiwanese accent mixed in."
+          notes: "Source: [Tatoeba sentence #2006590](https://tatoeba.org/en/sentences/show/2006590)"
       pinyin: "jia1 za2"
       traditional: "夾雜"
     - zh: "举足轻重"
@@ -391,6 +419,7 @@ vocabulary:
       examples:
         - zh: "如果他们由于什么原因早到的话，请**转达**他们再等一会儿。"
           en: "If for some reason they come early, please tell them to wait."
+          notes: "Source: [Tatoeba sentence #2393866](https://tatoeba.org/en/sentences/show/2393866)"
       pinyin: "zhuan3 da2"
       traditional: "轉達"
     - zh: "阻拦"
@@ -428,14 +457,17 @@ vocabulary:
       examples:
         - zh: "我與我的弟弟相處**融洽**。"
           en: "I get along with my younger brother."
+          notes: "Source: [Tatoeba sentence #881908](https://tatoeba.org/en/sentences/show/881908)"
         - zh: "他和他所有的同学相处**融洽**。"
           en: "He is on goods terms with all of his classmates."
+          notes: "Source: [Tatoeba sentence #334043](https://tatoeba.org/en/sentences/show/334043)"
       pinyin: "rong2 qia4"
     - zh: "盛产"
       en: "to produce in abundance; to be rich in"
       examples:
         - zh: "该国**盛产**石油。"
           en: "That country abounds in oil."
+          notes: "Source: [Tatoeba sentence #1901833](https://tatoeba.org/en/sentences/show/1901833)"
       pinyin: "sheng4 chan3"
       traditional: "盛產"
     - zh: "玩意儿"
@@ -443,6 +475,7 @@ vocabulary:
       examples:
         - zh: "那**玩意兒**怎麼在這兒？"
           en: "What's that doing here?"
+          notes: "Source: [Tatoeba sentence #10329965](https://tatoeba.org/en/sentences/show/10329965)"
       pinyin: "wan2 yi4 r5"
       traditional: "玩意兒"
     - zh: "嗅觉"
@@ -450,6 +483,7 @@ vocabulary:
       examples:
         - zh: "狗的**嗅觉**灵敏。"
           en: "Dogs have a keen sense of smell."
+          notes: "Source: [Tatoeba sentence #333227](https://tatoeba.org/en/sentences/show/333227)"
       pinyin: "xiu4 jue2"
       traditional: "嗅覺"
     - zh: "周密"
@@ -473,6 +507,7 @@ vocabulary:
       examples:
         - zh: "这位老教授的讲座冗长而**沉闷**。"
           en: "The old professor's lectures are long-winded and ponderous."
+          notes: "Source: [Tatoeba sentence #8791840](https://tatoeba.org/en/sentences/show/8791840)"
       pinyin: "chen2 men4"
       traditional: "沉悶"
     - zh: "搓"
@@ -480,6 +515,7 @@ vocabulary:
       examples:
         - zh: "幫我**搓**一下背好嗎？"
           en: "Can you rub my back?"
+          notes: "Source: [Tatoeba sentence #5401381](https://tatoeba.org/en/sentences/show/5401381)"
       pinyin: "cuo1"
     - zh: "答辩"
       en: "to reply (to an accusation); to defend one's dissertation"
@@ -496,8 +532,10 @@ vocabulary:
       examples:
         - zh: "这把刀很**锋利**。"
           en: "This knife is very sharp."
+          notes: "Source: [Tatoeba sentence #710289](https://tatoeba.org/en/sentences/show/710289)"
         - zh: "小心點，它很**锋利**。"
           en: "Be careful. It's very sharp."
+          notes: "Source: [Tatoeba sentence #6325052](https://tatoeba.org/en/sentences/show/6325052)"
       pinyin: "feng1 li4"
       traditional: "鋒利"
     - zh: "恨不得"
@@ -515,6 +553,7 @@ vocabulary:
       examples:
         - zh: "**恰巧**我们有同样的生日。"
           en: "It happens that we have the same birthday."
+          notes: "Source: [Tatoeba sentence #5136717](https://tatoeba.org/en/sentences/show/5136717)"
       pinyin: "qia4 qiao3"
     - zh: "兴隆"
       en: "see 興隆縣|兴隆县[Xing1 long2 Xian4]; prosperous; thriving; flourishing"
@@ -541,8 +580,10 @@ vocabulary:
       examples:
         - zh: "海狸可能被认为是地球上最忙碌的**哺乳**动物。"
           en: "Beavers may be considered as the busiest mammals on Earth."
+          notes: "Source: [Tatoeba sentence #10201114](https://tatoeba.org/en/sentences/show/10201114)"
         - zh: "非洲地松鼠互帮互助，对其他**哺乳**动物没有攻击性。"
           en: "The African ground squirrels collaborate and are not aggressive to other mammals."
+          notes: "Source: [Tatoeba sentence #5576842](https://tatoeba.org/en/sentences/show/5576842)"
       pinyin: "bu3 ru3"
     - zh: "淋"
       en: "to sprinkle; to drip; to pour; to drench; to filter; to strain; to drain; gonorrhea"
@@ -571,6 +612,7 @@ vocabulary:
       examples:
         - zh: "年輕就是**本錢**。"
           en: "Youth is an asset."
+          notes: "Source: [Tatoeba sentence #11406546](https://tatoeba.org/en/sentences/show/11406546)"
       pinyin: "ben3 qian2"
       traditional: "本錢"
 ---

@@ -4,6 +4,8 @@ These 60 levels follow the ordering in the [ZhQuiz HSK lists](https://github.com
 
 The entries include pinyin and English definitions from CC-CEDICT where available. Pinyin uses tone numbers (for example, `ni3 hao3`).
 
+Example sentences and translations are from [Tatoeba](https://tatoeba.org), with a source link on each example for contributor attribution and sentence-specific licensing. Tatoeba's default license for text sentences is [CC BY 2.0 FR](https://creativecommons.org/licenses/by/2.0/fr/); check each linked sentence for its applicable license.
+
 ## HSK 1
 
 - [Level 1](/levels/hsk-1/level-1) · [Level 2](/levels/hsk-1/level-2) · [Level 3](/levels/hsk-1/level-3) · [Level 4](/levels/hsk-1/level-4) · [Level 5](/levels/hsk-1/level-5)

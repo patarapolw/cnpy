@@ -7,6 +7,7 @@ vocabulary:
       examples:
         - zh: "汤姆**捏**了玛丽的手。"
           en: "Tom squeezed Mary's hand."
+          notes: "Source: [Tatoeba sentence #10047711](https://tatoeba.org/en/sentences/show/10047711)"
       pinyin: "nie1"
       traditional: "揑"
     - zh: "过滤"
@@ -14,6 +15,7 @@ vocabulary:
       examples:
         - zh: "我從不**過濾**咖啡。"
           en: "I never filter my coffee."
+          notes: "Source: [Tatoeba sentence #4262161](https://tatoeba.org/en/sentences/show/4262161)"
       pinyin: "guo4 lu:4"
       traditional: "過濾"
     - zh: "闪烁"
@@ -21,6 +23,7 @@ vocabulary:
       examples:
         - zh: "无数星星在天上**闪烁**。"
           en: "Countless stars were twinkling in the sky."
+          notes: "Source: [Tatoeba sentence #5767608](https://tatoeba.org/en/sentences/show/5767608)"
       pinyin: "shan3 shuo4"
       traditional: "閃爍"
     - zh: "绣"
@@ -36,12 +39,14 @@ vocabulary:
       examples:
         - zh: "我**熬**夜熬多久都行。"
           en: "I can stay up as late as I want."
+          notes: "Source: [Tatoeba sentence #9955856](https://tatoeba.org/en/sentences/show/9955856)"
       pinyin: "ao1; ao2"
     - zh: "解剖"
       en: "to dissect (an animal); to analyze; anatomy"
       examples:
         - zh: "丹甚至没有上过基础**解剖**课。"
           en: "Dan didn't even take basic anatomy classes."
+          notes: "Source: [Tatoeba sentence #5685915](https://tatoeba.org/en/sentences/show/5685915)"
       pinyin: "jie3 pou1"
     - zh: "翘"
       en: "outstanding; to raise; to stick up; to rise on one end; to tilt"
@@ -56,8 +61,10 @@ vocabulary:
       examples:
         - zh: "我不是**乞丐**。"
           en: "I'm not a beggar."
+          notes: "Source: [Tatoeba sentence #6150017](https://tatoeba.org/en/sentences/show/6150017)"
         - zh: "这名**乞丐**在收集干面包。"
           en: "The beggar is collecting stale bread."
+          notes: "Source: [Tatoeba sentence #2254186](https://tatoeba.org/en/sentences/show/2254186)"
       pinyin: "qi3 gai4"
     - zh: "简陋"
       en: "simple and crude"
@@ -80,8 +87,10 @@ vocabulary:
       examples:
         - zh: "**嗨**。"
           en: "Hi."
+          notes: "Source: [Tatoeba sentence #891077](https://tatoeba.org/en/sentences/show/891077)"
         - zh: "**嗨**，你还在这里吗？"
           en: "Hey, are you still here?"
+          notes: "Source: [Tatoeba sentence #9956672](https://tatoeba.org/en/sentences/show/9956672)"
       pinyin: "hai1"
     - zh: "濒临"
       en: "on the edge of; (fig.) on the verge of; close to"
@@ -95,6 +104,7 @@ vocabulary:
       examples:
         - zh: "亲吻一个抽烟的人就像在**舔**烟灰缸。"
           en: "Kissing a person who smokes is like licking an ashtray."
+          notes: "Source: [Tatoeba sentence #5091384](https://tatoeba.org/en/sentences/show/5091384)"
       pinyin: "tian3"
     - zh: "铸造"
       en: "to cast (pour metal into a mold)"
@@ -109,6 +119,7 @@ vocabulary:
       examples:
         - zh: "她把他从烂泥中**拽**出来了。"
           en: "She pulled him out of the mud."
+          notes: "Source: [Tatoeba sentence #1419915](https://tatoeba.org/en/sentences/show/1419915)"
       pinyin: "ye4; zhuai1; zhuai3; zhuai4"
     - zh: "四肢"
       en: "the four limbs of the body"
@@ -129,6 +140,7 @@ vocabulary:
       examples:
         - zh: "**扛**不動它。"
           en: "It won't budge one bit."
+          notes: "Source: [Tatoeba sentence #5113308](https://tatoeba.org/en/sentences/show/5113308)"
       pinyin: "gang1; kang2"
       traditional: "摃"
     - zh: "椭圆"
@@ -136,8 +148,10 @@ vocabulary:
       examples:
         - zh: "她有一張**橢圓**形的臉。"
           en: "She has an oval face."
+          notes: "Source: [Tatoeba sentence #10336111](https://tatoeba.org/en/sentences/show/10336111)"
         - zh: "由於軌道是**橢圓**形的，行星和太陽之間的距離不會總是相同。"
           en: "Since the orbits are elliptical, the planets do not always have the same distance from the Sun."
+          notes: "Source: [Tatoeba sentence #4272257](https://tatoeba.org/en/sentences/show/4272257)"
       pinyin: "tuo3 yuan2"
       traditional: "橢圓"
     - zh: "狭隘"
@@ -145,6 +159,7 @@ vocabulary:
       examples:
         - zh: "別讓**狹隘**的人讓你相信你的夢想過於宏大。"
           en: "Don't let narrow-minded people convince you that your dreams are too big."
+          notes: "Source: [Tatoeba sentence #10327497](https://tatoeba.org/en/sentences/show/10327497)"
       pinyin: "xia2 ai4"
       traditional: "狹隘"
     - zh: "揉"
@@ -159,6 +174,7 @@ vocabulary:
       examples:
         - zh: "用**擰**檬汁代替醋。"
           en: "Use lemon juice instead of vinegar."
+          notes: "Source: [Tatoeba sentence #10518733](https://tatoeba.org/en/sentences/show/10518733)"
       pinyin: "ning2; ning3; ning4"
       traditional: "擰"
     - zh: "熄灭"
@@ -166,6 +182,7 @@ vocabulary:
       examples:
         - zh: "火**熄灭**了。"
           en: "The fire was out."
+          notes: "Source: [Tatoeba sentence #5670739](https://tatoeba.org/en/sentences/show/5670739)"
       pinyin: "xi1 mie4"
       traditional: "熄滅"
     - zh: "呻吟"
@@ -187,6 +204,7 @@ vocabulary:
       examples:
         - zh: "翻译其实是一件吃力不讨好的事，因为一种语言在另一种语言中的对应物藏在往往隐藏在深不可测之处，翻译者需要百般**寻觅**，而且，挑剔的读者很难糊弄。"
           en: "In reality, translation is akin to working for peanuts, since the corresponding meaning of something in one language is often hidden in some deep and impenetrable recesses of the other. As a result, the translator is forced to search all over... Never mind that the picky reader is very difficult to fool."
+          notes: "Source: [Tatoeba sentence #2170252](https://tatoeba.org/en/sentences/show/2170252)"
       pinyin: "xun2 mi4"
       traditional: "尋覓"
     - zh: "憋"
@@ -197,8 +215,10 @@ vocabulary:
       examples:
         - zh: "舞台上撒了**花瓣**。"
           en: "The stage was sprinkled with flower petals."
+          notes: "Source: [Tatoeba sentence #3100669](https://tatoeba.org/en/sentences/show/3100669)"
         - zh: "浴缸裡滿是熱水和**花瓣**。"
           en: "The bathtub was filled with hot water and flower petals."
+          notes: "Source: [Tatoeba sentence #6135018](https://tatoeba.org/en/sentences/show/6135018)"
       pinyin: "hua1 ban4"
     - zh: "溅"
       en: "to splash"
@@ -223,12 +243,14 @@ vocabulary:
       examples:
         - zh: "小木屋**沐浴**在月光之中。"
           en: "The little cabin was bathed in moonlight."
+          notes: "Source: [Tatoeba sentence #2680869](https://tatoeba.org/en/sentences/show/2680869)"
       pinyin: "mu4 yu4"
     - zh: "啃"
       en: "to gnaw; to nibble; to bite"
       examples:
         - zh: "我劝他别老想着**啃**老。"
           en: "I advised him to be independent of his parents."
+          notes: "Source: [Tatoeba sentence #2022464](https://tatoeba.org/en/sentences/show/2022464)"
       pinyin: "ken3"
     - zh: "胸膛"
       en: "chest"
@@ -250,6 +272,7 @@ vocabulary:
       examples:
         - zh: "這艘船有六個**槳**。"
           en: "This boat has six oars."
+          notes: "Source: [Tatoeba sentence #9179853](https://tatoeba.org/en/sentences/show/9179853)"
       pinyin: "jiang3"
       traditional: "槳"
     - zh: "清澈"
@@ -333,12 +356,14 @@ vocabulary:
       examples:
         - zh: "汤姆很**笨拙**。"
           en: "Tom is all fingers and thumbs."
+          notes: "Source: [Tatoeba sentence #6744776](https://tatoeba.org/en/sentences/show/6744776)"
       pinyin: "ben4 zhuo1"
     - zh: "鞠躬"
       en: "to bow; (literary) to bend down"
       examples:
         - zh: "**鞠躬**！"
           en: "Bow down!"
+          notes: "Source: [Tatoeba sentence #7767613](https://tatoeba.org/en/sentences/show/7767613)"
       pinyin: "ju1 gong1"
     - zh: "秤"
       en: "to weigh (variant of 稱|称[cheng1]); steelyard balance; Roman balance; CL:臺|台[tai2]"
@@ -357,14 +382,17 @@ vocabulary:
       examples:
         - zh: "麵條下鍋前要先**掰**成小塊。"
           en: "Before you put the noodles in the pot, you have to break them up into small pieces."
+          notes: "Source: [Tatoeba sentence #3763520](https://tatoeba.org/en/sentences/show/3763520)"
       pinyin: "bai1"
     - zh: "疙瘩"
       en: "swelling or lump on skin; pimple; knot; lump; preoccupation; problem"
       examples:
         - zh: "他的鼻子上长了一个小**疙瘩**。"
           en: "On his nose grew a small pimple."
+          notes: "Source: [Tatoeba sentence #3479877](https://tatoeba.org/en/sentences/show/3479877)"
         - zh: "聽到這條新聞我直起雞皮**疙瘩**，怎麼會有這樣危險的事啊？"
           en: "When I hear the news, I get goose bumps. How could there be such a dangerous thing?"
+          notes: "Source: [Tatoeba sentence #6479904](https://tatoeba.org/en/sentences/show/6479904)"
       pinyin: "ge1 da5"
     - zh: "苦涩"
       en: "bitter and astringent; pained; agonized"
@@ -378,8 +406,10 @@ vocabulary:
       examples:
         - zh: "我**咀嚼**困難。"
           en: "I have difficulty chewing."
+          notes: "Source: [Tatoeba sentence #10540056](https://tatoeba.org/en/sentences/show/10540056)"
         - zh: "食物在吞嚥前要經過**咀嚼**。"
           en: "Food should be chewed before being swallowed."
+          notes: "Source: [Tatoeba sentence #5617154](https://tatoeba.org/en/sentences/show/5617154)"
       pinyin: "ju3 jue2"
     - zh: "惦记"
       en: "to think of; to keep thinking about; to be concerned about"
@@ -396,6 +426,7 @@ vocabulary:
       examples:
         - zh: "佳人不可唐突，好酒不可**糟蹋**，这两件事你以后一定要牢记在心。"
           en: "You should not be rude towards beauties and you should not waste good wine. You must keep these two things in mind in the future."
+          notes: "Source: [Tatoeba sentence #4813409](https://tatoeba.org/en/sentences/show/4813409)"
       pinyin: "zao1 ta4"
     - zh: "荤"
       en: "strong-smelling vegetable (garlic etc); non-vegetarian food (meat, fish etc); vulgar; obscene; used in 葷粥|荤粥[Xun1 yu4]"
@@ -430,20 +461,24 @@ vocabulary:
       examples:
         - zh: "湯姆在嘴裡**叼**了根兒煙。"
           en: "Tom had a cigar in his mouth."
+          notes: "Source: [Tatoeba sentence #10320491](https://tatoeba.org/en/sentences/show/10320491)"
         - zh: "我看到了一条狗。狗嘴里**叼**着一块肉。"
           en: "I saw a dog. The dog held a piece of meat in its mouth."
+          notes: "Source: [Tatoeba sentence #7768186](https://tatoeba.org/en/sentences/show/7768186)"
       pinyin: "diao1"
     - zh: "冰雹"
       en: "hail; hailstone; CL:場|场[chang2],粒[li4]"
       examples:
         - zh: "下**冰雹**了！"
           en: "It's hailing!"
+          notes: "Source: [Tatoeba sentence #9992079](https://tatoeba.org/en/sentences/show/9992079)"
       pinyin: "bing1 bao2"
     - zh: "热泪盈眶"
       en: "eyes brimming with tears of excitement (idiom); extremely moved"
       examples:
         - zh: "他**热泪盈眶**。"
           en: "His eyes were brimming over with tears."
+          notes: "Source: [Tatoeba sentence #3031847](https://tatoeba.org/en/sentences/show/3031847)"
       pinyin: "re4 lei4 ying2 kuang4"
       traditional: "熱淚盈眶"
     - zh: "有条不紊"
@@ -455,6 +490,7 @@ vocabulary:
       examples:
         - zh: "资本家倾向于**压榨**工人。"
           en: "The capitalists tend to exploit the working people."
+          notes: "Source: [Tatoeba sentence #12568730](https://tatoeba.org/en/sentences/show/12568730)"
       pinyin: "ya1 zha4"
       traditional: "壓榨"
     - zh: "唾弃"
@@ -477,6 +513,7 @@ vocabulary:
       examples:
         - zh: "這個老人**拄**著一根拐杖走路。"
           en: "The old man walked with a stick."
+          notes: "Source: [Tatoeba sentence #900352](https://tatoeba.org/en/sentences/show/900352)"
       pinyin: "zhu3"
     - zh: "蔚蓝"
       en: "azure; sky-blue"
@@ -512,14 +549,17 @@ vocabulary:
       examples:
         - zh: "“天天**寒暄**就是我们做的所有事了。”汤姆无奈地回答。"
           en: "\"Exchanging courtesies every day is all we've done,\" Tom answered with resignation."
+          notes: "Source: [Tatoeba sentence #10342214](https://tatoeba.org/en/sentences/show/10342214)"
         - zh: "我们照例**寒暄**了一阵，闲扯扯队里的新闻以后，他在不知不觉中就把谈话引入了正题。"
           en: "We exchanged pleasantries, and chatted cordially about news in the team, and he moved the conversation naturally on to the main topic."
+          notes: "Source: [Tatoeba sentence #2367484](https://tatoeba.org/en/sentences/show/2367484)"
       pinyin: "han2 xuan1"
     - zh: "伶俐"
       en: "clever; witty; intelligent; deft; adroit"
       examples:
         - zh: "她口齿**伶俐**。"
           en: "She has a fluent tongue."
+          notes: "Source: [Tatoeba sentence #8510726](https://tatoeba.org/en/sentences/show/8510726)"
       pinyin: "ling2 li4"
     - zh: "馅儿"
       en: "erhua variant of 餡|馅[xian4]"
@@ -562,6 +602,7 @@ vocabulary:
       examples:
         - zh: "你要**南辕北辙**了。"
           en: "You're not going in the right direction."
+          notes: "Source: [Tatoeba sentence #5085444](https://tatoeba.org/en/sentences/show/5085444)"
       pinyin: "nan2 yuan2 bei3 zhe2"
       traditional: "南轅北轍"
 ---

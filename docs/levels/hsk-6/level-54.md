@@ -11,14 +11,17 @@ vocabulary:
       examples:
         - zh: "**不由得**想起了故乡。"
           en: "I can never forget my hometown."
+          notes: "Source: [Tatoeba sentence #2394350](https://tatoeba.org/en/sentences/show/2394350)"
       pinyin: "bu4 you2 de5"
     - zh: "北极"
       en: "the North Pole; the north magnetic pole"
       examples:
         - zh: "聖誕老人住在**北極**。"
           en: "Santa lives at the North Pole."
+          notes: "Source: [Tatoeba sentence #3716040](https://tatoeba.org/en/sentences/show/3716040)"
         - zh: "**北極**與南極的溫度不一樣。"
           en: "The temperature at the North Pole is different from at the South Pole."
+          notes: "Source: [Tatoeba sentence #6142563](https://tatoeba.org/en/sentences/show/6142563)"
       pinyin: "bei3 ji2"
       traditional: "北極"
     - zh: "鄙视"
@@ -26,8 +29,10 @@ vocabulary:
       examples:
         - zh: "我**鄙视**你。"
           en: "I despise you."
+          notes: "Source: [Tatoeba sentence #5067373](https://tatoeba.org/en/sentences/show/5067373)"
         - zh: "他否认**鄙视**了她。"
           en: "He denied he despised her."
+          notes: "Source: [Tatoeba sentence #8743585](https://tatoeba.org/en/sentences/show/8743585)"
       pinyin: "bi3 shi4"
       traditional: "鄙視"
     - zh: "断绝"
@@ -35,6 +40,7 @@ vocabulary:
       examples:
         - zh: "湯姆晚上在酒吧裡和他的哥們兒們高興了一通以後回家發現前門上貼著一張字條，上有他妻子的筆跡，寫著：「絕對別覺得我可能會再回來，我跟你從此**斷絕**了！」"
           en: "Returning home from an evening down the pub with his mates, Tom found a handwritten note stuck to the front door; the handwriting was his wife's. It read: \"You can forget any idea that I might come back – I've left you!\""
+          notes: "Source: [Tatoeba sentence #10580087](https://tatoeba.org/en/sentences/show/10580087)"
       pinyin: "duan4 jue2"
       traditional: "斷絕"
     - zh: "候选"
@@ -63,6 +69,7 @@ vocabulary:
       examples:
         - zh: "獵人跟著熊的**蹤跡**。"
           en: "The hunter followed the bear's tracks."
+          notes: "Source: [Tatoeba sentence #4133704](https://tatoeba.org/en/sentences/show/4133704)"
       pinyin: "zong1 ji4"
       traditional: "蹤跡"
     - zh: "辨认"
@@ -74,6 +81,7 @@ vocabulary:
       examples:
         - zh: "这不是我们的错……大家都是逼**不得已**才这么做。"
           en: "It wasn't our fault... We all had to do it."
+          notes: "Source: [Tatoeba sentence #2004549](https://tatoeba.org/en/sentences/show/2004549)"
       pinyin: "bu4 de2 yi3"
     - zh: "丑恶"
       en: "ugly; repulsive"
@@ -106,12 +114,14 @@ vocabulary:
       examples:
         - zh: "任何情绪，只要它是真诚的，就说明它是发自内心的自然**流露**。"
           en: "Any emotion, if it is sincere, is involuntary."
+          notes: "Source: [Tatoeba sentence #2426075](https://tatoeba.org/en/sentences/show/2426075)"
       pinyin: "liu2 lu4"
     - zh: "启程"
       en: "to set out on a journey"
       examples:
         - zh: "我们**启程**开车去卡比利亚。"
           en: "We started driving to Kabylie."
+          notes: "Source: [Tatoeba sentence #10537176](https://tatoeba.org/en/sentences/show/10537176)"
       pinyin: "qi3 cheng2"
       traditional: "啟程"
     - zh: "牵扯"
@@ -119,6 +129,7 @@ vocabulary:
       examples:
         - zh: "我不想被**牵扯**到这件事里。"
           en: "I don't want to be involved in that matter."
+          notes: "Source: [Tatoeba sentence #787633](https://tatoeba.org/en/sentences/show/787633)"
       pinyin: "qian1 che3"
       traditional: "牽扯"
     - zh: "声势"
@@ -126,6 +137,7 @@ vocabulary:
       examples:
         - zh: "湯姆在虛張**聲勢**。"
           en: "Tom's bluffing."
+          notes: "Source: [Tatoeba sentence #10495212](https://tatoeba.org/en/sentences/show/10495212)"
       pinyin: "sheng1 shi4"
       traditional: "聲勢"
     - zh: "示意"
@@ -133,8 +145,10 @@ vocabulary:
       examples:
         - zh: "我父亲**示意**我离开会议室。"
           en: "My father motioned for me to leave the meeting room."
+          notes: "Source: [Tatoeba sentence #8603763](https://tatoeba.org/en/sentences/show/8603763)"
         - zh: "助理裁判向主裁判举旗**示意**比赛继续。"
           en: "The assistant referee held up his flag to show the referee that the ball was still in play."
+          notes: "Source: [Tatoeba sentence #3579499](https://tatoeba.org/en/sentences/show/3579499)"
       pinyin: "shi4 yi4"
     - zh: "索取"
       en: "to ask; to demand"
@@ -144,8 +158,10 @@ vocabulary:
       examples:
         - zh: "**田野**和小徑被霧氣籠罩著。"
           en: "Mist hung over the fields and footpaths."
+          notes: "Source: [Tatoeba sentence #10706234](https://tatoeba.org/en/sentences/show/10706234)"
         - zh: "阳光照亮**田野**，痛苦点亮心灵。"
           en: "Sun lights the landscape, pain illuminates the soul."
+          notes: "Source: [Tatoeba sentence #4581682](https://tatoeba.org/en/sentences/show/4581682)"
       pinyin: "tian2 ye3"
     - zh: "向导"
       en: "guide"
@@ -156,12 +172,14 @@ vocabulary:
       examples:
         - zh: "请诸位斟满酒，为**新郎**和新娘干杯！"
           en: "Please charge your glasses and drink a toast to the bride and groom!"
+          notes: "Source: [Tatoeba sentence #8640260](https://tatoeba.org/en/sentences/show/8640260)"
       pinyin: "xin1 lang2"
     - zh: "镇静"
       en: "calm; cool"
       examples:
         - zh: "我给他**镇静**剂。"
           en: "I gave him a sedative."
+          notes: "Source: [Tatoeba sentence #5576825](https://tatoeba.org/en/sentences/show/5576825)"
       pinyin: "zhen4 jing4"
       traditional: "鎮靜"
     - zh: "报答"
@@ -177,8 +195,10 @@ vocabulary:
       examples:
         - zh: "她被他迷得神魂**颠倒**。"
           en: "She's completely crazy about him."
+          notes: "Source: [Tatoeba sentence #1516218](https://tatoeba.org/en/sentences/show/1516218)"
         - zh: "高岛平时虽然一副很帅气的样子，但是在他女友面前却是一副神魂**颠倒**的样子。"
           en: "Gao Dao is usually really suave, but he seems completely smitten in front of his girlfriend."
+          notes: "Source: [Tatoeba sentence #4543508](https://tatoeba.org/en/sentences/show/4543508)"
       pinyin: "dian1 dao3"
       traditional: "顛倒"
     - zh: "沸腾"
@@ -201,6 +221,7 @@ vocabulary:
       examples:
         - zh: "我做事该**果断**。"
           en: "I should stop procrastinating."
+          notes: "Source: [Tatoeba sentence #334554](https://tatoeba.org/en/sentences/show/334554)"
       pinyin: "guo3 duan4"
       traditional: "果斷"
     - zh: "鉴别"
@@ -216,6 +237,7 @@ vocabulary:
       examples:
         - zh: "鲍勃已无法忍受她老婆的**慢性**子。"
           en: "Bob got impatient at his wife's delay."
+          notes: "Source: [Tatoeba sentence #2440912](https://tatoeba.org/en/sentences/show/2440912)"
       pinyin: "man4 xing4"
     - zh: "劈"
       en: "to hack; to chop; to split open; (of lightning) to strike; to split in two; to divide"
@@ -247,8 +269,10 @@ vocabulary:
       examples:
         - zh: "你**作弊**了。"
           en: "You cheated."
+          notes: "Source: [Tatoeba sentence #10635232](https://tatoeba.org/en/sentences/show/10635232)"
         - zh: "在考试的时候，汤姆**作弊**抄了玛丽的答案。"
           en: "During the exam, Tom cheated off Mary."
+          notes: "Source: [Tatoeba sentence #5091515](https://tatoeba.org/en/sentences/show/5091515)"
       pinyin: "zuo4 bi4"
     - zh: "沉思"
       en: "to contemplate; to ponder; contemplation; meditation"
@@ -256,10 +280,12 @@ vocabulary:
     - zh: "堵塞"
       en: "to clog up; blockage"
       examples:
-        - zh: "凡是大城市都有交通**堵塞**的問題。"
-          en: "All big cities have traffic problems."
         - zh: "我们黎明时起床以避开交通**堵塞**。"
           en: "We got up at dawn to avoid a traffic jam."
+          notes: "Source: [Tatoeba sentence #5670800](https://tatoeba.org/en/sentences/show/5670800)"
+        - zh: "凡是大城市都有交通**堵塞**的問題。"
+          en: "All big cities have traffic problems."
+          notes: "Source: [Tatoeba sentence #10488765](https://tatoeba.org/en/sentences/show/10488765)"
       pinyin: "du3 se4"
     - zh: "计较"
       en: "to bother about; to haggle; to bicker; to argue; plan; stratagem"
@@ -270,6 +296,7 @@ vocabulary:
       examples:
         - zh: "那如石頭一般**堅硬**。"
           en: "It was hard as rock."
+          notes: "Source: [Tatoeba sentence #10461326](https://tatoeba.org/en/sentences/show/10461326)"
       pinyin: "jian1 ying4"
       traditional: "堅硬"
     - zh: "疲倦"
@@ -277,6 +304,7 @@ vocabulary:
       examples:
         - zh: "你看起來很**疲倦**。"
           en: "You look tired."
+          notes: "Source: [Tatoeba sentence #819306](https://tatoeba.org/en/sentences/show/819306)"
       pinyin: "pi2 juan4"
     - zh: "亲热"
       en: "affectionate; intimate; warmhearted; to show affection for; (coll.) to get intimate with sb"
@@ -302,6 +330,7 @@ vocabulary:
       examples:
         - zh: "我希望所有那些想要修訂現行著作權法的人一個**從容**不迫的夜晚，但實際上所有其他的人也一樣。"
           en: "I wish all those an unhurried night who want a revision of the existing copyright laws, but actually all the others too."
+          notes: "Source: [Tatoeba sentence #816888](https://tatoeba.org/en/sentences/show/816888)"
       pinyin: "cong2 rong2"
       traditional: "從容"
     - zh: "丛"
@@ -332,14 +361,17 @@ vocabulary:
       examples:
         - zh: "登月是一項**里程碑**式的成就。"
           en: "The moon landing was a monumental achievement."
+          notes: "Source: [Tatoeba sentence #7832320](https://tatoeba.org/en/sentences/show/7832320)"
       pinyin: "li3 cheng2 bei1"
     - zh: "领会"
       en: "to understand; to comprehend; to grasp"
       examples:
         - zh: "我没有**领会**这个意义。"
           en: "I don't understand its significance."
+          notes: "Source: [Tatoeba sentence #1884719](https://tatoeba.org/en/sentences/show/1884719)"
         - zh: "对我们来说，最重要的是**领会**领导意图。"
           en: "For us, what’s most important is understanding the intention of the leadership."
+          notes: "Source: [Tatoeba sentence #2367557](https://tatoeba.org/en/sentences/show/2367557)"
       pinyin: "ling3 hui4"
       traditional: "領會"
     - zh: "埋怨"
@@ -347,8 +379,10 @@ vocabulary:
       examples:
         - zh: "别再**埋怨**了。"
           en: "Stop whining."
+          notes: "Source: [Tatoeba sentence #5102375](https://tatoeba.org/en/sentences/show/5102375)"
         - zh: "汤姆**埋怨**玛丽从来不帮他。"
           en: "Tom complained that Mary never helped him."
+          notes: "Source: [Tatoeba sentence #4759992](https://tatoeba.org/en/sentences/show/4759992)"
       pinyin: "man2 yuan4"
     - zh: "手艺"
       en: "craftmanship; workmanship; handicraft; trade"
@@ -359,6 +393,7 @@ vocabulary:
       examples:
         - zh: "我是个脚**踏实**地的人。"
           en: "I have my feet firmly planted on the ground."
+          notes: "Source: [Tatoeba sentence #4649778](https://tatoeba.org/en/sentences/show/4649778)"
       pinyin: "ta1 shi5"
       traditional: "踏實"
     - zh: "微不足道"
@@ -369,6 +404,7 @@ vocabulary:
       examples:
         - zh: "這條街的居民大多是**無賴**。"
           en: "Most of the residents on this street are wrong 'uns."
+          notes: "Source: [Tatoeba sentence #7999732](https://tatoeba.org/en/sentences/show/7999732)"
       pinyin: "wu2 lai4"
       traditional: "無賴"
     - zh: "心血"
@@ -376,14 +412,17 @@ vocabulary:
       examples:
         - zh: "我们已经花了五个月的**心血**在这上面了。别这时候搞砸了。"
           en: "We've been working on this for five months. Don't fuck it up now."
+          notes: "Source: [Tatoeba sentence #8589138](https://tatoeba.org/en/sentences/show/8589138)"
       pinyin: "xin1 xue4"
     - zh: "油漆"
       en: "oil paints; lacquer; to paint; CL:層|层[ceng2]"
       examples:
         - zh: "注意！**油漆**未乾"
           en: "Caution! Wet Paint"
+          notes: "Source: [Tatoeba sentence #1891751](https://tatoeba.org/en/sentences/show/1891751)"
         - zh: "**油漆**從牆上脫落。"
           en: "The paint was coming off the wall."
+          notes: "Source: [Tatoeba sentence #895593](https://tatoeba.org/en/sentences/show/895593)"
       pinyin: "you2 qi1"
     - zh: "郑重"
       en: "serious; solemn; earnest; conscientious"
@@ -394,6 +433,7 @@ vocabulary:
       examples:
         - zh: "这段时间**昼夜**温差很大。"
           en: "There is a large temperature difference between day and night during this period of time."
+          notes: "Source: [Tatoeba sentence #9989857](https://tatoeba.org/en/sentences/show/9989857)"
       pinyin: "zhou4 ye4"
       traditional: "晝夜"
     - zh: "合算"
@@ -404,8 +444,10 @@ vocabulary:
       examples:
         - zh: "他是个**卑鄙**小人。"
           en: "He is a despicable person."
+          notes: "Source: [Tatoeba sentence #9961328](https://tatoeba.org/en/sentences/show/9961328)"
         - zh: "我为你的**卑鄙**行径刚到羞耻。"
           en: "I am ashamed of your despicable deed."
+          notes: "Source: [Tatoeba sentence #1998070](https://tatoeba.org/en/sentences/show/1998070)"
       pinyin: "bei1 bi3"
     - zh: "递增"
       en: "to increase by degrees; in increasing order; incremental; progressive"
@@ -419,6 +461,7 @@ vocabulary:
       examples:
         - zh: "“她又有魅力又**风趣**！” “那她会做饭吗？” “谁在乎？”"
           en: "\"She's not only beautiful but also humorous.\" \"Can she cook?\" \"Who cares?\""
+          notes: "Source: [Tatoeba sentence #11238626](https://tatoeba.org/en/sentences/show/11238626)"
       pinyin: "feng1 qu4"
       traditional: "風趣"
     - zh: "工艺品"
@@ -433,6 +476,7 @@ vocabulary:
       examples:
         - zh: "语言有时会变得很复杂，有时也会让人**焦急**万分，想说的总是说不出口，不过总有一天会传达给对方。"
           en: "Language can sometimes be very complicated and worry us greatly, especially when we cannot express what we want to say, but there will definitely be a day when we can communicate well."
+          notes: "Source: [Tatoeba sentence #2165930](https://tatoeba.org/en/sentences/show/2165930)"
       pinyin: "jiao1 ji2"
     - zh: "空洞"
       en: "cavity; empty; vacuous"
@@ -446,8 +490,10 @@ vocabulary:
       examples:
         - zh: "他**迫不及待**地想试一下他的新冲浪板。"
           en: "He couldn't wait to try out his new surfboard."
+          notes: "Source: [Tatoeba sentence #1990184](https://tatoeba.org/en/sentences/show/1990184)"
         - zh: "等到周围只有她一个人的时候，她**迫不及待**地打开了那封信。"
           en: "The moment she was alone, she opened the letter."
+          notes: "Source: [Tatoeba sentence #1994881](https://tatoeba.org/en/sentences/show/1994881)"
       pinyin: "po4 bu4 ji2 dai4"
     - zh: "请示"
       en: "to ask for instructions"
@@ -458,8 +504,10 @@ vocabulary:
       examples:
         - zh: "我的孩子是**雙胞胎**。"
           en: "My children are twins."
+          notes: "Source: [Tatoeba sentence #6623166](https://tatoeba.org/en/sentences/show/6623166)"
         - zh: "這對**雙胞胎**沒法區分。"
           en: "The twins are indistinguishable from each other."
+          notes: "Source: [Tatoeba sentence #5558535](https://tatoeba.org/en/sentences/show/5558535)"
       pinyin: "shuang1 bao1 tai1"
       traditional: "雙胞胎"
     - zh: "总而言之"
@@ -471,8 +519,10 @@ vocabulary:
       examples:
         - zh: "他是一个**放射**科医生。"
           en: "He is a radiologist."
+          notes: "Source: [Tatoeba sentence #5558698](https://tatoeba.org/en/sentences/show/5558698)"
         - zh: "昨天哥哥去福岛给当地居民帮忙了。我对**放射**量的增加很害怕。"
           en: "Yesterday my big brother went to Fukushima to help the locals. I'm very afraid of the rise in radiation levels."
+          notes: "Source: [Tatoeba sentence #4661378](https://tatoeba.org/en/sentences/show/4661378)"
       pinyin: "fang4 she4"
     - zh: "开朗"
       en: "spacious and well-lit; open and clear; (of character) optimistic; cheerful; carefree"
@@ -490,6 +540,7 @@ vocabulary:
       examples:
         - zh: "警方將催淚彈**投擲**到了建築中。"
           en: "The cops threw tear-gas bombs into the building."
+          notes: "Source: [Tatoeba sentence #10460780](https://tatoeba.org/en/sentences/show/10460780)"
       pinyin: "tou2 zhi4"
       traditional: "投擲"
     - zh: "响亮"
@@ -501,12 +552,14 @@ vocabulary:
       examples:
         - zh: "世间没有一种具有真正价值的东西，可以不 经过艰苦**辛勤**的劳动而能够得到的。"
           en: "Nothing in the world is worth having or worth doing unless it means effort, pain, difficulty."
+          notes: "Source: [Tatoeba sentence #5414431](https://tatoeba.org/en/sentences/show/5414431)"
       pinyin: "xin1 qin2"
     - zh: "遗失"
       en: "to lose; to leave behind (inadvertently)"
       examples:
         - zh: "湯姆**遺失**了他的鑰匙。"
           en: "Tom has lost his keys."
+          notes: "Source: [Tatoeba sentence #4805791](https://tatoeba.org/en/sentences/show/4805791)"
       pinyin: "yi2 shi1"
       traditional: "遺失"
     - zh: "打猎"
@@ -514,6 +567,7 @@ vocabulary:
       examples:
         - zh: "他的伯父很喜歡**打獵**。"
           en: "His uncle likes hunting."
+          notes: "Source: [Tatoeba sentence #5856320](https://tatoeba.org/en/sentences/show/5856320)"
       pinyin: "da3 lie4"
       traditional: "打獵"
     - zh: "诽谤"
@@ -528,8 +582,10 @@ vocabulary:
       examples:
         - zh: "汤姆好像很**急切**。"
           en: "Tom seems eager."
+          notes: "Source: [Tatoeba sentence #8899415](https://tatoeba.org/en/sentences/show/8899415)"
         - zh: "他**急切**地学习了日语。"
           en: "He studied Japanese eagerly."
+          notes: "Source: [Tatoeba sentence #8899417](https://tatoeba.org/en/sentences/show/8899417)"
       pinyin: "ji2 qie4"
     - zh: "牢固"
       en: "firm; secure"
@@ -564,18 +620,21 @@ vocabulary:
       examples:
         - zh: "在未來，**赤道**附近的居民很有可能成為氣候難民。"
           en: "In the future, people who live in equatorial regions will probably be climate refugees."
+          notes: "Source: [Tatoeba sentence #6140898](https://tatoeba.org/en/sentences/show/6140898)"
       pinyin: "chi4 dao4"
     - zh: "次序"
       en: "sequence; order"
       examples:
         - zh: "把一疊撲克牌的排列**次序**背熟，雖然絕不是一件易事，卻也不是沒有可能的。"
           en: "Memorizing the order of a deck of playing cards is definitely not easy, but it's not impossible."
+          notes: "Source: [Tatoeba sentence #1455141](https://tatoeba.org/en/sentences/show/1455141)"
       pinyin: "ci4 xu4"
     - zh: "动身"
       en: "to go on a journey; to leave"
       examples:
         - zh: "你几时**动身**去罗马？"
           en: "When are you leaving for Rome?"
+          notes: "Source: [Tatoeba sentence #7837569](https://tatoeba.org/en/sentences/show/7837569)"
       pinyin: "dong4 shen1"
       traditional: "動身"
     - zh: "火药"
@@ -583,8 +642,10 @@ vocabulary:
       examples:
         - zh: "一点火花让**火药**爆炸。"
           en: "A spark caused the gunpowder to explode."
+          notes: "Source: [Tatoeba sentence #10696003](https://tatoeba.org/en/sentences/show/10696003)"
         - zh: "你们知道谁发明了**火药**吗？"
           en: "Do you know who invented gunpowder?"
+          notes: "Source: [Tatoeba sentence #9970061](https://tatoeba.org/en/sentences/show/9970061)"
       pinyin: "huo3 yao4"
       traditional: "火藥"
     - zh: "可口"
@@ -592,6 +653,7 @@ vocabulary:
       examples:
         - zh: "他們喝**可口**可樂。"
           en: "They drink coke."
+          notes: "Source: [Tatoeba sentence #4262150](https://tatoeba.org/en/sentences/show/4262150)"
       pinyin: "ke3 kou3"
     - zh: "来历"
       en: "history; antecedents; origin"
@@ -602,6 +664,7 @@ vocabulary:
       examples:
         - zh: "不論黑暗如何**遼闊**，我們都必須提供自身的光明。"
           en: "However vast the darkness, we must supply our own light."
+          notes: "Source: [Tatoeba sentence #4581045](https://tatoeba.org/en/sentences/show/4581045)"
       pinyin: "liao2 kuo4"
       traditional: "遼闊"
     - zh: "千方百计"
@@ -613,6 +676,7 @@ vocabulary:
       examples:
         - zh: "鬱金香很快將**盛開**。"
           en: "Tulips will bloom soon."
+          notes: "Source: [Tatoeba sentence #832930](https://tatoeba.org/en/sentences/show/832930)"
       pinyin: "sheng4 kai1"
       traditional: "盛開"
     - zh: "疏忽"
@@ -620,6 +684,7 @@ vocabulary:
       examples:
         - zh: "提交工作内容之前请仔细检查，这里有**疏忽**的地方。"
           en: "Edit your work better before you submit it, it's sloppy."
+          notes: "Source: [Tatoeba sentence #2455632](https://tatoeba.org/en/sentences/show/2455632)"
       pinyin: "shu1 hu5"
     - zh: "摇摆"
       en: "to sway; to wobble; to waver"
@@ -630,6 +695,7 @@ vocabulary:
       examples:
         - zh: "當水被加熱時，水汽**蒸發**。"
           en: "Water evaporates when it is heated."
+          notes: "Source: [Tatoeba sentence #797104](https://tatoeba.org/en/sentences/show/797104)"
       pinyin: "zheng1 fa1"
       traditional: "蒸發"
     - zh: "补救"

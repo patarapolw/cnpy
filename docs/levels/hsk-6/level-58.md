@@ -7,6 +7,7 @@ vocabulary:
       examples:
         - zh: "**水龙头**在滴水。"
           en: "The faucet is leaking."
+          notes: "Source: [Tatoeba sentence #811086](https://tatoeba.org/en/sentences/show/811086)"
       pinyin: "shui3 long2 tou2"
       traditional: "水龍頭"
     - zh: "乐谱"
@@ -14,6 +15,7 @@ vocabulary:
       examples:
         - zh: "有时我会在一瞬间忽然迷失说话的脉络，像是忽然刮来一阵狂风，将正在演奏的**乐谱**吹得无影无踪。"
           en: "Sometimes I will lose the context of my speech in an instant, as if a sudden gust of wind blows away the music score being played without leaving a trace."
+          notes: "Source: [Tatoeba sentence #3130783](https://tatoeba.org/en/sentences/show/3130783)"
       pinyin: "yue4 pu3"
       traditional: "樂譜"
     - zh: "杂技"
@@ -39,6 +41,7 @@ vocabulary:
       examples:
         - zh: "学习是一个**循序渐进**的过程。"
           en: "Studying is a step-by-step process."
+          notes: "Source: [Tatoeba sentence #2555339](https://tatoeba.org/en/sentences/show/2555339)"
       pinyin: "xun2 xu4 jian4 jin4"
       traditional: "循序漸進"
     - zh: "遭殃"
@@ -46,6 +49,7 @@ vocabulary:
       examples:
         - zh: "先下手为强，后下手**遭殃**。"
           en: "Get them before they get us."
+          notes: "Source: [Tatoeba sentence #2453078](https://tatoeba.org/en/sentences/show/2453078)"
       pinyin: "zao1 yang1"
     - zh: "争气"
       en: "to work hard for sth; to resolve on improvement; determined not to fall short"
@@ -79,6 +83,7 @@ vocabulary:
       examples:
         - zh: "她是我的**岳母**。"
           en: "She is my mother-in-law."
+          notes: "Source: [Tatoeba sentence #6051013](https://tatoeba.org/en/sentences/show/6051013)"
       pinyin: "yue4 mu3"
     - zh: "查获"
       en: "to track down and seize (a criminal suspect, contraband etc)"
@@ -89,8 +94,10 @@ vocabulary:
       examples:
         - zh: "她是個**和藹**可親的人。"
           en: "She is good-natured."
+          notes: "Source: [Tatoeba sentence #349724](https://tatoeba.org/en/sentences/show/349724)"
         - zh: "他是一個**和藹**可親的老師。"
           en: "He is a kind teacher."
+          notes: "Source: [Tatoeba sentence #6120209](https://tatoeba.org/en/sentences/show/6120209)"
       pinyin: "he2 ai3"
       traditional: "和藹"
     - zh: "恍然大悟"
@@ -105,6 +112,7 @@ vocabulary:
       examples:
         - zh: "我不能**破例**。"
           en: "I can't make an exception."
+          notes: "Source: [Tatoeba sentence #6832183](https://tatoeba.org/en/sentences/show/6832183)"
       pinyin: "po4 li4"
     - zh: "梢"
       en: "tip of branch"
@@ -148,6 +156,7 @@ vocabulary:
       examples:
         - zh: "给予汤姆一些你**力所能及**的帮助。"
           en: "Give Tom any help you can."
+          notes: "Source: [Tatoeba sentence #3783081](https://tatoeba.org/en/sentences/show/3783081)"
       pinyin: "li4 suo3 neng2 ji2"
     - zh: "耐用"
       en: "durable"
@@ -165,6 +174,7 @@ vocabulary:
       examples:
         - zh: "他说的话不合**情理**。"
           en: "What he says is total nonsense."
+          notes: "Source: [Tatoeba sentence #3523955](https://tatoeba.org/en/sentences/show/3523955)"
       pinyin: "qing2 li3"
     - zh: "生锈"
       en: "(of metal) to rust; to become rusty; (fig.) (of a skill etc) to get rusty; to deteriorate"
@@ -178,8 +188,10 @@ vocabulary:
       examples:
         - zh: "**指南针**指向北边。"
           en: "The compass points to the north."
+          notes: "Source: [Tatoeba sentence #3470101](https://tatoeba.org/en/sentences/show/3470101)"
         - zh: "汤姆不会使用**指南针**。"
           en: "Tom doesn't know how to use a compass."
+          notes: "Source: [Tatoeba sentence #12333049](https://tatoeba.org/en/sentences/show/12333049)"
       pinyin: "zhi3 nan2 zhen1"
       traditional: "指南針"
     - zh: "霸道"
@@ -218,6 +230,7 @@ vocabulary:
       examples:
         - zh: "我在**发呆**。"
           en: "I'm out of it."
+          notes: "Source: [Tatoeba sentence #2263259](https://tatoeba.org/en/sentences/show/2263259)"
       pinyin: "fa1 dai1"
       traditional: "發呆"
     - zh: "盖章"
@@ -271,6 +284,7 @@ vocabulary:
       examples:
         - zh: "我觉得李斯特的《被遗忘的圆舞曲第三首》是个被**埋没**的名曲。"
           en: "I think that Liszt's \"Forgotten Waltz No.3\" is a hidden masterpiece."
+          notes: "Source: [Tatoeba sentence #8671376](https://tatoeba.org/en/sentences/show/8671376)"
       pinyin: "mai2 mo4"
       traditional: "埋沒"
     - zh: "调料"
@@ -303,8 +317,10 @@ vocabulary:
       examples:
         - zh: "他一天去五次**清真**寺。"
           en: "He goes to the mosque five times a day."
+          notes: "Source: [Tatoeba sentence #10535643](https://tatoeba.org/en/sentences/show/10535643)"
         - zh: "这个饭馆的菜是**清真**吗？"
           en: "Is the food at the restaurant halal?"
+          notes: "Source: [Tatoeba sentence #5150258](https://tatoeba.org/en/sentences/show/5150258)"
       pinyin: "qing1 zhen1"
     - zh: "俗话"
       en: "common saying; proverb"
@@ -333,8 +349,10 @@ vocabulary:
       examples:
         - zh: "他们是**外行**。"
           en: "They are laymen."
+          notes: "Source: [Tatoeba sentence #10011709](https://tatoeba.org/en/sentences/show/10011709)"
         - zh: "我那時還是個**外行**。"
           en: "I was still an amateur at that time."
+          notes: "Source: [Tatoeba sentence #6325054](https://tatoeba.org/en/sentences/show/6325054)"
       pinyin: "wai4 hang2"
     - zh: "文雅"
       en: "elegant; refined"
@@ -392,6 +410,7 @@ vocabulary:
       examples:
         - zh: "翻译其实是一件**吃力**不讨好的事，因为一种语言在另一种语言中的对应物藏在往往隐藏在深不可测之处，翻译者需要百般寻觅，而且，挑剔的读者很难糊弄。"
           en: "In reality, translation is akin to working for peanuts, since the corresponding meaning of something in one language is often hidden in some deep and impenetrable recesses of the other. As a result, the translator is forced to search all over... Never mind that the picky reader is very difficult to fool."
+          notes: "Source: [Tatoeba sentence #2170252](https://tatoeba.org/en/sentences/show/2170252)"
       pinyin: "chi1 li4"
     - zh: "留念"
       en: "to keep as a souvenir; to recall fondly"
@@ -415,6 +434,7 @@ vocabulary:
       examples:
         - zh: "大妈, 我们给您**拜年**来啦！"
           en: "Auntie, we’ve come to wish you a Happy New Year."
+          notes: "Source: [Tatoeba sentence #12574943](https://tatoeba.org/en/sentences/show/12574943)"
       pinyin: "bai4 nian2"
     - zh: "稻谷"
       en: "unhusked rice; paddy"
@@ -436,6 +456,7 @@ vocabulary:
       examples:
         - zh: "你最喜歡的**家常**菜是什麼？"
           en: "What's your favorite home-cooked food?"
+          notes: "Source: [Tatoeba sentence #5548487](https://tatoeba.org/en/sentences/show/5548487)"
       pinyin: "jia1 chang2"
     - zh: "经纬"
       en: "warp and woof; longitude and latitude; main points"
@@ -458,8 +479,10 @@ vocabulary:
       examples:
         - zh: "我自有**分寸**。"
           en: "I know what I'm doing."
+          notes: "Source: [Tatoeba sentence #1695294](https://tatoeba.org/en/sentences/show/1695294)"
         - zh: "他說話很沒**分寸**。"
           en: "He has no filter for what he says."
+          notes: "Source: [Tatoeba sentence #6015798](https://tatoeba.org/en/sentences/show/6015798)"
       pinyin: "fen1 cun5"
     - zh: "无精打采"
       en: "dispirited and downcast (idiom); listless; in low spirits; washed out"
@@ -474,8 +497,10 @@ vocabulary:
       examples:
         - zh: "她**熨**了衬衫。"
           en: "She ironed her shirt."
+          notes: "Source: [Tatoeba sentence #8737020](https://tatoeba.org/en/sentences/show/8737020)"
         - zh: "这衬衫需要**熨**。"
           en: "This shirt needs to be ironed."
+          notes: "Source: [Tatoeba sentence #5630431](https://tatoeba.org/en/sentences/show/5630431)"
       pinyin: "yu4; yun4"
     - zh: "东张西望"
       en: "to look in all directions (idiom); to glance around"
@@ -486,6 +511,7 @@ vocabulary:
       examples:
         - zh: "**过奖**了。"
           en: "I'm flattered."
+          notes: "Source: [Tatoeba sentence #926112](https://tatoeba.org/en/sentences/show/926112)"
       pinyin: "guo4 jiang3"
       traditional: "過獎"
     - zh: "岂有此理"
@@ -497,6 +523,7 @@ vocabulary:
       examples:
         - zh: "他**勤俭**节约，甚至是小气的。"
           en: "He is thrifty, not to say stingy."
+          notes: "Source: [Tatoeba sentence #3664641](https://tatoeba.org/en/sentences/show/3664641)"
       pinyin: "qin2 jian3"
       traditional: "勤儉"
     - zh: "不言而喻"
@@ -504,6 +531,7 @@ vocabulary:
       examples:
         - zh: "**不言而喻**。"
           en: "That goes without saying."
+          notes: "Source: [Tatoeba sentence #4760000](https://tatoeba.org/en/sentences/show/4760000)"
       pinyin: "bu4 yan2 er2 yu4"
     - zh: "昌盛"
       en: "prosperous"
@@ -531,6 +559,7 @@ vocabulary:
       examples:
         - zh: "在旅游**淡季**，机票会很便宜。"
           en: "When out of tourist season, the tickets will be cheap."
+          notes: "Source: [Tatoeba sentence #2448826](https://tatoeba.org/en/sentences/show/2448826)"
       pinyin: "dan4 ji4"
     - zh: "繁体字"
       en: "traditional Chinese character"

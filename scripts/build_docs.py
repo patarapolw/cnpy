@@ -84,7 +84,7 @@ def load_dictionary(
 
 def load_sentences(
     words: set[str],
-) -> dict[str, list[tuple[str, str]]]:
+) -> dict[str, list[tuple[int, str, str | None]]]:
     if not DATABASE.is_file():
         raise FileNotFoundError(f"Sentence database not found: {DATABASE}")
 
@@ -122,7 +122,7 @@ def load_sentences(
 
     return {
         word: [
-            sentence_rows[sent_id]
+            (sent_id, *sentence_rows[sent_id])
             for sent_id in ids
             if sent_id in sentence_rows
         ]
@@ -133,30 +133,35 @@ def load_sentences(
 def marked_example(
     word: str,
     traditional: str | None,
-    sentences: list[tuple[str, str]],
-) -> list[tuple[str, str]]:
+    sentences: list[tuple[int, str, str | None]],
+) -> list[tuple[int, str, str]]:
     forms = [word]
     if traditional and traditional != word:
         forms.append(traditional)
 
     candidates = []
-    for chinese, english in sentences:
+    for sentence_id, chinese, english in sentences:
         if not english or len(chinese) > 240 or len(english) > 400:
             continue
         form = next((form for form in forms if form in chinese), None)
         if form:
             marked = chinese.replace(form, f"**{form}**", 1)
-            candidates.append((forms.index(form), len(chinese), marked, english))
+            candidates.append(
+                (forms.index(form), len(chinese), sentence_id, marked, english)
+            )
 
     candidates.sort()
-    return [(chinese, english) for _, _, chinese, english in candidates[:2]]
+    return [
+        (sentence_id, chinese, english)
+        for _, _, sentence_id, chinese, english in candidates[:2]
+    ]
 
 
 def render_level(
     level: int,
     words: list[str],
     dictionary: dict[str, list[tuple[str, str | None, str, list[str]]]],
-    sentences: dict[str, list[tuple[str, str]]],
+    sentences: dict[str, list[tuple[int, str, str]]],
 ) -> str:
     rows = ["---", "target: zh-CN", "vocabulary:", "  words:"]
     vocabulary_table = [
@@ -188,11 +193,12 @@ def render_level(
         examples = marked_example(key, traditional, sentences.get(key, []))
         if examples:
             rows.append("      examples:")
-            for chinese, english in examples:
+            for sentence_id, chinese, english in examples:
                 rows.extend(
                     [
                         f"        - zh: {yaml_string(chinese)}",
                         f"          en: {yaml_string(english)}",
+                        f"          notes: {yaml_string(f'Source: [Tatoeba sentence #{sentence_id}](https://tatoeba.org/en/sentences/show/{sentence_id})')}",
                     ]
                 )
         shown_meanings = "; ".join(meanings[:8]) or "No CC-CEDICT definition found."
