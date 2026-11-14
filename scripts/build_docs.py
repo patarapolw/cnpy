@@ -141,7 +141,7 @@ def marked_example(
 
     candidates = []
     for sentence_id, chinese, english in sentences:
-        if not english or len(chinese) > 240 or len(english) > 400:
+        if not english or len(chinese) > 50 or len(english) > 200:
             continue
 
         if Regex(r"\p{P}").sub(chinese, "") == word:
