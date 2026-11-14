@@ -2,7 +2,9 @@ import json
 import re
 import sqlite3
 from pathlib import Path
+from random import choices
 
+from regex import Regex
 
 ROOT = Path(__file__).resolve().parents[1]
 LEVELS_ROOT = ROOT / "assets" / "zhquiz-level"
@@ -116,9 +118,7 @@ def load_sentences(
                 f"SELECT id, cmn, eng FROM sentence WHERE id IN ({placeholders})",
                 batch,
             )
-            sentence_rows.update(
-                (sent_id, (cmn, eng)) for sent_id, cmn, eng in rows
-            )
+            sentence_rows.update((sent_id, (cmn, eng)) for sent_id, cmn, eng in rows)
 
     return {
         word: [
@@ -143,6 +143,10 @@ def marked_example(
     for sentence_id, chinese, english in sentences:
         if not english or len(chinese) > 240 or len(english) > 400:
             continue
+
+        if Regex(r"\p{P}").sub(chinese, "") == word:
+            continue
+
         form = next((form for form in forms if form in chinese), None)
         if form:
             marked = chinese.replace(form, f"**{form}**", 1)
@@ -150,11 +154,13 @@ def marked_example(
                 (forms.index(form), len(chinese), sentence_id, marked, english)
             )
 
-    candidates.sort()
-    return [
-        (sentence_id, chinese, english)
-        for _, _, sentence_id, chinese, english in candidates[:2]
-    ]
+    if candidates:
+        return [
+            (sentence_id, chinese, english)
+            for _, _, sentence_id, chinese, english in choices(candidates, k=2)
+        ]
+
+    return []
 
 
 def render_level(
@@ -215,7 +221,9 @@ def render_level(
         if traditional:
             rows.append(f"      traditional: {yaml_string(traditional)}")
         if label:
-            rows.append(f"      notes: {yaml_string('ZhQuiz label: ' + label.group(1))}")
+            rows.append(
+                f"      notes: {yaml_string('ZhQuiz label: ' + label.group(1))}"
+            )
 
     rows.extend(["---", "", f"# Level {level}", ""])
     rows.extend(vocabulary_table)
